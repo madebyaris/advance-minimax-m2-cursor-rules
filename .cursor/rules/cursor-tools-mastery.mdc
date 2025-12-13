@@ -1,0 +1,378 @@
+---
+description: "Complete Cursor 2.2 native tools reference: search, edit, run, and advanced features for agentic workflows"
+alwaysApply: true
+---
+
+# Cursor 2.2 Tools Mastery
+
+Complete reference for all Cursor IDE tools. Use these tools effectively to accomplish tasks efficiently.
+
+## Search Tools
+
+### `read_file`
+**Purpose**: Read file contents with line numbers
+
+**When to Use**:
+- Examining specific files
+- Understanding code structure
+- Reviewing implementations
+- Checking configurations
+
+**Best Practices**:
+- Read whole files unless very large (>1000 lines)
+- Use `offset` and `limit` for large files
+- Batch multiple file reads in parallel
+- Check imports and dependencies
+
+**Example Usage**:
+```
+Read the main entry point to understand the application structure
+→ read_file("src/index.ts")
+```
+
+---
+
+### `list_dir`
+**Purpose**: List directory contents
+
+**When to Use**:
+- Exploring project structure
+- Finding files in a directory
+- Understanding folder organization
+- Discovering available modules
+
+**Best Practices**:
+- Start at project root for orientation
+- Use `ignore_globs` to filter noise (node_modules, etc.)
+- Navigate progressively deeper
+
+**Example Usage**:
+```
+Explore the project structure
+→ list_dir(".", ignore_globs=["node_modules", ".git"])
+```
+
+---
+
+### `codebase_search`
+**Purpose**: Semantic search - finds code by meaning, not exact text
+
+**When to Use**:
+- Finding implementations by concept
+- Locating where behavior is defined
+- Understanding how features work
+- Exploring unfamiliar codebases
+
+**When NOT to Use**:
+- Exact text matches (use `grep`)
+- Simple symbol lookups (use `grep`)
+- Finding files by name (use `glob_file_search`)
+
+**Best Practices**:
+- Ask complete questions: "Where is user authentication handled?"
+- One question per search (don't combine multiple queries)
+- Start broad, then narrow to specific directories
+- Use for "how/where/what" questions
+
+**Example Usage**:
+```
+Find where API routes are defined
+→ codebase_search("Where are the API routes defined?", target_directories=["src/"])
+```
+
+---
+
+### `grep`
+**Purpose**: Regex-based text search (powered by ripgrep)
+
+**When to Use**:
+- Exact symbol/string searches
+- Finding function calls
+- Locating imports/exports
+- Counting occurrences
+
+**Parameters**:
+- `pattern`: Regex pattern to search
+- `path`: Directory or file to search
+- `type`: File type filter (js, py, rs, go, etc.)
+- `glob`: Custom glob pattern
+- `-C`, `-A`, `-B`: Context lines
+- `output_mode`: "content", "files_with_matches", or "count"
+
+**Best Practices**:
+- Escape special regex characters: `functionCall\(`
+- Use `output_mode: "files_with_matches"` to find all relevant files
+- Add context with `-C 3` to understand surrounding code
+
+**Example Usage**:
+```
+Find all uses of a specific function
+→ grep("useAuth\\(", path="src/", type="ts")
+
+Find files containing a pattern
+→ grep("TODO:", output_mode="files_with_matches")
+```
+
+---
+
+### `glob_file_search`
+**Purpose**: Find files by name pattern
+
+**When to Use**:
+- Locating files by extension
+- Finding configuration files
+- Discovering test files
+- Matching naming conventions
+
+**Best Practices**:
+- Patterns auto-prepend `**/` for recursive search
+- Use for file discovery, not content search
+
+**Example Usage**:
+```
+Find all test files
+→ glob_file_search("*.test.ts")
+
+Find configuration files
+→ glob_file_search("*.config.*")
+```
+
+---
+
+### `web_search`
+**Purpose**: Search the internet for real-time information
+
+**When to Use**:
+- Current documentation
+- Recent solutions
+- Security advisories
+- Version-specific information
+
+**Best Practices**:
+- Include version numbers if relevant
+- Add dates for time-sensitive queries
+- Use specific keywords
+
+---
+
+## Edit Tools
+
+### `search_replace`
+**Purpose**: Exact string replacement in files
+
+**When to Use**:
+- Modifying existing code
+- Updating function implementations
+- Fixing bugs in specific locations
+- Renaming with `replace_all: true`
+
+**CRITICAL Rules**:
+- `old_string` must be UNIQUE in the file
+- Include enough context (3-5 lines before/after)
+- Match exact whitespace and indentation
+- Preserve original indentation style
+
+**Best Practices**:
+- Read the file first to ensure accurate matching
+- Include surrounding context for uniqueness
+- Use `replace_all: true` for renaming operations
+- Make atomic, focused changes
+
+**Example Usage**:
+```
+Update a function implementation
+→ search_replace(
+    file_path="src/utils.ts",
+    old_string="function oldImpl() {\n  return 1;\n}",
+    new_string="function oldImpl() {\n  return 2;\n}"
+  )
+```
+
+---
+
+### `write`
+**Purpose**: Create or overwrite entire files
+
+**When to Use**:
+- Creating new files
+- Complete file rewrites
+- Generating new modules
+- Writing configuration files
+
+**Best Practices**:
+- ALWAYS read existing files before overwriting
+- Prefer `search_replace` for modifications
+- Include all necessary imports
+- Follow project conventions
+
+---
+
+### `delete_file`
+**Purpose**: Remove files from the project
+
+**When to Use**:
+- Cleanup during refactoring
+- Removing deprecated code
+- Deleting generated files
+
+---
+
+### `edit_notebook`
+**Purpose**: Edit Jupyter notebook cells
+
+**When to Use**:
+- Data science notebooks
+- Interactive Python development
+- Documentation notebooks
+
+**Best Practices**:
+- Set `is_new_cell` correctly
+- Use 0-based cell indices
+- Provide unique `old_string` for edits
+
+---
+
+## Run Tools
+
+### `run_terminal_cmd`
+**Purpose**: Execute shell commands
+
+**When to Use**:
+- Building projects
+- Running tests
+- Installing dependencies
+- Executing scripts
+- Git operations (with `git_write` permission)
+
+**Permissions**:
+- `network`: For package installs, API calls, servers
+- `git_write`: For commits, checkouts, git modifications
+- `all`: Full system access (use sparingly)
+
+**Best Practices**:
+- Use `is_background: true` for long-running processes
+- Check existing terminals before starting servers
+- Use non-interactive flags (`--yes`, `-y`, etc.)
+- Request only necessary permissions
+
+**Example Usage**:
+```
+Install dependencies
+→ run_terminal_cmd("npm install", required_permissions=["network"])
+
+Run tests
+→ run_terminal_cmd("npm test")
+
+Start dev server in background
+→ run_terminal_cmd("npm run dev", is_background=true, required_permissions=["network"])
+```
+
+---
+
+### `read_lints`
+**Purpose**: Read linter errors from workspace
+
+**When to Use**:
+- After making edits
+- Before committing changes
+- Debugging type errors
+- Checking code quality
+
+**Best Practices**:
+- Only call on files you've edited
+- Fix errors before proceeding
+- Don't call with wide scope
+
+---
+
+## MCP Tools
+
+### `call_mcp_tool`
+**Purpose**: Invoke MCP server tools
+
+**When to Use**:
+- External service integration
+- Specialized functionality
+- MiniMax tools (web_search, understand_image)
+
+**CRITICAL**: Always check tool schema before calling
+
+---
+
+## Tool Selection Decision Tree
+
+```
+Need to find code?
+├─ By meaning/concept → codebase_search
+├─ Exact text/symbol → grep
+└─ By filename → glob_file_search
+
+Need to read?
+├─ File contents → read_file
+├─ Directory structure → list_dir
+└─ Linter errors → read_lints
+
+Need to edit?
+├─ Modify existing → search_replace
+├─ Create new file → write
+├─ Remove file → delete_file
+└─ Jupyter notebook → edit_notebook
+
+Need to execute?
+├─ Shell command → run_terminal_cmd
+└─ MCP tool → call_mcp_tool
+
+Need external info?
+├─ Real-time data → web_search (Cursor native)
+├─ MiniMax search → call_mcp_tool (MiniMax web_search)
+└─ Image analysis → call_mcp_tool (MiniMax understand_image)
+```
+
+## Parallel vs Sequential Tool Calls
+
+### Use Parallel Calls When:
+- Reading multiple independent files
+- Searching different directories
+- Making independent edits
+- Gathering unrelated information
+
+### Use Sequential Calls When:
+- Results inform next parameters
+- Order matters (create before edit)
+- Dependencies between operations
+- Validation needed before proceeding
+
+### Example Parallel Pattern:
+```
+Reading multiple files simultaneously:
+→ read_file("src/index.ts")
+→ read_file("src/config.ts")
+→ read_file("package.json")
+[All called in single batch]
+```
+
+## Cursor 2.2 Advanced Features
+
+### Debug Mode
+- Instruments apps with runtime logs
+- Helps reproduce complex bugs
+- Works across stacks and languages
+
+### Browser Layout Editor
+- Real-time CSS/layout editing
+- Component tree visualization
+- Integrated with codebase
+
+### Plan Mode + Mermaid
+- Visual planning with diagrams
+- Send to-dos to new agents
+- Structured task management
+
+### Multi-Agent Judging
+- Run parallel agents
+- Best solution selection
+- Automated comparison
+
+### Pinned Chats
+- Quick access to important threads
+- Persistent conversation references

@@ -1,0 +1,327 @@
+---
+description: "MiniMax native MCP tools: web_search for real-time information, understand_image for visual analysis and screenshot interpretation"
+alwaysApply: true
+---
+
+# MiniMax MCP Tools Integration
+
+MiniMax provides powerful MCP tools that enhance your development workflow with real-time information and visual analysis capabilities.
+
+## Available Tools
+
+### `web_search`
+**Purpose**: Search the internet for real-time information
+
+### `understand_image`
+**Purpose**: Analyze images, screenshots, UI mockups, and diagrams using Vision Language Model
+
+---
+
+## web_search Tool
+
+### Description
+Performs web searches similar to Google Search, returning structured results with titles, links, snippets, and dates.
+
+### Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `query` | string | Yes | Search query (3-5 keywords recommended) |
+
+### When to Use
+
+**Use `web_search` for:**
+- Current API documentation or changelog information
+- Recent solutions to errors or issues
+- Security advisories and CVEs
+- Library/framework updates not in training data
+- Best practices that may have evolved
+- Version-specific documentation
+
+**Don't use for:**
+- Information clearly available in the codebase
+- Well-established concepts that don't change
+- Personal opinions or recommendations
+
+### Best Practices
+
+#### 1. Use 3-5 Specific Keywords
+```
+Good: "React 19 useOptimistic hook example 2025"
+Bad:  "how to use react hooks"
+```
+
+#### 2. Add Dates for Time-Sensitive Queries
+```
+Good: "Next.js 15 app router changes December 2024"
+Bad:  "Next.js router"
+```
+
+#### 3. Include Version Numbers
+```
+Good: "TypeScript 5.3 satisfies operator"
+Bad:  "TypeScript new features"
+```
+
+#### 4. Change Keywords if No Results
+If initial search returns poor results, reformulate:
+```
+Original: "react server components streaming"
+Retry:    "RSC streaming SSR Next.js 14"
+```
+
+### Example Usage Patterns
+
+#### Finding Documentation
+```
+<think>
+User is asking about a feature in React 19 that I may not have current info on.
+I should search for the latest documentation.
+</think>
+
+→ web_search("React 19 use hook async data fetching 2024")
+```
+
+#### Debugging Errors
+```
+<think>
+User has an error message I don't immediately recognize.
+Let me search for recent solutions.
+</think>
+
+→ web_search("Next.js 14 NEXT_REDIRECT error build time")
+```
+
+#### Security Advisories
+```
+<think>
+Before recommending this library, I should check for recent security issues.
+</think>
+
+→ web_search("lodash security vulnerability CVE 2024")
+```
+
+### Response Structure
+```json
+{
+  "organic": [
+    {
+      "title": "Result title",
+      "link": "https://example.com/page",
+      "snippet": "Brief description or excerpt",
+      "date": "Publication date"
+    }
+  ],
+  "related_searches": [
+    {"query": "Related search suggestion"}
+  ]
+}
+```
+
+---
+
+## understand_image Tool
+
+### Description
+Analyzes images using a Vision Language Model (VLM) to extract information, describe content, and answer questions about visual elements.
+
+### Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `prompt` | string | Yes | What to analyze or extract from the image |
+| `image_source` | string | Yes | URL or file path to the image |
+
+### Supported Formats
+- ✅ JPEG / JPG
+- ✅ PNG
+- ✅ WebP
+- ❌ PDF
+- ❌ GIF
+- ❌ PSD
+- ❌ SVG
+
+### When to Use
+
+**Use `understand_image` for:**
+- Analyzing screenshots of UI issues
+- Reading error messages from images
+- Understanding architecture diagrams
+- Interpreting flowcharts or wireframes
+- Extracting text from screenshots
+- Debugging visual layout problems
+- Understanding UI mockups before implementation
+
+### Prompt Examples
+
+#### For UI Screenshots
+```
+"Describe the UI layout, components, and styling of this interface"
+"What interactive elements are visible in this screenshot?"
+"Identify any accessibility issues in this design"
+```
+
+#### For Error Messages
+```
+"What error message is displayed in this screenshot?"
+"Explain the error and suggest potential fixes"
+"What stack trace information is visible?"
+```
+
+#### For Code Screenshots
+```
+"Explain the code shown in this image"
+"What programming language is this and what does it do?"
+"Identify any bugs or issues in this code"
+```
+
+#### For Architecture Diagrams
+```
+"Describe the system architecture shown in this diagram"
+"What are the main components and how do they interact?"
+"Identify the data flow in this architecture"
+```
+
+#### For Wireframes/Mockups
+```
+"Describe all the UI elements in this wireframe"
+"What user interactions are implied by this design?"
+"List the components I would need to build this interface"
+```
+
+### Best Practices
+
+#### 1. Use Specific Prompts
+```
+Good: "What CSS properties might be causing the button to overflow its container?"
+Bad:  "What's wrong with this?"
+```
+
+#### 2. Ask for What You Need
+```
+Good: "Extract all the text visible in this error dialog, including button labels"
+Bad:  "Tell me about this image"
+```
+
+#### 3. Handle File Paths Correctly
+Remove `@` prefix if present:
+```
+Good: "/Users/name/Desktop/screenshot.png"
+Bad:  "@/Users/name/Desktop/screenshot.png"
+```
+
+#### 4. Always Use the Analysis Result
+The tool returns valuable information - incorporate it into your response.
+
+### Example Usage Patterns
+
+#### Debugging UI Issues
+```
+<think>
+User shared a screenshot of a layout problem.
+Let me analyze it to understand the issue.
+</think>
+
+→ understand_image(
+    prompt="Describe the layout issue visible in this screenshot. What CSS properties might be causing the problem?",
+    image_source="/path/to/screenshot.png"
+  )
+```
+
+#### Understanding Error Messages
+```
+<think>
+User shared a screenshot of an error.
+I need to read and understand the error message.
+</think>
+
+→ understand_image(
+    prompt="Read the complete error message and stack trace. What is the root cause?",
+    image_source="https://example.com/error-screenshot.jpg"
+  )
+```
+
+#### Implementing from Mockups
+```
+<think>
+User provided a design mockup to implement.
+Let me understand the structure and components.
+</think>
+
+→ understand_image(
+    prompt="List all UI components in this mockup. Describe the layout structure, spacing, colors, and typography.",
+    image_source="/path/to/mockup.png"
+  )
+```
+
+---
+
+## Tool Chaining Patterns
+
+### Pattern 1: Image → Code Fix
+```
+1. Analyze screenshot of bug with understand_image
+2. Identify the issue from analysis
+3. Search for solutions with web_search if needed
+4. Implement the fix
+```
+
+### Pattern 2: Diagram → Implementation
+```
+1. Analyze architecture diagram with understand_image
+2. Extract component structure
+3. Search for best practices with web_search
+4. Create implementation plan
+```
+
+### Pattern 3: Error → Solution
+```
+1. Read error from screenshot with understand_image
+2. Search for solutions with web_search
+3. Apply fix and verify
+```
+
+### Pattern 4: Mockup → Component
+```
+1. Analyze mockup with understand_image
+2. Identify UI patterns and components
+3. Search for component libraries if applicable
+4. Implement the design
+```
+
+---
+
+## Error Handling
+
+### web_search Errors
+- If no results: Try different keywords
+- If rate limited: Wait and retry
+- If irrelevant results: Refine query with more specific terms
+
+### understand_image Errors
+- If format not supported: Request a supported format (JPEG, PNG, WebP)
+- If file not found: Verify the path and ensure file exists
+- If analysis unclear: Ask with a more specific prompt
+
+---
+
+## Integration with Cursor Tools
+
+### Combine with codebase_search
+```
+1. Use web_search to find current best practices
+2. Use codebase_search to find existing patterns
+3. Combine both for informed implementation
+```
+
+### Combine with read_file
+```
+1. Use understand_image to analyze error screenshot
+2. Use read_file to examine the relevant code
+3. Apply fix using search_replace
+```
+
+### Combine with run_terminal_cmd
+```
+1. Use web_search to find the correct command/package
+2. Use run_terminal_cmd to install/execute
+3. Verify results
+```

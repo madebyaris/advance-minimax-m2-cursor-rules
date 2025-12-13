@@ -1,0 +1,469 @@
+---
+description: "Cross-platform mobile development: shared architecture, platform-specific patterns, and native integration strategies"
+alwaysApply: false
+---
+
+# Cross-Platform Mobile Development
+
+Strategies and patterns for building mobile applications that work across iOS, Android, and other platforms.
+
+## Architecture Decisions
+
+### When to Use Cross-Platform
+
+**Good Fit:**
+- Content-focused apps (news, social, e-commerce)
+- Business/productivity applications
+- MVPs and rapid prototyping
+- Teams with web development background
+- Apps with similar UI across platforms
+
+**Consider Native When:**
+- Heavy platform-specific features (AR, advanced camera)
+- Performance-critical applications (games, video editing)
+- Deep OS integration required
+- Platform-specific design language is critical
+- Small, focused utility apps
+
+### Framework Selection
+
+| Framework | Best For | Trade-offs |
+|-----------|----------|------------|
+| **Flutter** | Beautiful custom UI, performance | Larger app size, Dart learning curve |
+| **React Native** | Web team transition, code sharing | Bridge overhead, native module complexity |
+| **Kotlin Multiplatform** | Shared business logic, native UI | Newer ecosystem, iOS tooling |
+| **.NET MAUI** | Microsoft ecosystem, enterprise | Smaller community, platform coverage |
+
+---
+
+## Shared Architecture Patterns
+
+### Clean Architecture for Mobile
+
+```
+┌─────────────────────────────────────┐
+│         Presentation Layer          │
+│  (Platform-specific UI/Framework)   │
+├─────────────────────────────────────┤
+│          Domain Layer               │
+│  (Use Cases, Entities, Interfaces)  │
+│         ★ SHARED CODE ★             │
+├─────────────────────────────────────┤
+│           Data Layer                │
+│  (Repositories, Data Sources)       │
+│      Partially Shared               │
+└─────────────────────────────────────┘
+```
+
+### Code Sharing Strategy
+
+**Share:**
+- Business logic and use cases
+- Data models and entities
+- API client and networking
+- Validation rules
+- State management logic
+- Utility functions
+
+**Keep Platform-Specific:**
+- UI components and layouts
+- Navigation implementation
+- Platform permissions
+- Native API integrations
+- Animations (unless framework handles well)
+
+---
+
+## State Management
+
+### Unified State Architecture
+
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Action    │ ──► │   Reducer/   │ ──► │    State    │
+│  (Intent)   │     │   Handler    │     │   (Store)   │
+└─────────────┘     └──────────────┘     └─────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  Side Effects │
+                    │  (API calls)  │
+                    └──────────────┘
+```
+
+### State Patterns by Framework
+
+**Flutter (BLoC/Riverpod):**
+```dart
+// Event → Bloc → State
+class UserBloc extends Bloc<UserEvent, UserState> {
+  UserBloc(this.repository) : super(UserInitial()) {
+    on<LoadUser>(_onLoadUser);
+  }
+}
+```
+
+**React Native (Redux/Zustand):**
+```typescript
+// Action → Reducer → Store
+const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    setUser: (state, action) => { state.user = action.payload; },
+  },
+});
+```
+
+**Kotlin Multiplatform (MVI):**
+```kotlin
+// Intent → ViewModel → State
+class UserViewModel : ViewModel() {
+    private val _state = MutableStateFlow(UserState())
+    val state: StateFlow<UserState> = _state.asStateFlow()
+    
+    fun loadUser(id: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(loading = true) }
+            val user = repository.getUser(id)
+            _state.update { it.copy(user = user, loading = false) }
+        }
+    }
+}
+```
+
+---
+
+## Navigation Patterns
+
+### Deep Linking Architecture
+
+```
+URL: myapp://product/123?source=push
+
+┌─────────────────────────────────────┐
+│           Deep Link Handler          │
+│  Parse URL → Extract parameters      │
+├─────────────────────────────────────┤
+│           Route Resolver             │
+│  Map to internal route/screen        │
+├─────────────────────────────────────┤
+│         Navigation Stack             │
+│  Build appropriate back stack        │
+└─────────────────────────────────────┘
+```
+
+### Navigation Best Practices
+
+1. **Centralized Route Definitions**
+   - Define all routes in one place
+   - Use typed route parameters
+   - Handle unknown routes gracefully
+
+2. **Deep Link Support**
+   - Configure URL schemes (iOS) and intent filters (Android)
+   - Handle universal/app links
+   - Preserve navigation state
+
+3. **Back Stack Management**
+   - Maintain logical back navigation
+   - Handle authentication flows
+   - Support nested navigation
+
+---
+
+## Platform Integration
+
+### Feature Detection Pattern
+
+```
+┌─────────────────────────────────────┐
+│         Feature Interface            │
+│  abstract void requestPermission()   │
+│  abstract bool isSupported()         │
+├──────────────┬──────────────────────┤
+│   iOS Impl   │    Android Impl      │
+│  (Native)    │     (Native)         │
+└──────────────┴──────────────────────┘
+```
+
+### Common Platform Differences
+
+| Feature | iOS | Android |
+|---------|-----|---------|
+| **Permissions** | Info.plist + runtime | Manifest + runtime |
+| **Push Notifications** | APNs | FCM |
+| **Background Tasks** | Limited (BGTaskScheduler) | WorkManager, Services |
+| **Storage** | Keychain, UserDefaults | SharedPrefs, Keystore |
+| **Camera** | AVFoundation | Camera2/CameraX |
+| **Location** | CoreLocation | FusedLocationProvider |
+
+### Handling Platform Differences
+
+```dart
+// Flutter example
+if (Platform.isIOS) {
+  // iOS-specific implementation
+} else if (Platform.isAndroid) {
+  // Android-specific implementation
+}
+
+// Better: Use abstraction
+abstract class BiometricAuth {
+  Future<bool> authenticate();
+  
+  factory BiometricAuth() {
+    if (Platform.isIOS) return IOSBiometricAuth();
+    return AndroidBiometricAuth();
+  }
+}
+```
+
+---
+
+## Networking
+
+### Offline-First Architecture
+
+```
+┌─────────────────────────────────────┐
+│             UI Layer                 │
+├─────────────────────────────────────┤
+│          Repository                  │
+│  ┌─────────────┐  ┌──────────────┐  │
+│  │ Local Cache │◄─│ Remote API   │  │
+│  │ (SQLite/    │  │              │  │
+│  │  Realm)     │  │              │  │
+│  └─────────────┘  └──────────────┘  │
+├─────────────────────────────────────┤
+│         Sync Manager                 │
+│  Queue changes, retry, conflict res  │
+└─────────────────────────────────────┘
+```
+
+### Caching Strategy
+
+```dart
+class UserRepository {
+  final ApiClient api;
+  final LocalDatabase db;
+  
+  Future<User> getUser(String id) async {
+    // 1. Return cached immediately
+    final cached = await db.getUser(id);
+    if (cached != null) {
+      // 2. Refresh in background
+      _refreshUser(id);
+      return cached;
+    }
+    
+    // 3. Fetch if no cache
+    final user = await api.getUser(id);
+    await db.saveUser(user);
+    return user;
+  }
+  
+  Future<void> _refreshUser(String id) async {
+    try {
+      final user = await api.getUser(id);
+      await db.saveUser(user);
+    } catch (e) {
+      // Log but don't fail
+    }
+  }
+}
+```
+
+---
+
+## Performance Optimization
+
+### List Performance
+
+- **Virtualization**: Only render visible items
+- **Image Optimization**: Resize, cache, lazy load
+- **Pagination**: Load data incrementally
+- **Placeholder Skeletons**: Show loading state per item
+
+### Memory Management
+
+```dart
+// Dispose resources
+@override
+void dispose() {
+  _controller.dispose();
+  _subscription.cancel();
+  super.dispose();
+}
+
+// Cache management
+class ImageCache {
+  final _cache = LruCache<String, Image>(maxSize: 100);
+  
+  void clear() => _cache.clear();
+}
+```
+
+### Startup Optimization
+
+1. **Defer initialization**: Load non-critical features lazily
+2. **Splash screen**: Show immediately while loading
+3. **Code splitting**: Load features on demand
+4. **Preload critical data**: Fetch during splash
+
+---
+
+## Testing Strategy
+
+### Test Pyramid for Mobile
+
+```
+        /\
+       /  \    E2E Tests (5-10%)
+      /    \   - Critical user flows
+     /------\  Integration Tests (20-30%)
+    /        \ - Screen + ViewModel
+   /----------\ Unit Tests (60-70%)
+  /            \ - Business logic
+```
+
+### Platform-Specific Testing
+
+```dart
+// Shared test
+void main() {
+  group('UserRepository', () {
+    test('fetches user from API', () async {
+      final repo = UserRepository(mockApi, mockDb);
+      final user = await repo.getUser('1');
+      expect(user.name, 'Test');
+    });
+  });
+}
+
+// Platform-specific test
+@TestOn('ios')
+void main() {
+  testWidgets('shows iOS-style picker', (tester) async {
+    // iOS-specific UI test
+  });
+}
+```
+
+---
+
+## Release & Distribution
+
+### Version Strategy
+
+```
+Version: 1.2.3+45
+         │ │ │  │
+         │ │ │  └── Build number (increments every build)
+         │ │ └───── Patch (bug fixes)
+         │ └─────── Minor (new features, backward compatible)
+         └───────── Major (breaking changes)
+```
+
+### CI/CD Pipeline
+
+```yaml
+# Simplified pipeline
+stages:
+  - test:
+      - lint
+      - unit_tests
+      - integration_tests
+  
+  - build:
+      - build_android_debug
+      - build_ios_debug
+  
+  - deploy_staging:
+      - deploy_android_internal
+      - deploy_ios_testflight
+  
+  - deploy_production:
+      - deploy_android_production
+      - deploy_ios_appstore
+```
+
+### App Store Considerations
+
+**iOS App Store:**
+- Screenshots for all device sizes
+- App Preview videos
+- Privacy labels required
+- Review guidelines compliance
+
+**Google Play:**
+- Feature graphic required
+- Data safety section
+- Target API level requirements
+- In-app update support
+
+---
+
+## Common Patterns
+
+### Pull-to-Refresh
+
+```dart
+RefreshIndicator(
+  onRefresh: () async {
+    await viewModel.refresh();
+  },
+  child: ListView.builder(...),
+)
+```
+
+### Infinite Scroll
+
+```dart
+class PaginatedList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.metrics.pixels >= 
+            notification.metrics.maxScrollExtent - 200) {
+          viewModel.loadMore();
+        }
+        return false;
+      },
+      child: ListView.builder(...),
+    );
+  }
+}
+```
+
+### Error Handling UI
+
+```dart
+Widget buildContent(BuildContext context, AsyncValue<Data> state) {
+  return state.when(
+    loading: () => const LoadingWidget(),
+    error: (error, stack) => ErrorWidget(
+      message: error.toString(),
+      onRetry: () => ref.refresh(dataProvider),
+    ),
+    data: (data) => DataWidget(data: data),
+  );
+}
+```
+
+### Empty State
+
+```dart
+if (items.isEmpty) {
+  return EmptyState(
+    icon: Icons.inbox,
+    title: 'No items yet',
+    message: 'Add your first item to get started',
+    action: ElevatedButton(
+      onPressed: onAddItem,
+      child: Text('Add Item'),
+    ),
+  );
+}
+```

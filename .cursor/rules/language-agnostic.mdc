@@ -1,0 +1,413 @@
+---
+description: "Universal programming patterns: SOLID principles, design patterns, clean code, architecture decisions applicable across all languages"
+alwaysApply: true
+---
+
+# Language-Agnostic Programming Patterns
+
+Universal principles and patterns applicable across all programming languages.
+
+## SOLID Principles
+
+### Single Responsibility Principle (SRP)
+A class/module should have only one reason to change.
+
+**Apply when:**
+- A function does multiple unrelated things
+- A class has too many dependencies
+- Changes in one area affect unrelated code
+
+**Example Pattern:**
+```
+Bad:  UserService handles auth, profile, notifications, and billing
+Good: AuthService, ProfileService, NotificationService, BillingService
+```
+
+### Open/Closed Principle (OCP)
+Open for extension, closed for modification.
+
+**Apply when:**
+- Adding new features requires modifying existing code
+- Switch statements grow with each new type
+- Core logic changes for edge cases
+
+**Example Pattern:**
+```
+Bad:  if type == "email" ... elif type == "sms" ... elif type == "push" ...
+Good: NotificationStrategy interface with EmailStrategy, SMSStrategy, PushStrategy
+```
+
+### Liskov Substitution Principle (LSP)
+Subtypes must be substitutable for their base types.
+
+**Apply when:**
+- Derived classes override behavior in unexpected ways
+- Code checks for specific types before operating
+- Inheritance creates illogical hierarchies
+
+**Example Pattern:**
+```
+Bad:  Square extends Rectangle but can't independently set width/height
+Good: Both Square and Rectangle implement Shape interface
+```
+
+### Interface Segregation Principle (ISP)
+Clients shouldn't depend on interfaces they don't use.
+
+**Apply when:**
+- Classes implement methods they don't need
+- Interfaces have too many methods
+- Changes affect many unrelated implementations
+
+**Example Pattern:**
+```
+Bad:  Animal interface with fly(), swim(), walk() - Penguin can't fly
+Good: Flyable, Swimmable, Walkable interfaces
+```
+
+### Dependency Inversion Principle (DIP)
+Depend on abstractions, not concretions.
+
+**Apply when:**
+- High-level modules import low-level modules directly
+- Changing database/service requires code changes
+- Testing requires real dependencies
+
+**Example Pattern:**
+```
+Bad:  UserService directly imports MySQLDatabase
+Good: UserService depends on DatabaseInterface, injected at runtime
+```
+
+## Common Design Patterns
+
+### Creational Patterns
+
+#### Factory Pattern
+Use when object creation logic is complex or needs to be centralized.
+
+```
+When to use:
+- Multiple similar objects with different configurations
+- Object creation depends on runtime conditions
+- Hiding complex initialization logic
+```
+
+#### Builder Pattern
+Use for constructing complex objects step by step.
+
+```
+When to use:
+- Objects with many optional parameters
+- Complex configuration requirements
+- Need for immutable objects with many fields
+```
+
+#### Singleton Pattern
+Use sparingly for truly global, single-instance resources.
+
+```
+When to use:
+- Configuration managers
+- Connection pools
+- Logger instances
+
+Avoid when:
+- It's just for convenience (use DI instead)
+- Testing would be difficult
+- Multiple instances might be needed later
+```
+
+### Structural Patterns
+
+#### Adapter Pattern
+Convert one interface to another that clients expect.
+
+```
+When to use:
+- Integrating third-party libraries
+- Working with legacy code
+- Unifying different data sources
+```
+
+#### Decorator Pattern
+Add behavior to objects dynamically.
+
+```
+When to use:
+- Adding features without subclassing
+- Composable behaviors
+- Middleware-like patterns
+```
+
+#### Facade Pattern
+Provide a simplified interface to a complex subsystem.
+
+```
+When to use:
+- Simplifying complex library usage
+- Creating API boundaries
+- Reducing coupling between layers
+```
+
+### Behavioral Patterns
+
+#### Strategy Pattern
+Define a family of interchangeable algorithms.
+
+```
+When to use:
+- Multiple algorithms for the same task
+- Runtime algorithm selection
+- Avoiding complex conditionals
+```
+
+#### Observer Pattern
+Notify dependents of state changes.
+
+```
+When to use:
+- Event-driven systems
+- Pub/sub messaging
+- Reactive data flows
+```
+
+#### Command Pattern
+Encapsulate requests as objects.
+
+```
+When to use:
+- Undo/redo functionality
+- Queueing operations
+- Macro recording
+```
+
+## Clean Code Principles
+
+### Naming Conventions
+
+#### Variables and Functions
+- Use intention-revealing names
+- Avoid abbreviations unless universally understood
+- Be consistent with terminology
+
+```
+Bad:  d, tmp, data, info, process()
+Good: elapsedTimeInDays, userProfile, activeConnections, validatePayment()
+```
+
+#### Booleans
+- Use positive names (avoid double negatives)
+- Start with is/has/can/should
+
+```
+Bad:  notDisabled, flag, status
+Good: isEnabled, hasPermission, canEdit, shouldRefresh
+```
+
+#### Functions
+- Use verbs for actions
+- Be specific about what they do
+
+```
+Bad:  handle(), process(), manage()
+Good: validateUserInput(), calculateTotalPrice(), sendConfirmationEmail()
+```
+
+### Function Design
+
+#### Keep Functions Small
+- Do one thing well
+- 5-20 lines is ideal
+- If you can't name it well, it's probably doing too much
+
+#### Limit Parameters
+- 0-3 parameters is ideal
+- Use objects for more
+- Consider builder pattern for complex initialization
+
+#### Avoid Side Effects
+- Functions should be predictable
+- Clearly document mutations
+- Prefer pure functions when possible
+
+### Comments
+
+#### When to Comment
+- Explain WHY, not WHAT
+- Document public APIs
+- Warn about non-obvious behavior
+- Link to external resources/tickets
+
+#### When NOT to Comment
+- Explaining what code does (make code clearer instead)
+- Commented-out code (delete it)
+- Redundant descriptions
+- TODOs without tickets
+
+```
+Bad:  // increment counter by 1
+      counter += 1;
+
+Good: // Retry limit based on SLA requirements (see JIRA-1234)
+      MAX_RETRIES = 3;
+```
+
+### Error Handling
+
+#### Fail Fast
+- Validate inputs early
+- Throw exceptions for unexpected states
+- Don't swallow errors silently
+
+#### Error Messages
+- Include context (what was being done)
+- Include relevant values
+- Suggest remediation when possible
+
+```
+Bad:  "Error occurred"
+Good: "Failed to connect to database 'users' at localhost:5432: Connection refused. Check if PostgreSQL is running."
+```
+
+#### Error Categories
+1. **Recoverable**: Retry, fallback, or prompt user
+2. **Validation**: Return clear error to caller
+3. **Programming**: Fail fast, fix the bug
+4. **System**: Log, alert, graceful degradation
+
+## Architecture Patterns
+
+### Layered Architecture
+```
+Presentation → Business Logic → Data Access → Database
+```
+- Each layer only talks to adjacent layers
+- Dependencies flow downward
+
+### Clean Architecture
+```
+Entities → Use Cases → Controllers → Frameworks
+```
+- Business rules at the center
+- Frameworks/DB at the edges
+- Dependency rule: inward only
+
+### Hexagonal Architecture (Ports & Adapters)
+```
+[Adapters] → [Ports] → [Core Domain] ← [Ports] ← [Adapters]
+```
+- Core domain is isolated
+- Ports define interfaces
+- Adapters implement external concerns
+
+### When to Choose What
+- **Layered**: Simple CRUD apps, rapid development
+- **Clean**: Complex business logic, long-lived systems
+- **Hexagonal**: Multiple interfaces, testability focus
+
+## Testing Principles
+
+### Test Pyramid
+```
+     /\
+    /  \   E2E Tests (few)
+   /----\  Integration Tests (some)
+  /------\ Unit Tests (many)
+```
+
+### Unit Tests
+- Test one thing in isolation
+- Fast and deterministic
+- Mock external dependencies
+
+### Integration Tests
+- Test component interactions
+- Use real (or realistic) dependencies
+- Focus on boundaries
+
+### End-to-End Tests
+- Test complete user flows
+- Slowest and most brittle
+- Use for critical paths only
+
+### Test Quality
+- Tests are documentation
+- One assertion per test when possible
+- Arrange-Act-Assert pattern
+- Test behavior, not implementation
+
+## Performance Principles
+
+### Measure First
+- Don't optimize prematurely
+- Profile before changing
+- Set performance budgets
+
+### Common Optimizations
+- **Caching**: Memoization, HTTP caching, query caching
+- **Batching**: Combine multiple operations
+- **Lazy Loading**: Defer until needed
+- **Pagination**: Don't load everything at once
+
+### Database Performance
+- Index frequently queried columns
+- Avoid N+1 queries
+- Use connection pooling
+- Consider read replicas for scale
+
+## Security Best Practices
+
+### Input Validation
+- Validate all external input
+- Whitelist, don't blacklist
+- Sanitize before use
+
+### Authentication
+- Use established libraries
+- Hash passwords with strong algorithms
+- Implement rate limiting
+- Use HTTPS everywhere
+
+### Authorization
+- Check permissions on every request
+- Fail closed (deny by default)
+- Log access attempts
+
+### Data Protection
+- Encrypt sensitive data at rest
+- Use parameterized queries
+- Don't log sensitive information
+- Implement proper session management
+
+## Code Organization
+
+### Module Structure
+```
+Feature-based (preferred for larger apps):
+/features
+  /auth
+    - service
+    - controller
+    - repository
+  /products
+    - service
+    - controller
+    - repository
+
+Layer-based (simpler for smaller apps):
+/controllers
+/services
+/repositories
+```
+
+### File Naming
+- Consistent conventions across project
+- Reflect content purpose
+- Include type suffix when helpful (e.g., `.service`, `.controller`)
+
+### Import Organization
+1. Standard library
+2. Third-party packages
+3. Local modules
+4. Relative imports

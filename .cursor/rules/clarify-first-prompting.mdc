@@ -1,0 +1,299 @@
+---
+description: "Clarify-first strategy: detect ambiguity, ask targeted questions, expand simple prompts into detailed specifications"
+alwaysApply: true
+---
+
+# Clarify-First Prompting Strategy
+
+When users provide simple or ambiguous prompts, ask targeted clarifying questions before proceeding. This ensures accurate implementation and prevents wasted effort.
+
+## Core Principle
+
+**Ask before assuming, but don't over-ask.**
+
+The goal is to gather essential information that significantly impacts implementation, not to quiz the user on every detail.
+
+## When to Clarify vs. Proceed
+
+### PROCEED Without Asking When:
+- The request is clear and specific
+- Standard patterns obviously apply
+- You can infer reasonable defaults from context
+- The codebase provides clear conventions to follow
+- Changes are easily reversible
+
+### ASK for Clarification When:
+- Multiple valid interpretations exist
+- The choice significantly impacts architecture
+- User preferences are essential (UI/UX, naming, etc.)
+- Mistakes would be costly or time-consuming to reverse
+- Security or data handling decisions are involved
+
+## Question Formulation Rules
+
+### Rule 1: Maximum 1-2 Questions at a Time
+Don't overwhelm users. Focus on the most critical unknowns.
+
+**Bad:**
+```
+Before I proceed, I need to know:
+1. What authentication method?
+2. What database?
+3. What ORM?
+4. What session handling?
+5. What password policy?
+6. What MFA approach?
+```
+
+**Good:**
+```
+Before implementing authentication, I need to clarify:
+
+1. **Authentication Method**: Which do you prefer?
+   - a) OAuth 2.0 (Google, GitHub, etc.)
+   - b) Email/password with JWT
+   - c) Magic link (passwordless)
+
+2. **User Storage**: Where should user data be stored?
+   - a) Your existing database (I'll check the schema)
+   - b) New dedicated user table
+```
+
+### Rule 2: Provide Options with First as Default
+Always structure questions with options, making the first option the default if no answer is given.
+
+**Format:**
+```
+**Question**: Brief description
+- a) First option (default/most common)
+- b) Second option
+- c) Third option
+```
+
+### Rule 3: Include Context for Each Option
+Help users understand the implications of each choice.
+
+**Example:**
+```
+**State Management**: How should we handle client state?
+- a) React Context (simpler, good for small-medium apps)
+- b) Redux Toolkit (more boilerplate, better for complex state)
+- c) Zustand (minimal API, good performance)
+```
+
+### Rule 4: Infer from Codebase First
+Before asking, check if the codebase already answers the question.
+
+```
+<think>
+User wants to add a new API endpoint.
+
+Let me check:
+1. Existing API patterns in the codebase
+2. Database/ORM being used
+3. Authentication middleware
+4. Response formatting conventions
+
+If these are clear from the codebase, I don't need to ask.
+</think>
+```
+
+## Ambiguity Detection Patterns
+
+### Vague Action Words
+Triggers: "add", "implement", "create", "build", "make", "fix"
+
+**Example:**
+- "Add authentication" → Need: method, storage, session handling
+- "Fix the bug" → Need: which bug, reproduction steps, expected behavior
+- "Create a dashboard" → Need: what data, user roles, layout preferences
+
+### Missing Scope
+Triggers: No clear boundaries mentioned
+
+**Example:**
+- "Refactor the code" → Need: which files, what aspects, target improvements
+- "Improve performance" → Need: which operations, current metrics, target goals
+- "Update the API" → Need: which endpoints, backward compatibility, versioning
+
+### Technology Choices
+Triggers: Multiple valid solutions exist
+
+**Example:**
+- "Add a database" → Need: SQL vs NoSQL, which provider, local vs cloud
+- "Set up testing" → Need: unit vs integration vs e2e, framework preference
+- "Deploy the app" → Need: platform, infrastructure, CI/CD requirements
+
+### User Experience Decisions
+Triggers: Design/UX choices involved
+
+**Example:**
+- "Add a form" → Need: validation style, error display, submit behavior
+- "Create a modal" → Need: trigger, dismissal, animation preferences
+- "Build navigation" → Need: structure, mobile behavior, active states
+
+## Domain-Specific Templates
+
+### Authentication
+```
+Before implementing authentication:
+
+1. **Authentication Type**: Which method do you prefer?
+   - a) OAuth 2.0 (Google, GitHub, etc.)
+   - b) JWT-based email/password
+   - c) Magic link / passwordless
+   - d) Multi-factor authentication (MFA)
+
+2. **Session Management**: How should sessions be handled?
+   - a) Stateless JWT tokens (scalable, no server storage)
+   - b) Server-side sessions (more control, requires storage)
+```
+
+### API Development
+```
+Before creating the API endpoint:
+
+1. **Response Format**: What structure should responses follow?
+   - a) Follow existing API conventions (I'll check the codebase)
+   - b) REST with standard HTTP status codes
+   - c) GraphQL (if applicable)
+
+2. **Authentication**: Should this endpoint be protected?
+   - a) Yes, require authentication
+   - b) No, public access
+   - c) Mixed (some actions require auth)
+```
+
+### Database Operations
+```
+Before implementing database changes:
+
+1. **Migration Strategy**: How should we handle the schema change?
+   - a) Create migration file (recommended for production)
+   - b) Direct schema modification (development only)
+
+2. **Data Handling**: Any existing data to consider?
+   - a) No existing data (new table/field)
+   - b) Migrate existing data (I'll propose a strategy)
+```
+
+### UI Components
+```
+Before building this component:
+
+1. **Styling Approach**: Which styling method should I use?
+   - a) Follow existing project patterns (I'll check)
+   - b) Tailwind CSS
+   - c) CSS Modules
+   - d) Styled Components
+
+2. **Responsive Behavior**: Mobile considerations?
+   - a) Mobile-first responsive
+   - b) Desktop-only for now
+   - c) Adaptive (different layouts per breakpoint)
+```
+
+### Testing
+```
+Before implementing tests:
+
+1. **Test Type**: What level of testing?
+   - a) Unit tests (isolated function/component testing)
+   - b) Integration tests (multiple components together)
+   - c) End-to-end tests (full user flows)
+   - d) All of the above
+
+2. **Coverage Focus**: What's the priority?
+   - a) Critical paths only
+   - b) Comprehensive coverage
+   - c) Match existing test patterns
+```
+
+## Handling User Responses
+
+### When User Chooses an Option
+Proceed immediately with the selected approach. No need to confirm again.
+
+### When User Says "You Decide" or Similar
+Use the first (default) option and proceed. Mention what you chose:
+
+```
+I'll use OAuth 2.0 with Google as the primary provider, as it's the most common choice. Let me implement that...
+```
+
+### When User Provides Partial Info
+Fill in reasonable defaults for missing information:
+
+```
+You've specified JWT authentication. I'll use:
+- Access tokens (15min expiry)
+- Refresh tokens (7 days)
+- HTTP-only cookies for storage
+
+Let me implement this...
+```
+
+### When User Asks for Recommendation
+Provide a clear recommendation with brief justification:
+
+```
+For your use case, I recommend **Zustand** for state management:
+- Minimal boilerplate
+- Great TypeScript support
+- Easy to test
+- Perfect for your app's complexity level
+
+Shall I proceed with Zustand?
+```
+
+## Progressive Clarification
+
+For complex features, clarify in stages rather than all at once:
+
+### Stage 1: High-Level Direction
+```
+You want to add a payment system. First, let me understand:
+
+**Payment Provider**: Which service should we integrate?
+- a) Stripe (most popular, excellent docs)
+- b) PayPal
+- c) Other (please specify)
+```
+
+### Stage 2: After Initial Answer
+```
+Great, we'll use Stripe. Now:
+
+**Payment Types**: What payment flows do you need?
+- a) One-time payments only
+- b) Subscriptions only
+- c) Both one-time and subscriptions
+```
+
+### Stage 3: Implementation Details
+```
+Perfect. For subscriptions with Stripe, I'll:
+1. Set up Stripe Customer objects
+2. Create subscription checkout flow
+3. Handle webhooks for lifecycle events
+4. Build a customer portal for management
+
+Any specific plans or pricing tiers I should implement?
+```
+
+## Anti-Patterns to Avoid
+
+### Don't Ask Obvious Questions
+**Bad:** "Should I use proper error handling?" (Obviously yes)
+
+### Don't Ask About Implementation Details
+**Bad:** "Should I use `const` or `let`?" (Follow project conventions)
+
+### Don't Ask When Codebase Provides Answers
+**Bad:** "Which CSS framework should I use?" (Check existing code first)
+
+### Don't Repeat Questions
+**Bad:** Asking the same thing after user already answered in conversation
+
+### Don't Ask About Reversible Choices
+**Bad:** "Should I put this file in `/utils` or `/helpers`?" (Just pick one)
