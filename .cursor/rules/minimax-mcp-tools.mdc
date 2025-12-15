@@ -325,3 +325,142 @@ Let me understand the structure and components.
 2. Use run_terminal_cmd to install/execute
 3. Verify results
 ```
+
+---
+
+## Optional Enhancement: Context7 MCP
+
+Context7 is an optional MCP server that provides up-to-date library documentation directly in your workflow. It's especially useful when you need accurate, current API references.
+
+### Installation
+
+Add to your Cursor MCP settings (`.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}
+```
+
+### Available Tools
+
+#### 1. `resolve-library-id`
+**Purpose**: Find the Context7-compatible library ID for any package
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `libraryName` | string | Yes | Library name to search for |
+
+**Example**:
+```
+→ resolve-library-id(libraryName="next.js")
+Returns: /vercel/next.js
+```
+
+#### 2. `get-library-docs`
+**Purpose**: Fetch up-to-date documentation for a library
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `context7CompatibleLibraryID` | string | Yes | Library ID (e.g., `/vercel/next.js`) |
+| `mode` | string | No | `code` (default) for API/examples, `info` for guides |
+| `topic` | string | No | Focus topic (e.g., `hooks`, `routing`) |
+| `page` | integer | No | Pagination (1-10) for more results |
+
+### Usage Workflow
+
+**Always call `resolve-library-id` first**, then use the returned ID with `get-library-docs`:
+
+```
+Step 1: Resolve the library
+→ resolve-library-id(libraryName="react")
+Result: /facebook/react
+
+Step 2: Get documentation
+→ get-library-docs(
+    context7CompatibleLibraryID="/facebook/react",
+    topic="hooks",
+    mode="code"
+  )
+```
+
+### When to Use Context7
+
+**Use Context7 for:**
+- Getting accurate, up-to-date API references
+- Finding code examples for specific library features
+- Understanding library-specific patterns and best practices
+- Verifying function signatures and parameters
+
+**Use `web_search` instead when:**
+- Searching for general solutions or tutorials
+- Looking for community discussions or Stack Overflow answers
+- Finding security advisories or changelogs
+- Comparing multiple libraries
+
+### Example Patterns
+
+#### Getting React Hook Documentation
+```
+<think>
+User wants to use useTransition in React 19.
+Let me get the latest documentation.
+</think>
+
+→ resolve-library-id(libraryName="react")
+→ get-library-docs(
+    context7CompatibleLibraryID="/facebook/react",
+    topic="useTransition",
+    mode="code"
+  )
+```
+
+#### Next.js App Router Patterns
+```
+<think>
+User is building with Next.js App Router.
+Let me fetch current routing documentation.
+</think>
+
+→ get-library-docs(
+    context7CompatibleLibraryID="/vercel/next.js",
+    topic="app router",
+    mode="info"
+  )
+```
+
+#### Pagination for More Context
+```
+<think>
+First page didn't have enough examples.
+Let me get more documentation.
+</think>
+
+→ get-library-docs(
+    context7CompatibleLibraryID="/vercel/next.js",
+    topic="server actions",
+    mode="code",
+    page=2
+  )
+```
+
+### Context7 + MiniMax Tools Chaining
+
+#### Pattern: Documentation → Implementation
+```
+1. Use Context7 to get accurate API documentation
+2. Use web_search for additional context if needed
+3. Implement following the documented patterns
+```
+
+#### Pattern: Error → Docs → Fix
+```
+1. Use understand_image to read error screenshot
+2. Use Context7 to get correct API usage
+3. Apply fix based on documentation
+```

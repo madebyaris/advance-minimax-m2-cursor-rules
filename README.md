@@ -89,7 +89,7 @@ Add to Cursor Settings → MCP:
 
 ## 🔌 Optional: Context7 MCP
 
-For enhanced library documentation:
+Get up-to-date library documentation directly in your workflow:
 
 ```json
 {
@@ -101,6 +101,10 @@ For enhanced library documentation:
   }
 }
 ```
+
+**Tools provided:**
+- `resolve-library-id` — Find library IDs (e.g., "react" → `/facebook/react`)
+- `get-library-docs` — Fetch current API docs, examples, and guides
 
 ---
 
