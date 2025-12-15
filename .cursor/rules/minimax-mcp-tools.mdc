@@ -17,6 +17,31 @@ MiniMax provides powerful MCP tools that enhance your development workflow with 
 
 ---
 
+## Important: Tool Call Formatting
+
+When calling MiniMax MCP tools, ensure:
+
+1. **Use proper JSON** - Arguments must be valid JSON strings
+2. **Escape special characters** - Quotes, newlines, and backslashes must be escaped
+3. **Don't include thinking blocks** - `<think>` content goes BEFORE the tool call, not inside arguments
+4. **Don't include arrow symbols** - The `→` in examples is illustrative only
+
+**Correct format:**
+```json
+{
+  "query": "React 19 hooks documentation 2024"
+}
+```
+
+**Incorrect (will cause error 400/2013):**
+```json
+{
+  "query": "→ search for React 19 <think>need docs</think>"
+}
+```
+
+---
+
 ## web_search Tool
 
 ### Description
@@ -290,6 +315,19 @@ Let me understand the structure and components.
 ---
 
 ## Error Handling
+
+### API Error 400/2013: Invalid Function Arguments
+This error occurs when tool arguments contain invalid JSON:
+
+**Causes:**
+- Unescaped special characters in strings
+- Including `<think>` blocks inside arguments
+- Malformed JSON structure
+
+**Solution:**
+- Keep arguments simple and clean
+- Use only plain text in query/prompt parameters
+- Ensure all strings are properly escaped
 
 ### web_search Errors
 - If no results: Try different keywords
