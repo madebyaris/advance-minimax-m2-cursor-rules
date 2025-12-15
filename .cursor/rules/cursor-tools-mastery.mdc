@@ -153,6 +153,126 @@ Find configuration files
 - Add dates for time-sensitive queries
 - Use specific keywords
 
+**Proactive Usage**: Don't wait for "Ask" mode - use `web_search` proactively in Agent mode when:
+- You need current information about libraries or APIs
+- Error messages suggest version-specific issues
+- User asks about recent features or changes
+
+---
+
+## Browser Tools
+
+Cursor provides built-in browser tools for testing and interacting with web applications.
+
+### `browser_navigate`
+**Purpose**: Navigate to a URL
+
+**When to Use**:
+- Testing web application features
+- Verifying UI implementations
+- Checking deployed changes
+
+### `browser_snapshot`
+**Purpose**: Capture accessibility snapshot of current page
+
+**When to Use**:
+- Understanding page structure
+- Finding elements to interact with
+- Better than screenshots for element identification
+
+**Best Practices**:
+- Call snapshot BEFORE clicking/typing to get element refs
+- Use returned refs for subsequent interactions
+
+### `browser_click`
+**Purpose**: Click on web page elements
+
+**Parameters**:
+- `element`: Human-readable element description
+- `ref`: Exact target element reference from snapshot
+- `button`: Button to click (defaults to left)
+- `doubleClick`: Whether to double-click
+
+### `browser_type`
+**Purpose**: Type text into editable elements
+
+**Parameters**:
+- `element`: Human-readable element description
+- `ref`: Exact target element reference from snapshot
+- `text`: Text to type
+- `submit`: Whether to press Enter after typing
+- `slowly`: Type one character at a time (for key handlers)
+
+### `browser_hover`
+**Purpose**: Hover over elements (for tooltips, dropdowns)
+
+### `browser_select_option`
+**Purpose**: Select options in dropdowns
+
+### `browser_press_key`
+**Purpose**: Press keyboard keys (e.g., ArrowLeft, Enter, Escape)
+
+### `browser_wait_for`
+**Purpose**: Wait for conditions
+
+**Parameters**:
+- `text`: Wait for text to appear
+- `textGone`: Wait for text to disappear
+- `time`: Wait for specified seconds
+
+### `browser_navigate_back`
+**Purpose**: Go back to previous page
+
+### `browser_resize`
+**Purpose**: Resize browser window for responsive testing
+
+### `browser_console_messages`
+**Purpose**: Get all console messages (errors, warnings, logs)
+
+**When to Use**:
+- Debugging JavaScript errors
+- Checking for runtime issues
+- Verifying console output
+
+### `browser_network_requests`
+**Purpose**: Get all network requests since page load
+
+**When to Use**:
+- Debugging API calls
+- Verifying request/response data
+- Checking for failed requests
+
+### Browser Testing Workflow
+
+```
+1. Navigate to the page
+   → browser_navigate(url="http://localhost:3000")
+
+2. Snapshot to get elements
+   → browser_snapshot()
+
+3. Interact using refs from snapshot
+   → browser_click(element="Submit button", ref="btn-submit")
+
+4. Wait for changes if needed
+   → browser_wait_for(text="Success")
+
+5. Snapshot again to verify
+   → browser_snapshot()
+
+6. Check console/network for issues
+   → browser_console_messages()
+   → browser_network_requests()
+```
+
+### Proactive Browser Usage
+
+Don't wait for explicit requests - use browser tools proactively when:
+- You've implemented a UI feature → test it immediately
+- User reports a visual bug → navigate and inspect
+- You need to verify API integrations → check network requests
+- You're debugging frontend issues → check console messages
+
 ---
 
 ## Edit Tools
@@ -326,6 +446,13 @@ Need external info?
 ├─ Real-time data → web_search (Cursor native)
 ├─ MiniMax search → call_mcp_tool (MiniMax web_search)
 └─ Image analysis → call_mcp_tool (MiniMax understand_image)
+
+Need to test web UI?
+├─ Navigate to page → browser_navigate
+├─ Get page structure → browser_snapshot
+├─ Interact with elements → browser_click / browser_type
+├─ Check for errors → browser_console_messages
+└─ Debug API calls → browser_network_requests
 ```
 
 ## Parallel vs Sequential Tool Calls
