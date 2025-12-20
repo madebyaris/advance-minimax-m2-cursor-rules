@@ -8,6 +8,138 @@ alwaysApply: false
 
 Modern Flutter patterns for cross-platform mobile, web, and desktop development.
 
+## CRITICAL: Agentic-First Flutter Development
+
+### Pre-Development Verification (MANDATORY)
+
+Before writing ANY Flutter code:
+
+```
+1. CHECK FLUTTER INSTALLATION
+   → run_terminal_cmd("flutter --version")
+   → run_terminal_cmd("flutter doctor")
+   
+2. VERIFY CURRENT VERSIONS (use web_search)
+   → web_search("Flutter stable version December 2024")
+   → web_search("Dart SDK version December 2024")
+   
+3. CHECK EXISTING PROJECT
+   → Does pubspec.yaml exist? Read it first!
+   → What Flutter/Dart SDK is specified?
+   → Are dependencies already installed?
+   
+4. FOR NEW PROJECTS - USE flutter create
+   → NEVER manually create pubspec.yaml from scratch
+   → run_terminal_cmd("flutter create my_app")
+```
+
+### CLI-First Flutter Development
+
+**ALWAYS use Flutter CLI:**
+```bash
+# Project creation (NEVER manually create pubspec.yaml)
+flutter create my_app
+flutter create --org com.example my_app
+flutter create --template package my_package
+
+# Add dependencies (NEVER manually edit pubspec.yaml for adding)
+flutter pub add provider
+flutter pub add go_router
+flutter pub add flutter_bloc
+flutter pub add dio
+flutter pub add freezed --dev
+flutter pub add build_runner --dev
+
+# Get dependencies (ALWAYS after any pubspec change)
+flutter pub get
+
+# Code generation (for freezed, json_serializable)
+dart run build_runner build --delete-conflicting-outputs
+
+# Verify project health
+flutter analyze
+flutter test
+```
+
+### Post-Edit Verification
+
+After ANY Flutter code changes, ALWAYS run:
+
+```bash
+# Get dependencies
+flutter pub get
+
+# Analyze for issues
+flutter analyze
+
+# Run tests
+flutter test
+
+# Check formatting
+dart format --set-exit-if-changed .
+```
+
+### Common Dart/Flutter Syntax Traps (Avoid These!)
+
+```dart
+// WRONG: Missing const for immutable widgets
+Widget build(BuildContext context) {
+  return Container(  // Should be const Container()
+    child: Text('Hello'),
+  );
+}
+
+// CORRECT: Use const where possible
+Widget build(BuildContext context) {
+  return const Container(
+    child: Text('Hello'),
+  );
+}
+
+// WRONG: Not disposing controllers
+class _MyWidgetState extends State<MyWidget> {
+  final controller = TextEditingController();
+  // Missing dispose!
+}
+
+// CORRECT: Always dispose controllers
+class _MyWidgetState extends State<MyWidget> {
+  final controller = TextEditingController();
+  
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+// WRONG: Using setState after dispose
+void _onDataLoaded(data) async {
+  await fetchMore();
+  setState(() {  // Might be called after dispose!
+    this.data = data;
+  });
+}
+
+// CORRECT: Check mounted before setState
+void _onDataLoaded(data) async {
+  await fetchMore();
+  if (mounted) {
+    setState(() {
+      this.data = data;
+    });
+  }
+}
+
+// WRONG: Missing required in named parameters (Dart 3+)
+void greet({String name}) { }  // Error in null-safe Dart
+
+// CORRECT: Use required for non-nullable required params
+void greet({required String name}) { }
+```
+
+---
+
 ## Widget Fundamentals
 
 ### StatelessWidget

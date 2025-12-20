@@ -8,6 +8,176 @@ alwaysApply: false
 
 Modern Python (3.10+) best practices for web development, data science, and general programming.
 
+## CRITICAL: Agentic-First Python Development
+
+### Pre-Development Verification (MANDATORY)
+
+Before writing ANY Python code:
+
+```
+1. CHECK PYTHON INSTALLATION
+   → run_terminal_cmd("python3 --version")
+   → run_terminal_cmd("pip --version")
+   → run_terminal_cmd("uv --version")  # Modern package manager
+   
+2. VERIFY CURRENT VERSIONS (use web_search)
+   → web_search("Python stable version December 2024")
+   → web_search("FastAPI latest version 2024")
+   → web_search("Django LTS version 2024")
+   
+3. CHECK EXISTING PROJECT
+   → Does pyproject.toml/requirements.txt exist? Read it first!
+   → Is there a virtual environment?
+   → What dependencies are already installed?
+   
+4. VIRTUAL ENVIRONMENT (ALWAYS USE)
+   → run_terminal_cmd("python3 -m venv .venv")
+   → run_terminal_cmd("source .venv/bin/activate")
+```
+
+### CLI-First Python Development
+
+**ALWAYS use CLI for package management:**
+```bash
+# Virtual environment (ALWAYS create first)
+python3 -m venv .venv
+source .venv/bin/activate  # Unix
+.venv\Scripts\activate  # Windows
+
+# Modern: uv (10-100x faster than pip)
+uv venv
+uv pip install fastapi uvicorn
+uv pip sync requirements.txt
+
+# Traditional: pip
+pip install fastapi uvicorn
+pip install -r requirements.txt
+pip freeze > requirements.txt
+
+# Framework CLIs (use these for scaffolding)
+# Django
+django-admin startproject myproject
+python manage.py startapp myapp
+
+# FastAPI with cookiecutter
+pip install cookiecutter
+cookiecutter https://github.com/tiangolo/full-stack-fastapi-template
+
+# Poetry (if project uses it)
+poetry init
+poetry add fastapi
+poetry install
+```
+
+### Post-Edit Verification
+
+After ANY Python code changes:
+
+```bash
+# Type checking
+mypy src/
+
+# Linting
+ruff check .
+ruff format --check .
+
+# Or older tools
+flake8 .
+black --check .
+
+# Tests
+pytest
+pytest --cov=src
+
+# Verify imports work
+python -c "import mypackage"
+```
+
+### Common Python Syntax Traps (Avoid These!)
+
+```python
+# WRONG: Mutable default argument
+def append_to(item, target=[]):  # Bug! List is shared!
+    target.append(item)
+    return target
+
+# CORRECT: Use None as default
+def append_to(item, target=None):
+    if target is None:
+        target = []
+    target.append(item)
+    return target
+
+# WRONG: Not using context managers for files
+f = open('file.txt')
+data = f.read()
+f.close()  # Might not run if exception occurs!
+
+# CORRECT: Always use with statement
+with open('file.txt') as f:
+    data = f.read()
+
+# WRONG: Bare except clause
+try:
+    risky_operation()
+except:  # Catches EVERYTHING including KeyboardInterrupt!
+    pass
+
+# CORRECT: Catch specific exceptions
+try:
+    risky_operation()
+except (ValueError, TypeError) as e:
+    logger.error(f"Operation failed: {e}")
+
+# WRONG: Late binding in closures
+funcs = [lambda: i for i in range(3)]
+[f() for f in funcs]  # Returns [2, 2, 2], not [0, 1, 2]!
+
+# CORRECT: Capture value as default argument
+funcs = [lambda i=i: i for i in range(3)]
+[f() for f in funcs]  # Returns [0, 1, 2]
+
+# WRONG: Using is for value comparison
+if x is 1:  # Works sometimes, but wrong!
+    pass
+
+# CORRECT: Use == for values, is for identity
+if x == 1:  # Value comparison
+    pass
+if x is None:  # Identity (OK for None, True, False)
+    pass
+```
+
+### Python Version-Specific Features
+
+Check Python version before using new features:
+
+```python
+# Python 3.10+ Pattern Matching
+match command:
+    case ["quit"]:
+        return "Goodbye"
+    case _:
+        return "Unknown"
+
+# Python 3.9+ Built-in Generic Types
+def process(items: list[str]) -> dict[str, int]:
+    pass
+
+# Python 3.8+ Walrus Operator
+if (n := len(data)) > 10:
+    print(f"Processing {n} items")
+
+# Check version in code if needed
+import sys
+if sys.version_info >= (3, 10):
+    # Use match statement
+else:
+    # Use if/elif chain
+```
+
+---
+
 ## Modern Python Syntax
 
 ### Type Hints

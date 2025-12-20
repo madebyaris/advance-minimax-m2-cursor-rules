@@ -8,6 +8,155 @@ alwaysApply: false
 
 Containerization, orchestration, infrastructure as code, and CI/CD best practices.
 
+## CRITICAL: Agentic-First DevOps
+
+### Pre-Development Verification (MANDATORY)
+
+Before writing ANY DevOps configuration:
+
+```
+1. CHECK TOOL AVAILABILITY
+   → run_terminal_cmd("docker --version")
+   → run_terminal_cmd("kubectl version --client")
+   → run_terminal_cmd("terraform --version")
+   → run_terminal_cmd("helm version")
+   
+2. VERIFY CURRENT VERSIONS (use web_search)
+   → web_search("Terraform latest version December 2024")
+   → web_search("Kubernetes latest stable version 2024")
+   → web_search("Docker best practices 2024")
+   
+3. CHECK EXISTING INFRASTRUCTURE
+   → Read existing Dockerfile, docker-compose.yml, *.tf files
+   → Understand current state before modifying
+   → Check terraform.tfstate or remote state
+   
+4. VALIDATE CONFIGURATIONS BEFORE APPLYING
+   → terraform validate
+   → docker-compose config
+   → kubectl apply --dry-run=client
+```
+
+### CLI-First DevOps Workflow
+
+**ALWAYS use CLI for validation:**
+```bash
+# Docker
+docker build -t test:latest .
+docker-compose config  # Validate compose file
+docker-compose up --dry-run  # Test without running
+
+# Kubernetes
+kubectl apply --dry-run=client -f manifest.yaml
+kubectl diff -f manifest.yaml  # See changes before applying
+kubeval manifest.yaml  # Validate against schema
+
+# Terraform
+terraform init
+terraform fmt -recursive
+terraform validate
+terraform plan -out=tfplan  # ALWAYS plan before apply
+
+# Helm
+helm lint ./my-chart
+helm template ./my-chart  # Render templates locally
+helm install --dry-run --debug my-release ./my-chart
+```
+
+### Post-Edit Verification
+
+After ANY infrastructure code changes:
+
+```bash
+# Docker
+docker build --no-cache -t test:latest .
+docker run --rm test:latest echo "Build verified"
+
+# Terraform
+terraform fmt -check -recursive
+terraform validate
+terraform plan
+
+# Kubernetes
+kubectl apply --dry-run=server -f .  # Server-side validation
+kubectl get events --sort-by='.lastTimestamp'  # Check for issues
+```
+
+### Common DevOps Syntax Traps (Avoid These!)
+
+```yaml
+# WRONG: YAML indentation with tabs
+services:
+	app:      # Tab character - YAML error!
+		image: nginx
+
+# CORRECT: Always use spaces (2 spaces standard)
+services:
+  app:
+    image: nginx
+
+# WRONG: Missing quotes for special values
+environment:
+  - VERSION=1.0      # Might be parsed as number
+  - ENABLED=true     # Might be parsed as boolean
+
+# CORRECT: Quote string values
+environment:
+  - VERSION="1.0"
+  - ENABLED="true"
+
+# WRONG: Hardcoded secrets in config
+env:
+  - name: DB_PASSWORD
+    value: "supersecret123"  # NEVER do this!
+
+# CORRECT: Use secrets
+env:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-secrets
+        key: password
+```
+
+### Infrastructure Version Pinning
+
+Always pin versions explicitly:
+
+```dockerfile
+# WRONG
+FROM node:latest
+FROM python
+
+# CORRECT - Pin major.minor at minimum
+FROM node:20-alpine
+FROM python:3.12-slim
+```
+
+```hcl
+# WRONG
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
+# CORRECT - Pin provider versions
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+```
+
+---
+
 ## Docker
 
 ### Dockerfile Best Practices

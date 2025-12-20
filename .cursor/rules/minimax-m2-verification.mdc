@@ -1,0 +1,604 @@
+---
+description: "MiniMax M2.1 verification protocols: code compilation, UI testing, syntax correctness, and production-readiness checks"
+alwaysApply: true
+---
+
+# MiniMax M2.1 Verification Protocols
+
+Code generation is NOT complete until verification passes. This rule defines mandatory verification steps.
+
+## Golden Rule
+
+> **Code that isn't verified is code that doesn't work.**
+
+Every piece of generated code must be verified before considering the task complete.
+
+---
+
+## Pre-Generation Checks
+
+### Before Writing ANY Code
+
+```
+<think>
+[PRE-GENERATION CHECKLIST]
+
+1. Package versions verified? 
+   □ Searched current versions with date
+   □ Checked compatibility
+
+2. CLI tools checked?
+   □ Searched for available scaffolding CLI
+   □ Searched for component generation CLI
+
+3. Project patterns understood?
+   □ Read existing code for conventions
+   □ Identified import patterns
+   □ Noted styling approach
+
+4. IDE project files required?
+   □ If Xcode/VS/.sln needed → REFUSE, instruct user
+   □ If not needed → Proceed
+</think>
+```
+
+---
+
+## Language-Specific Syntax Reference
+
+### JavaScript / TypeScript
+
+**Correct Patterns:**
+```typescript
+// Variable declarations
+const immutable = 'value';
+let mutable = 'value';
+// NEVER: var
+
+// Async/await
+async function fetchData(): Promise<Data> {
+  const response = await fetch('/api');
+  return await response.json();
+}
+// NEVER: awiat, asyc, fecth
+
+// Arrow functions
+const handler = (event: Event) => {
+  event.preventDefault();
+};
+// NEVER: evnet, prevetDefault
+
+// Destructuring
+const { name, age } = user;
+const [first, ...rest] = items;
+
+// Template literals
+const message = `Hello, ${name}!`;
+// NEVER: 'Hello, ' + name + '!'
+
+// Optional chaining
+const value = obj?.nested?.property;
+// NEVER: obj && obj.nested && obj.nested.property
+```
+
+**Common Typos to Avoid:**
+| Wrong | Correct |
+|-------|---------|
+| `awiat` | `await` |
+| `asyc` | `async` |
+| `fucntion` | `function` |
+| `reutrn` | `return` |
+| `conts` | `const` |
+| `lenght` | `length` |
+| `calback` | `callback` |
+| `respone` | `response` |
+| `requst` | `request` |
+| `exprot` | `export` |
+| `improt` | `import` |
+| `undefiend` | `undefined` |
+
+### React / JSX / TSX
+
+**Correct Patterns:**
+```tsx
+// Functional component
+export function Component({ prop }: { prop: string }) {
+  return <div className="container">{prop}</div>;
+}
+// NEVER: class=, fucntion, reutrn
+
+// Hooks
+const [state, setState] = useState<string>('');
+const ref = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  // effect
+  return () => { /* cleanup */ };
+}, [dependency]);
+// NEVER: usestate, useeffect, useRef (case matters!)
+
+// Event handlers
+<button onClick={(e) => handleClick(e)}>
+  Click me
+</button>
+// NEVER: onclick, onClick={handleClick()} (don't call the function)
+
+// Conditional rendering
+{isVisible && <Component />}
+{condition ? <A /> : <B />}
+// NEVER: {isVisible & <Component />}
+
+// Lists with keys
+{items.map((item) => (
+  <Item key={item.id} data={item} />
+))}
+// NEVER: forget key prop
+```
+
+**Common React Typos to Avoid:**
+| Wrong | Correct |
+|-------|---------|
+| `class=` | `className=` |
+| `classname=` | `className=` |
+| `onclick` | `onClick` |
+| `onlcick` | `onClick` |
+| `onchange` | `onChange` |
+| `usestate` | `useState` |
+| `useEffect` | `useEffect` (correct) |
+| `useeffect` | `useEffect` |
+| `useMemo` | `useMemo` (correct) |
+| `useCallBack` | `useCallback` |
+| `<Component>` without closing | `<Component />` or `<Component></Component>` |
+
+### Python
+
+**Correct Patterns:**
+```python
+# Function definition
+def function_name(param: str, optional: int = 10) -> bool:
+    """Docstring describing the function."""
+    return True
+
+# NEVER: def fucntion, retrun, Ture, Flase
+
+# Async function
+async def fetch_data(url: str) -> dict:
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(url)
+        return await response.json()
+
+# NEVER: asyc def, awiat, sesion
+
+# Class definition
+class MyClass:
+    def __init__(self, value: str) -> None:
+        self.value = value
+    
+    def method(self) -> str:
+        return self.value
+
+# NEVER: def __int__, slef, calss
+
+# List/dict comprehensions
+squares = [x ** 2 for x in range(10)]
+mapping = {k: v for k, v in items.items()}
+
+# Context managers
+with open('file.txt', 'r') as f:
+    content = f.read()
+```
+
+**Common Python Typos to Avoid:**
+| Wrong | Correct |
+|-------|---------|
+| `def __int__` | `def __init__` |
+| `slef` | `self` |
+| `calss` | `class` |
+| `retrun` | `return` |
+| `Ture` | `True` |
+| `Flase` | `False` |
+| `exept` | `except` |
+| `finaly` | `finally` |
+| `improt` | `import` |
+| `pritn` | `print` |
+| `lsit` | `list` |
+| `dcit` | `dict` |
+
+### Go
+
+**Correct Patterns:**
+```go
+// Function with error handling
+func ProcessData(data []byte) (Result, error) {
+    if len(data) == 0 {
+        return Result{}, errors.New("empty data")
+    }
+    // process
+    return result, nil
+}
+
+// NEVER: fucn, reutrn, erorr
+
+// HTTP handler
+func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
+    if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+}
+
+// NEVER: http.ReponseWriter, http.Requst
+
+// Goroutine with channel
+ch := make(chan string, 10)
+go func() {
+    ch <- "message"
+}()
+result := <-ch
+
+// Defer for cleanup
+file, err := os.Open("file.txt")
+if err != nil {
+    return err
+}
+defer file.Close()
+```
+
+**Common Go Typos to Avoid:**
+| Wrong | Correct |
+|-------|---------|
+| `fucn` | `func` |
+| `reutrn` | `return` |
+| `erorr` | `error` |
+| `stirng` | `string` |
+| `http.ReponseWriter` | `http.ResponseWriter` |
+| `http.Requst` | `http.Request` |
+| `contxt` | `context` |
+| `chanell` | `channel` |
+
+### Rust
+
+**Correct Patterns:**
+```rust
+// Function with Result
+fn process_data(data: &[u8]) -> Result<Value, Error> {
+    if data.is_empty() {
+        return Err(Error::EmptyData);
+    }
+    Ok(value)
+}
+
+// NEVER: fn fucntion, reutrn, Resutl
+
+// Struct with derive
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    pub name: String,
+    pub value: i32,
+}
+
+// Match expression
+match result {
+    Ok(value) => println!("Success: {}", value),
+    Err(e) => eprintln!("Error: {}", e),
+}
+
+// Option handling
+let value = some_option.unwrap_or_default();
+let value = some_option.map(|v| v.process());
+
+// Async with tokio
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let response = reqwest::get("https://api.example.com").await?;
+    Ok(())
+}
+```
+
+**Common Rust Typos to Avoid:**
+| Wrong | Correct |
+|-------|---------|
+| `fn fucntion` | `fn function_name` |
+| `reutrn` | `return` |
+| `Resutl` | `Result` |
+| `Stirng` | `String` |
+| `pulic` | `pub` |
+| `sturct` | `struct` |
+| `imple` | `impl` |
+| `mutalbe` | `mut` |
+
+### Swift
+
+**Correct Patterns:**
+```swift
+// Function with throws
+func fetchData(from url: URL) async throws -> Data {
+    let (data, response) = try await URLSession.shared.data(from: url)
+    guard let httpResponse = response as? HTTPURLResponse,
+          httpResponse.statusCode == 200 else {
+        throw NetworkError.invalidResponse
+    }
+    return data
+}
+
+// NEVER: fucn, retrun, thorws, awiat
+
+// Struct/Class
+struct User: Codable {
+    let id: UUID
+    var name: String
+    var email: String
+}
+
+// SwiftUI View
+struct ContentView: View {
+    @State private var isLoading = false
+    
+    var body: some View {
+        VStack {
+            if isLoading {
+                ProgressView()
+            } else {
+                Text("Hello, World!")
+            }
+        }
+    }
+}
+
+// NEVER: @Sate, strcut, VSTack
+```
+
+**Common Swift Typos to Avoid:**
+| Wrong | Correct |
+|-------|---------|
+| `fucn` | `func` |
+| `retrun` | `return` |
+| `thorws` | `throws` |
+| `awiat` | `await` |
+| `strcut` | `struct` |
+| `@Sate` | `@State` |
+| `@Bindng` | `@Binding` |
+| `VSTack` | `VStack` |
+| `HSTack` | `HStack` |
+
+---
+
+## Post-Generation Verification
+
+### For Every Code Change
+
+```
+<think>
+[POST-GENERATION VERIFICATION]
+
+1. Syntax check:
+   □ No typos in keywords
+   □ Proper indentation
+   □ Balanced brackets/braces
+   □ Correct string quotes
+
+2. Logic check:
+   □ Variables declared before use
+   □ Functions called correctly
+   □ Return types match
+   □ Error handling present
+
+3. Framework check:
+   □ Correct import statements
+   □ Proper component structure
+   □ Framework conventions followed
+</think>
+```
+
+### Build Verification Commands
+
+**Node.js/JavaScript:**
+```
+→ run_terminal_cmd("npm install", required_permissions=["network"])
+→ run_terminal_cmd("npm run build")
+→ run_terminal_cmd("npm run lint")
+→ read_lints(paths=["src/"])
+```
+
+**Python:**
+```
+→ run_terminal_cmd("pip install -r requirements.txt", required_permissions=["network"])
+→ run_terminal_cmd("python -m py_compile main.py")
+→ run_terminal_cmd("python -m pytest", required_permissions=["network"])
+```
+
+**Go:**
+```
+→ run_terminal_cmd("go build ./...")
+→ run_terminal_cmd("go test ./...")
+→ run_terminal_cmd("go vet ./...")
+```
+
+**Rust:**
+```
+→ run_terminal_cmd("cargo check")
+→ run_terminal_cmd("cargo build")
+→ run_terminal_cmd("cargo test")
+→ run_terminal_cmd("cargo clippy")
+```
+
+**C/C++:**
+```
+→ run_terminal_cmd("make")
+→ run_terminal_cmd("make test")
+```
+
+---
+
+## UI Component Verification
+
+### Chart.js Verification Checklist
+
+```
+□ Parent container has fixed height
+□ Position relative on container
+□ Canvas has no explicit height (let Chart.js handle it)
+□ Options include responsive: true
+□ Options include maintainAspectRatio: true OR container has height
+```
+
+**Correct Pattern:**
+```html
+<div style="height: 400px; position: relative;">
+  <canvas id="myChart"></canvas>
+</div>
+
+<script>
+new Chart(ctx, {
+  options: {
+    responsive: true,
+    maintainAspectRatio: false, // OK because container has fixed height
+  }
+});
+</script>
+```
+
+### Form Verification Checklist
+
+```
+□ All inputs have type attribute
+□ Required fields have required attribute
+□ Email fields have email type
+□ Pattern validation where needed
+□ Error messages with aria-describedby
+□ Labels with proper for/id association
+□ Submit button type="submit"
+```
+
+### Interactive Element Verification
+
+```
+□ onclick handlers reference existing functions
+□ Event listeners attached after DOM ready
+□ Modal/dialog functions defined before use
+□ State management initialized
+□ Cleanup on component unmount (React/Vue)
+```
+
+### Browser Testing Protocol
+
+After generating UI code:
+
+```
+// 1. Start dev server if needed
+→ run_terminal_cmd("npm run dev", is_background=true, required_permissions=["network"])
+
+// 2. Wait for server to start
+→ browser_wait_for(time=3)
+
+// 3. Navigate to page
+→ browser_navigate(url="http://localhost:3000")
+
+// 4. Get page snapshot
+→ browser_snapshot()
+
+// 5. Check console for errors
+→ browser_console_messages()
+
+// 6. Test interactive elements
+→ browser_click(element="Submit button", ref="button-submit")
+
+// 7. Verify result
+→ browser_snapshot()
+```
+
+---
+
+## IDE Project File Handling
+
+### NEVER Generate These Files
+
+| File Type | Action |
+|-----------|--------|
+| `.xcodeproj/*` | REFUSE - instruct user to use Xcode |
+| `.xcworkspace/*` | REFUSE - instruct user to use Xcode |
+| `*.pbxproj` | REFUSE - will be corrupted |
+| `*.sln` | REFUSE - instruct user to use Visual Studio |
+| `*.csproj` | REFUSE (complex ones) - simple ones may be OK |
+| `*.gradle` (complex) | REFUSE - instruct user to use Android Studio |
+
+### Proper Response When Asked
+
+```
+<think>
+User wants me to create an Xcode/VS/Android Studio project.
+I cannot generate these project files as they will be corrupted.
+I should explain this clearly.
+</think>
+
+I cannot generate Xcode project files - they have a complex binary-like 
+format that AI models cannot reliably produce. Here's what to do instead:
+
+1. Open Xcode
+2. File → New → Project
+3. Select [appropriate template]
+4. Configure project settings
+5. Once created, I can help you write the Swift/Objective-C code
+
+Would you like me to help with the code after you create the project?
+```
+
+---
+
+## Error Recovery Protocol
+
+### When Verification Fails
+
+```
+<think>
+[ERROR RECOVERY]
+
+Error type: [Build error / Lint error / Runtime error / Visual bug]
+
+Error message: [Exact error]
+
+Root cause analysis:
+- Is it a typo? Check against syntax reference
+- Is it a version mismatch? Web search for compatibility
+- Is it a missing dependency? Check package.json/requirements.txt
+- Is it a logic error? Trace through code flow
+
+Fix approach:
+1. [Specific fix]
+2. [Verification step]
+</think>
+
+[Apply fix]
+[Verify again]
+```
+
+### Common Error Patterns
+
+| Error Pattern | Likely Cause | Fix |
+|---------------|--------------|-----|
+| "Cannot find module X" | Missing dependency | `npm install X` |
+| "X is not defined" | Typo or missing import | Check spelling, add import |
+| "Cannot read property of undefined" | Null/undefined access | Add optional chaining |
+| "Type error: expected X got Y" | Type mismatch | Fix type annotations |
+| "Unexpected token" | Syntax error | Check for typos, brackets |
+| "ENOENT: no such file" | Wrong path | Verify file path |
+
+---
+
+## Verification Summary Checklist
+
+Before marking ANY task complete:
+
+```
+□ Package versions checked with web search
+□ CLI tools used where available
+□ Syntax verified against language reference
+□ No IDE project files generated manually
+□ Build command runs successfully
+□ Linter passes (read_lints)
+□ UI renders correctly (browser tools)
+□ Interactive elements work
+□ Console shows no errors
+□ Error handling is present
+```
+
+**If ANY checkbox is not verified, the task is NOT complete.**

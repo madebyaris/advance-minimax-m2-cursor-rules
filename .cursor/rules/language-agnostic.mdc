@@ -7,6 +7,48 @@ alwaysApply: true
 
 Universal principles and patterns applicable across all programming languages.
 
+## CRITICAL: Development Workflow
+
+### CLI-First Principle
+
+Before manually creating ANY file, check if a CLI tool exists:
+
+| Task | Check for CLI | Example |
+|------|---------------|---------|
+| New project | Scaffolding CLI | `npm create`, `cargo new`, `flutter create` |
+| New component | Generator CLI | `npx shadcn-ui add`, `ng generate`, `rails generate` |
+| New module | Framework CLI | `nest generate module` |
+| Dependencies | Package manager | `npm install`, `pip install` |
+
+### Verification-First Principle
+
+Code is not done until it's verified:
+
+```
+1. Write code
+2. Build/compile: Does it compile?
+3. Lint: Are there warnings?
+4. Run: Does it execute?
+5. Test: Does it work correctly?
+```
+
+### Version-Aware Development
+
+Always verify package versions before using:
+
+```
+<think>
+Before using package X:
+1. What's the current stable version?
+2. Is it compatible with my other dependencies?
+3. Are there known issues?
+</think>
+
+→ web_search("[package] latest stable version [current month year]")
+```
+
+---
+
 ## SOLID Principles
 
 ### Single Responsibility Principle (SRP)

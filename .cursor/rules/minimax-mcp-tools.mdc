@@ -1,35 +1,75 @@
 ---
-description: "MiniMax native MCP tools: web_search for real-time information, understand_image for visual analysis and screenshot interpretation"
+description: "MiniMax M2.1 MCP tools: web_search for version checking and real-time info, understand_image for visual analysis, Context7 for documentation"
 alwaysApply: true
 ---
 
-# MiniMax MCP Tools Integration
+# MiniMax M2.1 MCP Tools Integration
 
-MiniMax provides powerful MCP tools that enhance your development workflow with real-time information and visual analysis capabilities.
+MiniMax provides powerful MCP tools that are ESSENTIAL for reliable code generation. **Version checking and verification are not optional.**
 
-## Available Tools
+## Critical Workflow: Version Checking
 
-### `web_search`
-**Purpose**: Search the internet for real-time information
+### MANDATORY Before Using Any Package
 
-### `understand_image`
-**Purpose**: Analyze images, screenshots, UI mockups, and diagrams using Vision Language Model
+Every time you need to use a package/library:
+
+```
+<think>
+[VERSION CHECK REQUIRED]
+
+Package: [package-name]
+Current date: [get from context, e.g., December 2024]
+Framework context: [what framework/project]
+
+Step 1: Web search for current version
+Step 2: If unclear, use Context7
+Step 3: Verify compatibility with project
+</think>
+```
+
+### Version Check Execution Pattern
+
+```
+// Step 1: Always include current month and year in search
+→ web_search("react latest stable version December 2024")
+→ web_search("next.js 15 vs 14 which stable December 2024")
+→ web_search("tailwindcss npm latest version 2024")
+
+// Step 2: If web search is inconclusive
+→ resolve-library-id(libraryName="react")
+→ get-library-docs(context7CompatibleLibraryID="/facebook/react", topic="installation")
+
+// Step 3: Check compatibility
+→ web_search("react 19 next.js 15 compatibility issues 2024")
+```
+
+### When to Check Versions
+
+| Situation | Action |
+|-----------|--------|
+| New project creation | Check ALL major dependencies |
+| Adding new package | Check package + peer dependencies |
+| User mentions library | Verify current stable version |
+| Build/runtime error | Check for version conflicts |
+| Migration/upgrade | Check breaking changes |
 
 ---
 
-## Important: Tool Call Formatting
+## Tool Call Formatting
 
-When calling MiniMax MCP tools, ensure:
+### CRITICAL: Proper JSON Format
+
+When calling MiniMax MCP tools:
 
 1. **Use proper JSON** - Arguments must be valid JSON strings
 2. **Escape special characters** - Quotes, newlines, and backslashes must be escaped
-3. **Don't include thinking blocks** - `<think>` content goes BEFORE the tool call, not inside arguments
-4. **Don't include arrow symbols** - The `→` in examples is illustrative only
+3. **Don't include thinking blocks** - `<think>` content goes BEFORE the tool call
+4. **Keep queries simple** - 3-5 keywords work best
 
 **Correct format:**
 ```json
 {
-  "query": "React 19 hooks documentation 2024"
+  "query": "React 19 hooks documentation December 2024"
 }
 ```
 
@@ -50,96 +90,89 @@ Performs web searches similar to Google Search, returning structured results wit
 ### Parameters
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `query` | string | Yes | Search query (3-5 keywords recommended) |
-
-### When to Use
-
-**Use `web_search` for:**
-- Current API documentation or changelog information
-- Recent solutions to errors or issues
-- Security advisories and CVEs
-- Library/framework updates not in training data
-- Best practices that may have evolved
-- Version-specific documentation
-
-**Don't use for:**
-- Information clearly available in the codebase
-- Well-established concepts that don't change
-- Personal opinions or recommendations
+| `query` | string | Yes | Search query (3-5 keywords + date recommended) |
 
 ### Best Practices
 
-#### 1. Use 3-5 Specific Keywords
+#### 1. ALWAYS Include Current Date for Version Queries
 ```
-Good: "React 19 useOptimistic hook example 2025"
-Bad:  "how to use react hooks"
+✅ Good: "Next.js 15 stable release December 2024"
+❌ Bad:  "Next.js latest version"
+
+✅ Good: "shadcn/ui installation guide 2024"
+❌ Bad:  "how to install shadcn"
 ```
 
-#### 2. Add Dates for Time-Sensitive Queries
+#### 2. Include Version Numbers When Known
 ```
-Good: "Next.js 15 app router changes December 2024"
-Bad:  "Next.js router"
+✅ Good: "TypeScript 5.3 satisfies operator examples"
+❌ Bad:  "TypeScript new features"
+
+✅ Good: "React 19 useFormStatus hook usage"
+❌ Bad:  "React form hooks"
 ```
 
-#### 3. Include Version Numbers
+#### 3. Add Framework Context
 ```
-Good: "TypeScript 5.3 satisfies operator"
-Bad:  "TypeScript new features"
+✅ Good: "Chart.js container height issue Next.js app router 2024"
+❌ Bad:  "Chart.js not working"
+
+✅ Good: "Tailwind CSS v4 migration from v3 December 2024"
+❌ Bad:  "Tailwind upgrade"
 ```
 
-#### 4. Change Keywords if No Results
-If initial search returns poor results, reformulate:
+#### 4. Reformulate if No Good Results
 ```
 Original: "react server components streaming"
-Retry:    "RSC streaming SSR Next.js 14"
+Retry:    "RSC streaming SSR Next.js 15 December 2024"
+
+Original: "shadcn button not working"
+Retry:    "shadcn/ui button component tailwind config error 2024"
 ```
 
-### Example Usage Patterns
+### Usage Patterns
 
-#### Finding Documentation
-```
-<think>
-User is asking about a feature in React 19 that I may not have current info on.
-I should search for the latest documentation.
-</think>
-
-→ web_search("React 19 use hook async data fetching 2024")
-```
-
-#### Debugging Errors
+#### Version Checking (MOST IMPORTANT)
 ```
 <think>
-User has an error message I don't immediately recognize.
-Let me search for recent solutions.
+User wants to create a Next.js app. I need to check current stable versions
+before proceeding. Current date: December 2024.
 </think>
 
-→ web_search("Next.js 14 NEXT_REDIRECT error build time")
+→ web_search("Next.js npm latest stable version December 2024")
+→ web_search("React 19 stable release date 2024")
+→ web_search("create-next-app latest version December 2024")
 ```
 
-#### Security Advisories
+#### CLI Tool Availability
 ```
 <think>
-Before recommending this library, I should check for recent security issues.
+Before manually creating files, I should check if there's a CLI tool
+available for this task.
 </think>
 
-→ web_search("lodash security vulnerability CVE 2024")
+→ web_search("shadcn-ui CLI add components command 2024")
+→ web_search("next.js create-next-app options typescript tailwind 2024")
 ```
 
-### Response Structure
-```json
-{
-  "organic": [
-    {
-      "title": "Result title",
-      "link": "https://example.com/page",
-      "snippet": "Brief description or excerpt",
-      "date": "Publication date"
-    }
-  ],
-  "related_searches": [
-    {"query": "Related search suggestion"}
-  ]
-}
+#### Error Debugging
+```
+<think>
+User has an error I don't recognize. Let me search for recent solutions.
+</think>
+
+→ web_search("Next.js 15 NEXT_REDIRECT error app router 2024")
+→ web_search("hydration mismatch error React 19 server components")
+```
+
+#### Breaking Changes Check
+```
+<think>
+Before suggesting an upgrade, I should check for breaking changes.
+</think>
+
+→ web_search("Next.js 15 breaking changes from 14 migration guide")
+→ web_search("React 19 breaking changes upgrade path 2024")
 ```
 
 ---
@@ -159,15 +192,12 @@ Analyzes images using a Vision Language Model (VLM) to extract information, desc
 - ✅ JPEG / JPG
 - ✅ PNG
 - ✅ WebP
-- ❌ PDF
-- ❌ GIF
-- ❌ PSD
-- ❌ SVG
+- ❌ PDF, GIF, PSD, SVG
 
 ### When to Use
 
 **Use `understand_image` for:**
-- Analyzing screenshots of UI issues
+- Analyzing screenshots of UI issues (like infinite chart expansion)
 - Reading error messages from images
 - Understanding architecture diagrams
 - Interpreting flowcharts or wireframes
@@ -175,205 +205,43 @@ Analyzes images using a Vision Language Model (VLM) to extract information, desc
 - Debugging visual layout problems
 - Understanding UI mockups before implementation
 
-### Prompt Examples
+### Usage Patterns
 
-#### For UI Screenshots
-```
-"Describe the UI layout, components, and styling of this interface"
-"What interactive elements are visible in this screenshot?"
-"Identify any accessibility issues in this design"
-```
-
-#### For Error Messages
-```
-"What error message is displayed in this screenshot?"
-"Explain the error and suggest potential fixes"
-"What stack trace information is visible?"
-```
-
-#### For Code Screenshots
-```
-"Explain the code shown in this image"
-"What programming language is this and what does it do?"
-"Identify any bugs or issues in this code"
-```
-
-#### For Architecture Diagrams
-```
-"Describe the system architecture shown in this diagram"
-"What are the main components and how do they interact?"
-"Identify the data flow in this architecture"
-```
-
-#### For Wireframes/Mockups
-```
-"Describe all the UI elements in this wireframe"
-"What user interactions are implied by this design?"
-"List the components I would need to build this interface"
-```
-
-### Best Practices
-
-#### 1. Use Specific Prompts
-```
-Good: "What CSS properties might be causing the button to overflow its container?"
-Bad:  "What's wrong with this?"
-```
-
-#### 2. Ask for What You Need
-```
-Good: "Extract all the text visible in this error dialog, including button labels"
-Bad:  "Tell me about this image"
-```
-
-#### 3. Handle File Paths Correctly
-Remove `@` prefix if present:
-```
-Good: "/Users/name/Desktop/screenshot.png"
-Bad:  "@/Users/name/Desktop/screenshot.png"
-```
-
-#### 4. Always Use the Analysis Result
-The tool returns valuable information - incorporate it into your response.
-
-### Example Usage Patterns
-
-#### Debugging UI Issues
+#### Debugging Visual Bugs
 ```
 <think>
-User shared a screenshot of a layout problem.
-Let me analyze it to understand the issue.
+User reports charts expanding infinitely. Let me analyze the screenshot
+to understand the issue.
 </think>
 
 → understand_image(
-    prompt="Describe the layout issue visible in this screenshot. What CSS properties might be causing the problem?",
+    prompt="Describe the layout issue. What CSS properties or container settings might be causing elements to expand beyond their intended size?",
     image_source="/path/to/screenshot.png"
   )
 ```
 
-#### Understanding Error Messages
+#### Verifying UI Implementation
 ```
 <think>
-User shared a screenshot of an error.
-I need to read and understand the error message.
+I've implemented a component. Let me verify it renders correctly
+by taking a screenshot and analyzing it.
 </think>
 
+→ browser_take_screenshot()
 → understand_image(
-    prompt="Read the complete error message and stack trace. What is the root cause?",
-    image_source="https://example.com/error-screenshot.jpg"
-  )
-```
-
-#### Implementing from Mockups
-```
-<think>
-User provided a design mockup to implement.
-Let me understand the structure and components.
-</think>
-
-→ understand_image(
-    prompt="List all UI components in this mockup. Describe the layout structure, spacing, colors, and typography.",
-    image_source="/path/to/mockup.png"
+    prompt="Does this UI match the expected design? Are there any visual issues like overflow, misalignment, or incorrect spacing?",
+    image_source="/path/to/screenshot.png"
   )
 ```
 
 ---
 
-## Tool Chaining Patterns
+## Context7 MCP Integration
 
-### Pattern 1: Image → Code Fix
-```
-1. Analyze screenshot of bug with understand_image
-2. Identify the issue from analysis
-3. Search for solutions with web_search if needed
-4. Implement the fix
-```
+Context7 provides up-to-date library documentation directly in your workflow.
 
-### Pattern 2: Diagram → Implementation
-```
-1. Analyze architecture diagram with understand_image
-2. Extract component structure
-3. Search for best practices with web_search
-4. Create implementation plan
-```
-
-### Pattern 3: Error → Solution
-```
-1. Read error from screenshot with understand_image
-2. Search for solutions with web_search
-3. Apply fix and verify
-```
-
-### Pattern 4: Mockup → Component
-```
-1. Analyze mockup with understand_image
-2. Identify UI patterns and components
-3. Search for component libraries if applicable
-4. Implement the design
-```
-
----
-
-## Error Handling
-
-### API Error 400/2013: Invalid Function Arguments
-This error occurs when tool arguments contain invalid JSON:
-
-**Causes:**
-- Unescaped special characters in strings
-- Including `<think>` blocks inside arguments
-- Malformed JSON structure
-
-**Solution:**
-- Keep arguments simple and clean
-- Use only plain text in query/prompt parameters
-- Ensure all strings are properly escaped
-
-### web_search Errors
-- If no results: Try different keywords
-- If rate limited: Wait and retry
-- If irrelevant results: Refine query with more specific terms
-
-### understand_image Errors
-- If format not supported: Request a supported format (JPEG, PNG, WebP)
-- If file not found: Verify the path and ensure file exists
-- If analysis unclear: Ask with a more specific prompt
-
----
-
-## Integration with Cursor Tools
-
-### Combine with codebase_search
-```
-1. Use web_search to find current best practices
-2. Use codebase_search to find existing patterns
-3. Combine both for informed implementation
-```
-
-### Combine with read_file
-```
-1. Use understand_image to analyze error screenshot
-2. Use read_file to examine the relevant code
-3. Apply fix using search_replace
-```
-
-### Combine with run_terminal_cmd
-```
-1. Use web_search to find the correct command/package
-2. Use run_terminal_cmd to install/execute
-3. Verify results
-```
-
----
-
-## Optional Enhancement: Context7 MCP
-
-Context7 is an optional MCP server that provides up-to-date library documentation directly in your workflow. It's especially useful when you need accurate, current API references.
-
-### Installation
-
-Add to your Cursor MCP settings (`.cursor/mcp.json`):
-
+### Setup
+Add to `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
@@ -385,120 +253,251 @@ Add to your Cursor MCP settings (`.cursor/mcp.json`):
 }
 ```
 
-### Available Tools
+### Tools
 
 #### 1. `resolve-library-id`
-**Purpose**: Find the Context7-compatible library ID for any package
+Find the Context7-compatible library ID for any package.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `libraryName` | string | Yes | Library name to search for |
-
-**Example**:
 ```
 → resolve-library-id(libraryName="next.js")
 Returns: /vercel/next.js
 ```
 
 #### 2. `get-library-docs`
-**Purpose**: Fetch up-to-date documentation for a library
+Fetch up-to-date documentation for a library.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `context7CompatibleLibraryID` | string | Yes | Library ID (e.g., `/vercel/next.js`) |
-| `mode` | string | No | `code` (default) for API/examples, `info` for guides |
+| `mode` | string | No | `code` for API/examples, `info` for guides |
 | `topic` | string | No | Focus topic (e.g., `hooks`, `routing`) |
 | `page` | integer | No | Pagination (1-10) for more results |
 
-### Usage Workflow
-
-**Always call `resolve-library-id` first**, then use the returned ID with `get-library-docs`:
-
-```
-Step 1: Resolve the library
-→ resolve-library-id(libraryName="react")
-Result: /facebook/react
-
-Step 2: Get documentation
-→ get-library-docs(
-    context7CompatibleLibraryID="/facebook/react",
-    topic="hooks",
-    mode="code"
-  )
-```
-
 ### When to Use Context7
 
-**Use Context7 for:**
-- Getting accurate, up-to-date API references
-- Finding code examples for specific library features
-- Understanding library-specific patterns and best practices
-- Verifying function signatures and parameters
+**Use Context7 when:**
+- Web search didn't provide clear version/API information
+- Need accurate function signatures and parameters
+- Looking for official code examples
+- Verifying API usage patterns
 
-**Use `web_search` instead when:**
-- Searching for general solutions or tutorials
-- Looking for community discussions or Stack Overflow answers
-- Finding security advisories or changelogs
+**Prefer web_search when:**
+- Checking latest versions (Context7 may lag behind releases)
+- Looking for community solutions or workarounds
+- Searching for security advisories
 - Comparing multiple libraries
 
-### Example Patterns
+### Fallback Pattern
 
-#### Getting React Hook Documentation
 ```
 <think>
-User wants to use useTransition in React 19.
-Let me get the latest documentation.
+I need to know the correct API for React 19's useActionState hook.
+
+Step 1: Try web search first (most current)
+Step 2: If unclear, use Context7 for official docs
 </think>
 
+// Step 1: Web search
+→ web_search("React 19 useActionState hook API signature December 2024")
+
+// If result is unclear:
+// Step 2: Context7
 → resolve-library-id(libraryName="react")
 → get-library-docs(
     context7CompatibleLibraryID="/facebook/react",
-    topic="useTransition",
+    topic="useActionState",
     mode="code"
   )
 ```
 
-#### Next.js App Router Patterns
+---
+
+## Tool Chaining Patterns
+
+### Pattern 1: Version Check → CLI → Verify
+
 ```
+// 1. Check versions
+→ web_search("create-next-app latest version options December 2024")
+
+// 2. Use CLI with verified version
+→ run_terminal_cmd(
+    "npx create-next-app@latest my-app --typescript --tailwind --app",
+    required_permissions=["network"]
+  )
+
+// 3. Verify it works
+→ run_terminal_cmd("cd my-app && npm run build", required_permissions=["network"])
+```
+
+### Pattern 2: Error Screenshot → Analysis → Fix
+
+```
+// 1. Analyze the error screenshot
+→ understand_image(
+    prompt="What error is shown? Extract the full error message and stack trace.",
+    image_source="/path/to/error.png"
+  )
+
+// 2. Search for solution
+→ web_search("[extracted error message] solution 2024")
+
+// 3. Apply fix and verify
+→ search_replace(...)
+→ run_terminal_cmd("npm run build")
+```
+
+### Pattern 3: Documentation → Implementation → Test
+
+```
+// 1. Get documentation
+→ web_search("shadcn-ui data table example December 2024")
+→ get-library-docs(
+    context7CompatibleLibraryID="/shadcn/ui",
+    topic="data-table",
+    mode="code"
+  )
+
+// 2. Implement using CLI if available
+→ run_terminal_cmd("npx shadcn-ui@latest add table", required_permissions=["network"])
+
+// 3. Test in browser
+→ browser_navigate(url="http://localhost:3000")
+→ browser_snapshot()
+```
+
+### Pattern 4: New Library → Version + Compatibility Check
+
+```
+// 1. Check latest version
+→ web_search("zod npm latest version December 2024")
+
+// 2. Check compatibility with existing stack
+→ web_search("zod react-hook-form compatibility 2024")
+→ web_search("zod TypeScript 5 support")
+
+// 3. Get installation docs
+→ get-library-docs(
+    context7CompatibleLibraryID="/colinhacks/zod",
+    topic="installation",
+    mode="code"
+  )
+
+// 4. Install with verified version
+→ run_terminal_cmd("npm install zod@latest", required_permissions=["network"])
+```
+
+---
+
+## Error Handling
+
+### API Error 400/2013: Invalid Function Arguments
+
+**Causes:**
+- Unescaped special characters in strings
+- Including `<think>` blocks inside arguments
+- Malformed JSON structure
+
+**Solution:**
+- Keep arguments simple and clean
+- Use only plain text in query/prompt parameters
+- Do all reasoning in `<think>` blocks BEFORE the tool call
+
+### web_search Errors
+
+| Error | Solution |
+|-------|----------|
+| No results | Try different keywords, add date |
+| Rate limited | Wait and retry |
+| Irrelevant results | Refine with version numbers/context |
+
+### Context7 Errors
+
+| Error | Solution |
+|-------|----------|
+| Library not found | Use web_search instead |
+| No docs for topic | Try different topic or paginate |
+| Outdated info | Verify with web_search |
+
+---
+
+## Proactive Tool Usage
+
+Don't wait to be asked - use tools proactively:
+
+### Version Checks
+```
+User: "I want to build a Next.js app"
+
 <think>
-User is building with Next.js App Router.
-Let me fetch current routing documentation.
+User wants Next.js app. Before I start, I MUST check:
+1. Current stable Next.js version
+2. Compatible React version
+3. Any recent breaking changes
+
+This is not optional - I must verify before proceeding.
 </think>
 
-→ get-library-docs(
-    context7CompatibleLibraryID="/vercel/next.js",
-    topic="app router",
-    mode="info"
-  )
+→ web_search("Next.js latest stable version December 2024")
 ```
 
-#### Pagination for More Context
+### CLI Availability
 ```
+User: "Add a button component"
+
 <think>
-First page didn't have enough examples.
-Let me get more documentation.
+Before manually creating a button component, I should check:
+1. Is this a shadcn/ui project? 
+2. Is there a CLI command to add it?
 </think>
 
-→ get-library-docs(
-    context7CompatibleLibraryID="/vercel/next.js",
-    topic="server actions",
-    mode="code",
-    page=2
-  )
+→ read_file("package.json")  // Check for shadcn
+→ web_search("shadcn-ui add button command 2024")
 ```
 
-### Context7 + MiniMax Tools Chaining
+### Compatibility Checks
+```
+User: "Install Prisma for my Next.js project"
 
-#### Pattern: Documentation → Implementation
-```
-1. Use Context7 to get accurate API documentation
-2. Use web_search for additional context if needed
-3. Implement following the documented patterns
+<think>
+Before installing, I should verify:
+1. Current Prisma version
+2. Compatibility with user's Next.js version
+3. Any known issues
+</think>
+
+→ web_search("Prisma latest version December 2024")
+→ web_search("Prisma Next.js 15 app router compatibility 2024")
 ```
 
-#### Pattern: Error → Docs → Fix
+---
+
+## Summary: The Essential Workflow
+
+Every significant coding task should follow this pattern:
+
 ```
-1. Use understand_image to read error screenshot
-2. Use Context7 to get correct API usage
-3. Apply fix based on documentation
+1. VERSION CHECK
+   → web_search("[package] latest version [current month year]")
+
+2. CLI CHECK
+   → web_search("[task] CLI tool command 2024")
+
+3. COMPATIBILITY CHECK
+   → web_search("[package A] [package B] compatibility [year]")
+
+4. IMPLEMENTATION
+   → Use CLI if available, otherwise manual with verified patterns
+
+5. VERIFICATION
+   → run_terminal_cmd("npm run build")
+   → browser tools to test UI
+   → read_lints to check for errors
 ```
+
+This workflow prevents:
+- Using outdated packages
+- Manual work when CLIs exist
+- Version conflicts
+- Code that doesn't compile
+- UI bugs that go unnoticed

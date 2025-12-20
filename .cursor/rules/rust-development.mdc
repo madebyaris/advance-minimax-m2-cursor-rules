@@ -8,6 +8,149 @@ alwaysApply: false
 
 Idiomatic Rust patterns focusing on ownership, safety, and performance.
 
+## CRITICAL: Agentic-First Rust Development
+
+### Pre-Development Verification (MANDATORY)
+
+Before writing ANY Rust code:
+
+```
+1. CHECK RUST INSTALLATION
+   → run_terminal_cmd("rustc --version")
+   → run_terminal_cmd("cargo --version")
+   
+2. VERIFY CURRENT VERSIONS (use web_search)
+   → web_search("Rust stable version December 2024")
+   → web_search("Rust edition 2024 features")
+   
+3. CHECK EXISTING PROJECT
+   → Does Cargo.toml exist? Read it first!
+   → What Rust edition is specified?
+   → What dependencies are already present?
+   
+4. FOR NEW PROJECTS - USE cargo new
+   → NEVER manually create Cargo.toml from scratch
+   → run_terminal_cmd("cargo new my_project")
+   → run_terminal_cmd("cargo new --lib my_library")
+```
+
+### CLI-First Rust Development
+
+**ALWAYS use Cargo CLI:**
+```bash
+# Project creation (NEVER manually create Cargo.toml)
+cargo new my_project
+cargo new --lib my_library
+cargo init  # In existing directory
+
+# Add dependencies (NEVER manually edit Cargo.toml for deps)
+cargo add tokio --features full
+cargo add serde --features derive
+cargo add thiserror
+cargo add anyhow
+
+# Development dependencies
+cargo add --dev tokio-test
+cargo add --dev mockall
+
+# Build and verify
+cargo build
+cargo check  # Faster than build, just checks
+cargo clippy  # Linting
+cargo fmt  # Format code
+
+# Test
+cargo test
+cargo test -- --nocapture  # See println output
+```
+
+### Post-Edit Verification
+
+After ANY Rust code changes, ALWAYS run:
+
+```bash
+# Check compilation
+cargo check
+
+# Lint for issues
+cargo clippy -- -D warnings
+
+# Run tests
+cargo test
+
+# Format code
+cargo fmt --check
+```
+
+### Common Rust Syntax Traps (Avoid These!)
+
+```rust
+// WRONG: Using unwrap in production code
+let value = some_option.unwrap();  // Panics on None!
+let data = result.unwrap();  // Panics on Err!
+
+// CORRECT: Handle errors properly
+let value = some_option.ok_or(MyError::NotFound)?;
+let data = result.map_err(|e| MyError::from(e))?;
+
+// WRONG: Borrowing across await points
+async fn bad_example(data: &mut Data) {
+    let reference = &data.field;
+    async_operation().await;  // reference held across await!
+    use_reference(reference);
+}
+
+// CORRECT: Clone or restructure
+async fn good_example(data: &mut Data) {
+    let value = data.field.clone();
+    async_operation().await;
+    use_value(value);
+}
+
+// WRONG: Missing Send bound for async traits
+trait MyAsyncTrait {
+    async fn do_work(&self);  // Won't compile in multi-threaded!
+}
+
+// CORRECT: Add Send bound when needed
+trait MyAsyncTrait: Send + Sync {
+    fn do_work(&self) -> impl Future<Output = ()> + Send;
+}
+
+// WRONG: String vs &str confusion
+fn greet(name: String) { }  // Takes ownership unnecessarily
+greet("hello".to_string());  // Wasteful allocation
+
+// CORRECT: Accept borrowed when possible
+fn greet(name: &str) { }  // Borrows, no allocation needed
+greet("hello");  // Works directly with string literal
+```
+
+### Cargo.toml Best Practices
+
+```toml
+[package]
+name = "myproject"
+version = "0.1.0"
+edition = "2021"  # Always specify edition
+rust-version = "1.75"  # Minimum Rust version
+
+[dependencies]
+# Pin to semver-compatible range
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+# Optimize release builds
+[profile.release]
+lto = true
+codegen-units = 1
+```
+
+---
+
 ## Ownership & Borrowing
 
 ### Core Principles

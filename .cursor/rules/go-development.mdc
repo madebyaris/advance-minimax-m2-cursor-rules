@@ -8,6 +8,110 @@ alwaysApply: false
 
 Idiomatic Go patterns focusing on simplicity, clarity, and concurrency.
 
+## CRITICAL: Agentic-First Go Development
+
+### Pre-Development Verification (MANDATORY)
+
+Before writing ANY Go code:
+
+```
+1. CHECK GO INSTALLATION
+   → run_terminal_cmd("go version")
+   
+2. VERIFY CURRENT GO VERSION (use web_search)
+   → web_search("Go golang stable version December 2024")
+   → Ensure go.mod uses correct version
+   
+3. CHECK EXISTING PROJECT
+   → Does go.mod exist? Read it first!
+   → What Go version is specified?
+   → Are dependencies already present?
+   
+4. FOR NEW PROJECTS - USE go mod init
+   → NEVER manually create go.mod
+   → run_terminal_cmd("go mod init github.com/org/project")
+```
+
+### CLI-First Go Development
+
+**ALWAYS use Go CLI tools:**
+```bash
+# Project initialization (NEVER manually create go.mod)
+go mod init github.com/myorg/myproject
+
+# Add dependencies (NEVER manually edit go.mod)
+go get github.com/gin-gonic/gin@latest
+go get github.com/lib/pq@v1.10.9
+
+# Verify and tidy
+go mod tidy
+go mod verify
+
+# Build and test
+go build ./...
+go test ./...
+go vet ./...
+
+# Format (ALWAYS before committing)
+go fmt ./...
+gofmt -s -w .
+```
+
+### Post-Edit Verification
+
+After ANY Go code changes, ALWAYS run:
+
+```bash
+# Verify compilation
+go build ./...
+
+# Check for issues
+go vet ./...
+
+# Run tests
+go test ./...
+
+# Ensure dependencies are correct
+go mod tidy
+```
+
+### Common Go Syntax Traps (Avoid These!)
+
+```go
+// WRONG: Missing error check
+result, _ := doSomething()  // Never ignore errors!
+
+// CORRECT: Always handle errors
+result, err := doSomething()
+if err != nil {
+    return fmt.Errorf("doSomething failed: %w", err)
+}
+
+// WRONG: Range loop variable capture
+for _, item := range items {
+    go func() {
+        process(item)  // Bug! Captures loop variable
+    }()
+}
+
+// CORRECT: Pass as parameter
+for _, item := range items {
+    go func(i Item) {
+        process(i)
+    }(item)
+}
+
+// WRONG: Nil map write
+var m map[string]int
+m["key"] = 1  // Panic!
+
+// CORRECT: Initialize map
+m := make(map[string]int)
+m["key"] = 1
+```
+
+---
+
 ## Error Handling
 
 ### Basic Error Handling

@@ -8,6 +8,51 @@ alwaysApply: false
 
 Modern web development best practices for JavaScript, TypeScript, and related frameworks.
 
+## CRITICAL: Project Setup Workflow
+
+### ALWAYS Use CLI Tools for New Projects
+
+**WRONG approach (creates incomplete/broken projects):**
+```
+1. Create package.json manually
+2. Create files one by one
+3. Copy component code from documentation
+4. Forget to run npm install
+```
+
+**CORRECT approach:**
+```bash
+# Next.js
+npx create-next-app@latest my-app --typescript --tailwind --app --eslint
+
+# React (Vite)
+npm create vite@latest my-app -- --template react-ts
+
+# Vue
+npm create vue@latest
+
+# Then for component libraries:
+cd my-app
+npx shadcn-ui@latest init
+npx shadcn-ui@latest add button card dialog
+```
+
+### Version Checking Before Setup
+
+```
+<think>
+Before creating a project, I MUST:
+1. Check current stable versions
+2. Verify CLI options are up to date
+3. Check for compatibility issues
+</think>
+
+→ web_search("create-next-app latest version options December 2024")
+→ web_search("shadcn-ui Next.js 15 compatibility 2024")
+```
+
+---
+
 ## JavaScript Best Practices
 
 ### Modern Syntax
@@ -363,6 +408,189 @@ const envSchema = z.object({
 });
 
 export const env = envSchema.parse(process.env);
+```
+
+---
+
+## Chart.js Best Practices
+
+### CRITICAL: Container Height Requirements
+
+**WRONG (causes infinite expansion):**
+```html
+<!-- Chart will expand infinitely! -->
+<div>
+  <canvas id="myChart"></canvas>
+</div>
+
+<script>
+new Chart(ctx, {
+  options: {
+    responsive: true,
+    maintainAspectRatio: false  // Without fixed height = BROKEN
+  }
+});
+</script>
+```
+
+**CORRECT:**
+```html
+<!-- Fixed height container -->
+<div style="height: 400px; position: relative;">
+  <canvas id="myChart"></canvas>
+</div>
+
+<!-- With Tailwind -->
+<div class="h-96 relative">
+  <canvas id="myChart"></canvas>
+</div>
+
+<script>
+new Chart(ctx, {
+  options: {
+    responsive: true,
+    maintainAspectRatio: false  // OK because container has height
+  }
+});
+</script>
+```
+
+**Alternative (maintain aspect ratio):**
+```html
+<div class="w-full">
+  <canvas id="myChart"></canvas>
+</div>
+
+<script>
+new Chart(ctx, {
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2  // Width:Height ratio
+  }
+});
+</script>
+```
+
+### Chart Initialization Checklist
+```
+□ Container has fixed height OR maintainAspectRatio: true
+□ Canvas is inside a positioned container (position: relative)
+□ Chart.js loaded before initialization
+□ Canvas element exists in DOM before new Chart()
+□ Chart instance stored for later updates/destroy
+```
+
+---
+
+## Form Best Practices
+
+### Input Validation
+
+**WRONG (no validation):**
+```html
+<input type="text" placeholder="Email">
+<button>Submit</button>
+```
+
+**CORRECT:**
+```html
+<form id="contactForm" novalidate>
+  <label for="email">Email</label>
+  <input 
+    type="email" 
+    id="email"
+    name="email"
+    required
+    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+    aria-describedby="email-error"
+  >
+  <span id="email-error" class="error hidden">Please enter a valid email</span>
+  
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (e.target.checkValidity()) {
+    // Submit form
+  } else {
+    // Show errors
+    e.target.classList.add('submitted');
+  }
+});
+</script>
+```
+
+### Form Accessibility Checklist
+```
+□ Every input has a label with matching for/id
+□ Required fields marked with required attribute
+□ Error messages linked with aria-describedby
+□ Focus states visible (never outline: none without alternative)
+□ Form has proper role if not using <form>
+□ Submit button has type="submit"
+```
+
+---
+
+## Modal/Dialog Best Practices
+
+### Function Definition Before Use
+
+**WRONG (ReferenceError):**
+```html
+<!-- Function not defined yet! -->
+<button onclick="openModal('id')">Open</button>
+
+<script>
+// Defined after HTML = might not be available
+function openModal(id) { /* ... */ }
+</script>
+```
+
+**CORRECT:**
+```html
+<script>
+// Define before use, or use DOMContentLoaded
+function openModal(id) {
+  document.getElementById(id).classList.remove('hidden');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+</script>
+
+<button onclick="openModal('myModal')">Open</button>
+
+<div id="myModal" class="hidden">
+  <button onclick="closeModal('myModal')">Close</button>
+</div>
+```
+
+**Even Better (Event Delegation):**
+```html
+<button data-modal-open="myModal">Open</button>
+
+<div id="myModal" class="modal hidden">
+  <button data-modal-close>Close</button>
+</div>
+
+<script>
+document.addEventListener('click', (e) => {
+  const openTrigger = e.target.closest('[data-modal-open]');
+  if (openTrigger) {
+    const modalId = openTrigger.dataset.modalOpen;
+    document.getElementById(modalId).classList.remove('hidden');
+  }
+  
+  const closeTrigger = e.target.closest('[data-modal-close]');
+  if (closeTrigger) {
+    closeTrigger.closest('.modal').classList.add('hidden');
+  }
+});
+</script>
 ```
 
 ---
