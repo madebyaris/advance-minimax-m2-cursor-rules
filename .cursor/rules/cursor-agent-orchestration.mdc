@@ -1,0 +1,467 @@
+---
+description: "Advanced Cursor agent orchestration: sub-agents, parallel workflows, hierarchical task decomposition, and multi-agent coordination"
+alwaysApply: true
+---
+
+# Cursor Agent Orchestration
+
+Advanced patterns for working with Cursor's multi-agent capabilities, sub-agent delegation, and parallel workflows.
+
+## CRITICAL: Date-Aware Search Protocol
+
+### Issue #3: Always Check Current Date First
+
+**BEFORE any web search for tech stack, versions, or solutions:**
+
+```
+<think>
+[DATE CONTEXT CHECK]
+
+Current date from system: [extract from user_info or context]
+Format for searches: [Month Year] - e.g., "January 2026"
+
+This date MUST be used in all version/tech queries.
+</think>
+```
+
+**Correct search format:**
+```
+✅ "Next.js latest stable version January 2026"
+✅ "React 19 useFormStatus hook January 2026"
+✅ "shadcn-ui installation guide 2026"
+
+❌ "Next.js latest version {date_year}"  ← NO PLACEHOLDERS
+❌ "React {version} hooks {month} {year}" ← NO TEMPLATE VARIABLES
+❌ "Next.js latest version"              ← NO DATE = OUTDATED RESULTS
+```
+
+### Issue #5: No Template Placeholders in Searches
+
+**NEVER use these patterns in web_search:**
+- `{version}` 
+- `{date_year}`
+- `{month}`
+- `${variable}`
+- `[PLACEHOLDER]`
+
+**ALWAYS use concrete values:**
+```
+<think>
+Extracting current date: January 2026
+Package: Next.js
+Searching with actual values, not templates.
+</think>
+
+→ web_search("Next.js npm latest stable version January 2026")
+```
+
+---
+
+## Issue #4: Auto Web-Search Error Recovery
+
+### Persistent Error Detection
+
+When the same error occurs 3+ times:
+
+```
+<think>
+[ERROR PATTERN DETECTED]
+
+Error: [exact error message]
+Attempt count: [1/2/3/4+]
+Previous fix attempts:
+  - Attempt 1: [what was tried]
+  - Attempt 2: [what was tried]
+  - Attempt 3: [what was tried]
+
+STATUS: 4th attempt reached → MANDATORY WEB SEARCH
+</think>
+
+→ web_search("[exact error message] solution [framework] [current month year]")
+```
+
+### Error Counter Protocol
+
+```
+<think>
+[ERROR TRACKING]
+
+Tracking errors by signature:
+- Error signature: hash/fingerprint of error message
+- Current count: [N]
+- Threshold: 4
+
+If count >= 4:
+  ACTION: Stop trying same fixes, search for solutions online
+  REASON: Internal knowledge insufficient for this specific issue
+</think>
+```
+
+### Web Search Escalation Pattern
+
+After 4th failed attempt:
+
+```
+// 1. Search for the exact error
+→ web_search("[exact error text] fix [framework] [year]")
+
+// 2. If no results, search for the error type
+→ web_search("[error type] [framework] common causes [year]")
+
+// 3. If still no results, search for the context
+→ web_search("[what I was trying to do] [framework] tutorial [year]")
+
+// 4. Use Context7 for official documentation
+→ resolve-library-id(libraryName="[framework]")
+→ get-library-docs(topic="[error-related-topic]")
+```
+
+---
+
+## Issue #6: Hierarchical Task Decomposition
+
+### EPIC-Based Todo Structure
+
+For complex projects, use hierarchical task organization:
+
+```
+TODO Structure:
+├── EPIC0: Prerequisites (design systems, dependencies, setup)
+│   ├── EPIC0.1: Install core dependencies
+│   ├── EPIC0.2: Configure design system
+│   └── EPIC0.3: Set up project structure
+├── EPIC1: Feature A (Auth)
+│   ├── EPIC1.1: Create auth pages
+│   ├── EPIC1.2: Create auth API routes
+│   └── EPIC1.3: Add auth middleware
+├── EPIC2: Feature B (Dashboard)
+│   ├── EPIC2.1: Create dashboard layout
+│   └── EPIC2.2: Add dashboard widgets
+└── EPIC3: Integration & Testing
+    ├── EPIC3.1: Integration testing
+    └── EPIC3.2: E2E testing
+```
+
+### Todo Creation Rules
+
+1. **Prerequisites First**: Always create EPIC0 for setup/dependencies
+2. **Feature Isolation**: Each major feature gets its own EPIC
+3. **Sub-task Granularity**: Each sub-task should be testable independently
+4. **Sequential Dependencies**: Mark which EPICs depend on others
+
+### Example Todo for "Build an Auth System":
+
+```
+todos: [
+  { id: "EPIC0", content: "Prerequisites: Install dependencies and configure project", status: "in_progress" },
+  { id: "EPIC0.1", content: "Install Next.js, Tailwind, shadcn-ui, NextAuth", status: "pending" },
+  { id: "EPIC0.2", content: "Configure Prisma with database schema", status: "pending" },
+  { id: "EPIC1", content: "Auth UI: Build all authentication pages", status: "pending" },
+  { id: "EPIC1.1", content: "Create login page with form validation", status: "pending" },
+  { id: "EPIC1.2", content: "Create register page with form validation", status: "pending" },
+  { id: "EPIC1.3", content: "Create forgot password flow", status: "pending" },
+  { id: "EPIC2", content: "Auth API: Build backend authentication", status: "pending" },
+  { id: "EPIC2.1", content: "Create NextAuth configuration with providers", status: "pending" },
+  { id: "EPIC2.2", content: "Create API routes for auth operations", status: "pending" },
+  { id: "EPIC2.3", content: "Add middleware for protected routes", status: "pending" },
+  { id: "EPIC3", content: "Testing: Verify each component works", status: "pending" },
+  { id: "EPIC3.1", content: "Test login flow end-to-end", status: "pending" },
+  { id: "EPIC3.2", content: "Test registration flow end-to-end", status: "pending" }
+]
+```
+
+### Per-File Testing (Not Whole System)
+
+**CRITICAL**: Test after each file, not after the whole feature:
+
+```
+<think>
+[PER-FILE VERIFICATION]
+
+Just created: src/app/login/page.tsx
+
+Verification steps:
+1. Check syntax with linter → read_lints(["src/app/login/page.tsx"])
+2. Check imports resolve → run build for that file area
+3. Check component renders → browser test if UI
+
+DO NOT: Run full system tests yet
+DO: Verify this single file works before moving to next
+</think>
+```
+
+### Incremental Testing Protocol
+
+```
+After EACH file creation:
+1. read_lints(paths=["path/to/new/file"])
+2. If UI component: Quick browser snapshot
+3. If API route: Quick curl/fetch test
+4. Mark sub-task complete only after file verified
+
+After EACH EPIC completion:
+1. Integration test for that EPIC only
+2. Check for regressions in previous EPICs
+3. Mark EPIC complete
+
+After ALL EPICs:
+1. Full system test
+2. E2E testing
+3. Mark project complete
+```
+
+---
+
+## Sub-Agent / Parallel Agent Patterns
+
+### Understanding Cursor Parallel Agents
+
+Cursor 2.x supports:
+- **Parallel Agents**: Multiple agents working simultaneously in git worktrees
+- **Multi-Agent Judging**: Compare solutions from multiple agents/models
+- **Background Agents**: Long-running tasks in cloud environments
+
+### When to Use Parallel Agents
+
+| Scenario | Approach |
+|----------|----------|
+| Single focused task | Single agent |
+| Multiple independent features | Parallel agents in worktrees |
+| Need to compare approaches | Multi-agent judging |
+| Long-running task | Background/cloud agent |
+
+### Parallel Agent Orchestration Pattern
+
+For large projects, split work across agents:
+
+```
+ORCHESTRATOR (Main Agent):
+├── Plans overall architecture
+├── Creates spec files for sub-agents
+├── Coordinates integration
+└── Does final verification
+
+SUB-AGENT 1 (Worktree: feature/auth):
+├── Reads spec file
+├── Implements auth feature
+├── Tests auth feature
+└── Commits to worktree
+
+SUB-AGENT 2 (Worktree: feature/dashboard):
+├── Reads spec file
+├── Implements dashboard
+├── Tests dashboard
+└── Commits to worktree
+```
+
+### Spec File Format for Sub-Agents
+
+Create a `.cursor/specs/` directory with detailed specs:
+
+```markdown
+# .cursor/specs/feature-auth.md
+
+## Feature: Authentication System
+
+### Prerequisites
+- Database configured with User model
+- NextAuth.js installed
+- Environment variables set
+
+### Tasks
+1. Create `/app/login/page.tsx` - Login form with email/password
+2. Create `/app/register/page.tsx` - Registration form
+3. Create `/app/api/auth/[...nextauth]/route.ts` - NextAuth config
+4. Create `/middleware.ts` - Route protection
+
+### Acceptance Criteria
+- [ ] User can register with email/password
+- [ ] User can login and receive session
+- [ ] Protected routes redirect to login
+- [ ] Logout clears session
+
+### Testing
+- Test each file independently after creation
+- Use `read_lints` to verify no syntax errors
+- Use browser tools to test UI rendering
+```
+
+### Sub-Agent Communication Protocol
+
+1. **Spec Files**: Main agent creates specs, sub-agents read them
+2. **Status Files**: Sub-agents update progress in `.cursor/status/`
+3. **Integration Points**: Clearly defined interfaces between features
+
+---
+
+## Cursor Hooks Integration
+
+### Hooks Configuration (`.cursor/hooks.json`)
+
+```json
+{
+  "hooks": [
+    {
+      "name": "pre-file-read",
+      "event": "file_read",
+      "phase": "before",
+      "command": "node .cursor/hooks/log-file-read.js",
+      "enabled": true
+    },
+    {
+      "name": "post-edit-lint",
+      "event": "file_edit",
+      "phase": "after", 
+      "command": "npm run lint -- --fix ${file}",
+      "enabled": true
+    },
+    {
+      "name": "pre-terminal-check",
+      "event": "terminal_command",
+      "phase": "before",
+      "command": "node .cursor/hooks/validate-command.js",
+      "enabled": true
+    }
+  ]
+}
+```
+
+### Hook Events
+
+| Event | Phase | Use Case |
+|-------|-------|----------|
+| `file_read` | before | Log/audit file access |
+| `file_edit` | after | Auto-lint, format, validate |
+| `terminal_command` | before | Validate/block dangerous commands |
+| `terminal_command` | after | Capture output, verify success |
+| `agent_response` | after | Log/analyze agent outputs |
+
+### Automated Verification Hook
+
+```javascript
+// .cursor/hooks/verify-after-edit.js
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+// Read the edited file path from stdin
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+  const data = JSON.parse(input);
+  const filePath = data.file_path;
+  
+  // Auto-lint the file
+  try {
+    execSync(`npx eslint --fix "${filePath}"`, { stdio: 'pipe' });
+    console.log(JSON.stringify({ status: 'success', message: 'Linted successfully' }));
+  } catch (error) {
+    console.log(JSON.stringify({ 
+      status: 'warning', 
+      message: 'Lint errors found',
+      errors: error.stdout?.toString() 
+    }));
+  }
+});
+```
+
+---
+
+## Cursor Skills Integration
+
+### Agent-Requestable Skills
+
+Skills are specialized rule files that agents can request based on context.
+
+### Skill Organization
+
+```
+.cursor/rules/
+├── always-applied/          # alwaysApply: true
+│   ├── minimax-m2-core.mdc
+│   └── cursor-agent-orchestration.mdc
+├── requestable/             # Agents request when needed
+│   ├── web-development.mdc
+│   ├── flutter-development.mdc
+│   ├── python-development.mdc
+│   └── ...
+└── project-specific/        # Project-local rules
+    └── custom-conventions.mdc
+```
+
+### How Skills Work
+
+1. Agent sees task context (files, imports, package.json)
+2. Agent requests relevant skills (e.g., "flutter-development" for .dart files)
+3. Skills provide specialized knowledge for that domain
+
+### Enabling Skills
+
+In Cursor Settings → Rules → Import Settings:
+- Toggle "Agent Skills" ON
+- Skills from `.cursor/rules/` with matching descriptions are available
+
+### Writing Requestable Skills
+
+```markdown
+---
+description: "Authentication patterns: NextAuth, JWT, OAuth, session management for web apps"
+alwaysApply: false  # Agent will request when relevant
+---
+
+# Authentication Patterns
+
+## When This Skill Applies
+- User mentions "auth", "login", "authentication"
+- Files contain NextAuth, JWT, session imports
+- Routes have /api/auth/* patterns
+
+## Patterns and Best Practices
+...
+```
+
+---
+
+## Summary: Optimized Agent Workflow
+
+### Before Starting Any Task
+
+```
+1. CHECK DATE
+   → Extract current date from context
+   → Use in all web searches
+
+2. CREATE EPIC TODO
+   → EPIC0: Prerequisites
+   → EPIC1-N: Features  
+   → Each with sub-tasks (EPIC1.1, EPIC1.2, etc.)
+
+3. FOR EACH SUB-TASK
+   → Implement single file
+   → Verify that file (lint, compile, render)
+   → Mark sub-task complete
+   → Continue to next
+
+4. ON REPEATED ERRORS (4+)
+   → Stop trying same fix
+   → Web search for solution
+   → Apply community solution
+   → Continue
+
+5. AFTER EPIC COMPLETE
+   → Integration test for EPIC
+   → Update status
+   → Continue to next EPIC
+```
+
+### Quality Gates
+
+```
+□ Date included in all version searches
+□ No template placeholders in searches
+□ EPIC-based todo structure created
+□ Each file verified after creation
+□ Web search triggered after 4th error
+□ Sub-agent specs created for parallel work
+□ Hooks configured for automation
+```

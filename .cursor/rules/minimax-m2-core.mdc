@@ -412,6 +412,7 @@ When something goes wrong:
 
 What happened: [Error description]
 Root cause: [Why it happened]
+Attempt number: [1/2/3/4+]
 Category: 
   - Syntax error
   - Missing dependency
@@ -432,6 +433,32 @@ Did the fix work? [Yes/No]
 If no, what's the next approach?
 </think>
 ```
+
+### Issue #4: Persistent Error Escalation
+
+**If the same error occurs 4+ times, MANDATORY web search:**
+
+```
+<think>
+[ERROR ESCALATION - ATTEMPT 4+]
+
+Same error has occurred 4+ times.
+Previous fix attempts have all failed.
+Internal knowledge is insufficient.
+
+ACTION: Web search for community solutions.
+</think>
+
+→ web_search("[exact error message] solution [framework] [current date]")
+→ web_search("[error type] fix [framework] GitHub issues")
+→ Context7 for official documentation on the error topic
+```
+
+**Error tracking:**
+- Track error by signature (message hash)
+- Count consecutive occurrences  
+- After 4th occurrence: STOP trying same fixes, search online
+- Apply community solution, then verify
 
 ---
 

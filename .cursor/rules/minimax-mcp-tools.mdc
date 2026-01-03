@@ -94,13 +94,40 @@ Performs web searches similar to Google Search, returning structured results wit
 
 ### Best Practices
 
+#### 0. EXTRACT CURRENT DATE FIRST (Issue #3)
+Before ANY web search, extract the current date from context:
+
+```
+<think>
+[DATE EXTRACTION - MANDATORY]
+Source: user_info context or system date
+Current Date: [EXTRACT ACTUAL DATE, e.g., "January 2026"]
+
+This MUST be used in all searches. No templates. No placeholders.
+</think>
+```
+
 #### 1. ALWAYS Include Current Date for Version Queries
 ```
-✅ Good: "Next.js 15 stable release December 2024"
+✅ Good: "Next.js 15 stable release January 2026"
 ❌ Bad:  "Next.js latest version"
 
-✅ Good: "shadcn/ui installation guide 2024"
+✅ Good: "shadcn/ui installation guide 2026"
 ❌ Bad:  "how to install shadcn"
+```
+
+#### 1.5. NEVER Use Template Placeholders (Issue #5)
+```
+❌ FORBIDDEN:
+   "Next.js {version} {date_year}"
+   "React ${version} hooks"
+   "[package] latest version [year]"
+   "{framework} installation {month} {year}"
+
+✅ CORRECT:
+   "Next.js 15 stable January 2026"
+   "React 19 hooks documentation"
+   "shadcn-ui installation guide 2026"
 ```
 
 #### 2. Include Version Numbers When Known

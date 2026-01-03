@@ -103,6 +103,7 @@ Add to Cursor Settings → MCP:
 | `cursor-tools-mastery.mdc` | Cursor 2.2 tools + "What NEVER to Do" |
 | `clarify-first-prompting.mdc` | Check first, then ask questions |
 | `language-agnostic.mdc` | SOLID, patterns, CLI-first principles |
+| `cursor-agent-orchestration.mdc` | **NEW** Sub-agents, parallel workflows, EPIC todos |
 
 ### Language-Specific (Auto-Activate)
 
@@ -116,6 +117,39 @@ Add to Cursor Settings → MCP:
 | `flutter-development.mdc` | `*.dart`, `pubspec.yaml` | flutter create/pub add, dispose patterns |
 | `mobile-cross-platform.mdc` | Cross-platform projects | Framework CLIs, platform differences |
 | `devops-infrastructure.mdc` | `Dockerfile`, `*.tf`, `*.yaml` | Dry-run validation, version pinning |
+
+---
+
+## 🆕 v2.2 Enhancements
+
+### Issue #3: Date-Aware Searches
+All web searches now **extract the current date first** and use concrete values, never placeholders.
+
+### Issue #4: Auto Web-Search on Persistent Errors
+After 4 failed attempts with the same error, the AI automatically searches the web for community solutions.
+
+### Issue #5: No Template Placeholders
+Searches use actual values like `"Next.js 15 stable January 2026"` instead of `"{framework} {version} {date}"`.
+
+### Issue #6: EPIC-Based Task Decomposition
+Complex tasks use hierarchical todos:
+```
+EPIC0: Prerequisites (deps, config, setup)
+EPIC1: Feature A
+  EPIC1.1: Sub-task A.1
+  EPIC1.2: Sub-task A.2
+EPIC2: Feature B
+  ...
+```
+
+### Per-File Verification
+Instead of testing the whole system, each file is verified immediately after creation using `read_lints` and quick tests.
+
+### Cursor Hooks Integration
+Includes `.cursor/hooks.json` configuration for automated post-edit linting and verification.
+
+### Sub-Agent / Parallel Agent Support
+Spec files in `.cursor/specs/` enable coordination between parallel agents working in git worktrees.
 
 ---
 
