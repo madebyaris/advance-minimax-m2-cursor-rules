@@ -4,7 +4,7 @@
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Cursor 2.2](https://img.shields.io/badge/Cursor-2.2-blue?style=flat-square)](https://cursor.com)
+[![Cursor 2.3+](https://img.shields.io/badge/Cursor-2.3%2B-blue?style=flat-square)](https://cursor.com)
 [![MiniMax M2.1](https://img.shields.io/badge/MiniMax-M2.1-purple?style=flat-square)](https://platform.minimax.io)
 
 **Agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
@@ -22,7 +22,7 @@
 - **🔍 Version Verification** — Web search for current package versions before using
 - **❓ Clarify-First Prompting** — AI checks context first, then asks targeted questions
 - **💭 Preserved Thinking** — Maintains reasoning context across conversations
-- **🛠️ Full Cursor 2.2 Support** — All tools documented and optimized
+- **🛠️ Full Cursor 2.3/2.4 Support** — All tools documented and optimized (works with Nightly)
 - **🔌 MiniMax MCP** — `web_search` + `understand_image` integration
 - **🌐 Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
 - **⚠️ Syntax Trap Prevention** — Common mistakes documented per language
@@ -100,7 +100,7 @@ Add to Cursor Settings → MCP:
 | `minimax-m2-core.mdc` | Agentic behavior, Opus 4.5-style thinking |
 | `minimax-m2-verification.mdc` | Pre/post verification protocols |
 | `minimax-mcp-tools.mdc` | MiniMax MCP + version checking |
-| `cursor-tools-mastery.mdc` | Cursor 2.2 tools + "What NEVER to Do" |
+| `cursor-tools-mastery.mdc` | Cursor 2.3/2.4 tools + "What NEVER to Do" |
 | `clarify-first-prompting.mdc` | Check first, then ask questions |
 | `language-agnostic.mdc` | SOLID, patterns, CLI-first principles |
 | `cursor-agent-orchestration.mdc` | **NEW** Sub-agents, parallel workflows, EPIC todos |
@@ -120,7 +120,7 @@ Add to Cursor Settings → MCP:
 
 ---
 
-## 🆕 v2.2 Enhancements
+## 🆕 v2.2+ Enhancements (Cursor 2.3/2.4 Compatible)
 
 ### Issue #3: Date-Aware Searches
 All web searches now **extract the current date first** and use concrete values, never placeholders.
@@ -149,7 +149,10 @@ Instead of testing the whole system, each file is verified immediately after cre
 Includes `.cursor/hooks.json` configuration for automated post-edit linting and verification.
 
 ### Sub-Agent / Parallel Agent Support
-Spec files in `.cursor/specs/` enable coordination between parallel agents working in git worktrees.
+Patterns for coordinating parallel agents working in git worktrees (Cursor 2.3+ feature).
+
+### Agent Skills Integration
+Rules are organized for Cursor's Agent Skills system - agents automatically request relevant skills based on file context.
 
 ---
 
