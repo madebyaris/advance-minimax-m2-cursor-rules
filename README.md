@@ -93,17 +93,23 @@ Add to Cursor Settings → MCP:
 
 ## 📁 Rules
 
-### Core (Always Active)
+### Core (Always Active) - Optimized for Context Efficiency
 
-| Rule | Purpose |
-|------|---------|
-| `minimax-m2-core.mdc` | Agentic behavior, Opus 4.5-style thinking |
-| `minimax-m2-verification.mdc` | Pre/post verification protocols |
-| `minimax-mcp-tools.mdc` | MiniMax MCP + version checking |
-| `cursor-tools-mastery.mdc` | Cursor 2.3/2.4 tools + "What NEVER to Do" |
-| `clarify-first-prompting.mdc` | Check first, then ask questions |
-| `language-agnostic.mdc` | SOLID, patterns, CLI-first principles |
-| `cursor-agent-orchestration.mdc` | **NEW** Sub-agents, parallel workflows, EPIC todos |
+| Rule | Lines | Purpose |
+|------|-------|---------|
+| `minimax-m2-core.mdc` | ~350 | Agentic behavior, Opus 4.5-style thinking, RALPH loop |
+| `cursor-agent-orchestration.mdc` | ~400 | Sub-agents, parallel workflows, EPIC todos, hooks |
+
+### Agent-Requestable Skills (Loaded on Demand)
+
+These rules are **not always loaded** - the agent requests them when relevant, saving context window:
+
+| Rule | Purpose | Triggered By |
+|------|---------|--------------|
+| `minimax-m2-verification.mdc` | Pre/post verification protocols | Code generation tasks |
+| `minimax-mcp-tools.mdc` | MiniMax MCP + version checking | Web search, image analysis |
+| `cursor-tools-mastery.mdc` | Cursor 2.3/2.4 tools reference | Complex tool usage |
+| `clarify-first-prompting.mdc` | Check first, then ask questions | Ambiguous requests |
 
 ### Language-Specific (Auto-Activate)
 
@@ -153,6 +159,25 @@ Patterns for coordinating parallel agents working in git worktrees (Cursor 2.3+ 
 
 ### Agent Skills Integration
 Rules are organized for Cursor's Agent Skills system - agents automatically request relevant skills based on file context.
+
+### RALPH Loop (Self-Correction)
+Implements Reinforcement Learning with AI Preferences - the agent learns from failures within a session:
+```
+ATTEMPT → EVALUATE (0-10) → REFLECT → LEARN → RETRY
+```
+After 4 failed attempts, automatically escalates to web search for community solutions.
+
+### Context Window Optimization
+Rules restructured for efficiency:
+- **2 always-applied rules** (~987 lines total) vs previous 6 rules (~3,300 lines)
+- **All other rules** are now requestable skills loaded only when needed
+- Reduces context overhead by **70%**
+
+### Opus 4.5-Style Enhancements
+- **Confidence Scoring**: Rate confidence (0-100%) before risky operations
+- **Hypothesis Testing**: Form explicit hypotheses, test, update beliefs
+- **Backtracking Protocol**: When stuck, explicitly backtrack and try alternatives
+- **Session Memory**: Track successful patterns within conversation
 
 ---
 

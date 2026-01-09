@@ -1,6 +1,6 @@
 ---
 description: "MiniMax M2.1 MCP tools: web_search for version checking and real-time info, understand_image for visual analysis, Context7 for documentation"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # MiniMax M2.1 MCP Tools Integration

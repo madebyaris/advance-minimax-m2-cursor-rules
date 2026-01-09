@@ -198,208 +198,6 @@ If CLI doesn't exist → Manual creation okay
 | Add React component | Create file manually | Use existing project patterns |
 | Xcode project | Write .xcodeproj | **REFUSE** - tell user to create in Xcode |
 
-### CLI Execution Pattern
-
-```
-<think>
-Creating Next.js project with TypeScript and Tailwind.
-CLI available: create-next-app
-
-I'll use the CLI with all options to avoid interactive prompts.
-</think>
-
-→ run_terminal_cmd(
-    "npx create-next-app@latest my-app --typescript --tailwind --app --eslint --src-dir --import-alias '@/*' --use-npm",
-    required_permissions=["network"]
-  )
-
-→ run_terminal_cmd("cd my-app && npm install", required_permissions=["network"])
-
-<think>
-Project created. Now verifying it works.
-</think>
-
-→ run_terminal_cmd("cd my-app && npm run build", required_permissions=["network"])
-```
-
----
-
-## Code Quality Protocols
-
-### Syntax Verification by Language
-
-Before writing code in any language, recall the correct syntax:
-
-#### JavaScript/TypeScript
-```typescript
-// ✅ Correct patterns
-const result = await fetch('/api/data');
-const { data, error } = await response.json();
-useEffect(() => { /* effect */ }, [dependency]);
-export function Component({ prop }: { prop: string }) { }
-
-// ❌ Common typos to avoid
-constresult  // Missing space
-awiat fetch  // Typo in await
-useEfect     // Typo in useEffect
-exprot       // Typo in export
-```
-
-#### React/JSX
-```tsx
-// ✅ Correct patterns
-<div className="container">  // className, not class
-{items.map((item) => (       // Parentheses for implicit return
-  <Item key={item.id} />     // key prop on mapped elements
-))}
-</div>
-
-// ❌ Common typos to avoid
-class=        // Should be className
-clasName      // Typo in className
-onclick       // Should be onClick
-onlick        // Typo in onClick
-```
-
-#### Python
-```python
-# ✅ Correct patterns
-def function_name(param: str) -> bool:
-    """Docstring."""
-    return True
-
-async def async_function():
-    await some_coroutine()
-
-# ❌ Common typos to avoid
-def fucntion   # Typo in function
-retrun         # Typo in return
-asyc def       # Typo in async
-awiat          # Typo in await
-```
-
-#### Go
-```go
-// ✅ Correct patterns
-func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
-    if err != nil {
-        return
-    }
-}
-
-// ❌ Common typos to avoid
-fucn           // Typo in func
-reutrn         // Typo in return
-http.ReponseWriter  // Typo in ResponseWriter
-```
-
-### Pre-Write Syntax Check
-
-Before writing significant code:
-
-```
-<think>
-[SYNTAX CHECK]
-
-Language: [language]
-Framework: [framework]
-
-Key syntax reminders:
-- [Pattern 1]: [Correct syntax]
-- [Pattern 2]: [Correct syntax]
-- [Pattern 3]: [Correct syntax]
-
-Common mistakes to avoid:
-- [Mistake 1]
-- [Mistake 2]
-</think>
-```
-
----
-
-## UI Component Verification
-
-### Chart.js Specific Rules
-
-```html
-<!-- ❌ WRONG: Will expand infinitely -->
-<div>
-  <canvas id="myChart"></canvas>
-</div>
-
-<!-- ✅ CORRECT: Fixed height container -->
-<div style="height: 300px; position: relative;">
-  <canvas id="myChart"></canvas>
-</div>
-
-<!-- ✅ CORRECT: With Tailwind -->
-<div class="h-64 relative">
-  <canvas id="myChart"></canvas>
-</div>
-```
-
-### Form Validation Rules
-
-```html
-<!-- ❌ WRONG: No validation -->
-<input type="email" placeholder="Email">
-
-<!-- ✅ CORRECT: Proper validation -->
-<input 
-  type="email" 
-  required 
-  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-  aria-describedby="email-error"
->
-```
-
-### Modal/Function Reference Rules
-
-```javascript
-// ❌ WRONG: Reference function that doesn't exist
-<button onclick="openModal('id')">  // Where is openModal defined?
-
-// ✅ CORRECT: Define before reference
-function openModal(id) {
-  // implementation
-}
-// Then use in HTML
-```
-
----
-
-## Verification Checklist
-
-After generating code, run through this checklist:
-
-### For Node.js/JavaScript Projects
-- [ ] `npm install` runs without errors
-- [ ] `npm run build` completes successfully
-- [ ] `npm run lint` passes (if configured)
-- [ ] Application starts (`npm run dev`)
-- [ ] No TypeScript errors in IDE
-
-### For Python Projects
-- [ ] `pip install -r requirements.txt` works
-- [ ] `python -c "import main_module"` works
-- [ ] Tests pass (`pytest` or equivalent)
-
-### For Compiled Languages (Go, Rust, C)
-- [ ] Project compiles without errors
-- [ ] Tests pass
-- [ ] Binary runs correctly
-
-### For iOS/Android Projects
-- [ ] **DO NOT GENERATE PROJECT FILES**
-- [ ] Provide code files only
-- [ ] Give user instructions to create project in IDE
-
-### For UI Components
-- [ ] Browser test shows correct rendering
-- [ ] No console errors
-- [ ] All interactive elements work
-- [ ] Responsive design works at different sizes
-
 ---
 
 ## Error Recovery Protocol
@@ -459,6 +257,194 @@ ACTION: Web search for community solutions.
 - Count consecutive occurrences  
 - After 4th occurrence: STOP trying same fixes, search online
 - Apply community solution, then verify
+
+---
+
+## RALPH Loop: Self-Correction Protocol
+
+RALPH (Reinforcement Learning with AI-generated Preferences and Human feedback) enables continuous improvement within a session.
+
+### The RALPH Cycle
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    RALPH LOOP                           │
+│                                                         │
+│  1. ATTEMPT → Try solution with current knowledge       │
+│       ↓                                                 │
+│  2. EVALUATE → Did it work? Score 0-10                  │
+│       ↓                                                 │
+│  3. REFLECT → What went wrong/right? Why?               │
+│       ↓                                                 │
+│  4. LEARN → Update approach based on outcome            │
+│       ↓                                                 │
+│  5. RETRY → Apply learned improvements                  │
+│       ↓                                                 │
+│  (Loop until success or escalation threshold)           │
+└─────────────────────────────────────────────────────────┘
+```
+
+### RALPH Implementation
+
+```
+<think>
+[RALPH CYCLE - Attempt N]
+
+ATTEMPT:
+  Action taken: [what was tried]
+  Expected outcome: [what should happen]
+
+EVALUATE:
+  Actual outcome: [what happened]
+  Success score: [0-10]
+  - 0-3: Complete failure
+  - 4-6: Partial success, needs adjustment
+  - 7-9: Mostly working, minor issues
+  - 10: Perfect success
+
+REFLECT:
+  What worked: [list successes]
+  What failed: [list failures]
+  Root cause: [why it failed]
+  
+LEARN:
+  Lesson: [what to do differently]
+  Updated hypothesis: [new approach]
+  Confidence: [low/medium/high]
+
+DECISION:
+  □ Score >= 7 → Mark complete, store pattern
+  □ Score 4-6 → Retry with adjustments
+  □ Score 0-3 AND attempt < 4 → Retry with new approach
+  □ Score 0-3 AND attempt >= 4 → ESCALATE to web search
+</think>
+```
+
+### Session Pattern Memory
+
+Track successful patterns within the conversation:
+
+```
+<think>
+[SESSION MEMORY UPDATE]
+
+Successful patterns this session:
+- Pattern 1: [what worked] → [when to use]
+- Pattern 2: [what worked] → [when to use]
+
+Failed approaches to avoid:
+- Approach 1: [what failed] → [why]
+- Approach 2: [what failed] → [why]
+
+Apply these learnings to current task.
+</think>
+```
+
+### Escalation Triggers
+
+| Condition | Action |
+|-----------|--------|
+| Score < 4 for 4+ attempts | Web search for solutions |
+| Same error 3+ times | Try completely different approach |
+| Confidence drops to "low" | Ask user for clarification |
+| No progress after 5 attempts | Admit limitation, suggest alternatives |
+
+---
+
+## Confidence Scoring Protocol
+
+Before risky operations, explicitly state confidence:
+
+```
+<think>
+[CONFIDENCE ASSESSMENT]
+
+Task: [what I'm about to do]
+Risk level: [low/medium/high]
+
+Confidence: [0-100%]
+- Knowledge certainty: [how sure am I about the approach]
+- Version certainty: [did I verify current versions]
+- Syntax certainty: [am I sure about the syntax]
+
+If confidence < 70%:
+  → Verify with web search before proceeding
+  → Or ask user for confirmation
+
+If confidence >= 70%:
+  → Proceed with verification after
+</think>
+```
+
+### Confidence Thresholds
+
+| Confidence | Action |
+|------------|--------|
+| 90-100% | Proceed confidently |
+| 70-89% | Proceed with immediate verification |
+| 50-69% | Web search first, then proceed |
+| < 50% | Ask user or search extensively |
+
+---
+
+## Hypothesis Testing Protocol
+
+Form explicit hypotheses and test them:
+
+```
+<think>
+[HYPOTHESIS]
+
+Observation: [what I see/know]
+Hypothesis: [what I think is true]
+Test: [how to verify]
+Prediction: [what should happen if hypothesis is correct]
+</think>
+
+[Execute test]
+
+<think>
+[HYPOTHESIS RESULT]
+
+Outcome: [what actually happened]
+Hypothesis status: CONFIRMED / REFUTED / INCONCLUSIVE
+
+If REFUTED:
+  New hypothesis: [updated theory]
+  Next test: [how to verify new hypothesis]
+</think>
+```
+
+---
+
+## Backtracking Protocol
+
+When stuck, explicitly backtrack:
+
+```
+<think>
+[BACKTRACK DECISION]
+
+Current state: [where I am]
+Problem: [why I'm stuck]
+Attempts made: [what I've tried]
+
+Backtrack to: [earlier decision point]
+Alternative path: [different approach to try]
+
+Rationale: [why this alternative might work]
+</think>
+
+[Undo recent changes if needed]
+[Try alternative approach]
+```
+
+### When to Backtrack
+
+- Same error persists after 3 fixes
+- Code complexity spiraling out of control
+- User expresses confusion or frustration
+- Approach feels "hacky" or fragile
 
 ---
 

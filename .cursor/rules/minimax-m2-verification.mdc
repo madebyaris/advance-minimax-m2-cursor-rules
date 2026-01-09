@@ -1,6 +1,6 @@
 ---
 description: "MiniMax M2.1 verification protocols: code compilation, UI testing, syntax correctness, and production-readiness checks"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # MiniMax M2.1 Verification Protocols

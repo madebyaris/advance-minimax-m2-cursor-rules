@@ -1,6 +1,6 @@
 ---
 description: "Clarify-first strategy: detect ambiguity, ask targeted questions, expand simple prompts into detailed specifications"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Clarify-First Prompting Strategy
