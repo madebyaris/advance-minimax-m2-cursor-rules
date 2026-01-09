@@ -1,23 +1,10 @@
 {
-  "$schema": "https://cursor.com/schemas/hooks.json",
-  "hooks": [
-    {
-      "name": "post-edit-verify",
-      "description": "Automatically verify files after AI edits",
-      "event": "file_edit",
-      "phase": "after",
-      "command": ".cursor/hooks/verify-edit.sh",
-      "timeout_ms": 30000,
-      "enabled": true
-    },
-    {
-      "name": "pre-commit-lint",
-      "description": "Lint all staged files before committing",
-      "event": "terminal_command",
-      "phase": "before",
-      "match_pattern": "^git commit",
-      "command": "npm run lint:staged",
-      "enabled": false
-    }
-  ]
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/verify-edit.sh"
+      }
+    ]
+  }
 }

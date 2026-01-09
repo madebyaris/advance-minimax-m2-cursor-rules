@@ -296,73 +296,107 @@ Create a `.cursor/specs/` directory with detailed specs:
 
 ## Cursor Hooks Integration
 
+Hooks let you observe, control, and extend the agent loop using custom scripts. They run before or after defined stages of the agent loop.
+
 ### Hooks Configuration (`.cursor/hooks.json`)
+
+**CRITICAL**: Use the correct format per [Cursor Hooks docs](https://cursor.com/docs/agent/hooks):
 
 ```json
 {
-  "hooks": [
-    {
-      "name": "pre-file-read",
-      "event": "file_read",
-      "phase": "before",
-      "command": "node .cursor/hooks/log-file-read.js",
-      "enabled": true
-    },
-    {
-      "name": "post-edit-lint",
-      "event": "file_edit",
-      "phase": "after", 
-      "command": "npm run lint -- --fix ${file}",
-      "enabled": true
-    },
-    {
-      "name": "pre-terminal-check",
-      "event": "terminal_command",
-      "phase": "before",
-      "command": "node .cursor/hooks/validate-command.js",
-      "enabled": true
-    }
-  ]
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      { "command": ".cursor/hooks/verify-edit.sh" }
+    ],
+    "beforeShellExecution": [
+      { "command": ".cursor/hooks/audit.sh" }
+    ]
+  }
 }
 ```
 
-### Hook Events
+**Format Rules:**
+- `version`: Must be `1` (required)
+- `hooks`: Object with event names as keys (NOT an array)
+- Each event contains an array of hook objects with `command` field
 
-| Event | Phase | Use Case |
-|-------|-------|----------|
-| `file_read` | before | Log/audit file access |
-| `file_edit` | after | Auto-lint, format, validate |
-| `terminal_command` | before | Validate/block dangerous commands |
-| `terminal_command` | after | Capture output, verify success |
-| `agent_response` | after | Log/analyze agent outputs |
+### Hook Events (Agent)
 
-### Automated Verification Hook
+| Event | When | Use Case |
+|-------|------|----------|
+| `beforeShellExecution` | Before shell command | Block dangerous commands, require approval |
+| `afterShellExecution` | After shell command | Audit logs, capture output |
+| `beforeMCPExecution` | Before MCP tool call | Gate risky operations |
+| `afterMCPExecution` | After MCP tool call | Log tool usage |
+| `afterFileEdit` | After file edit | Auto-format, lint, validate |
+| `beforeSubmitPrompt` | Before prompt sent | PII scanning, validation |
+| `afterAgentResponse` | After agent message | Analytics, logging |
+| `afterAgentThought` | After thinking block | Observe reasoning |
+| `stop` | Agent loop ends | Auto follow-up, cleanup |
 
-```javascript
-// .cursor/hooks/verify-after-edit.js
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+### Hook Events (Tab/Inline Completions)
 
-// Read the edited file path from stdin
-let input = '';
-process.stdin.on('data', chunk => input += chunk);
-process.stdin.on('end', () => {
-  const data = JSON.parse(input);
-  const filePath = data.file_path;
-  
-  // Auto-lint the file
-  try {
-    execSync(`npx eslint --fix "${filePath}"`, { stdio: 'pipe' });
-    console.log(JSON.stringify({ status: 'success', message: 'Linted successfully' }));
-  } catch (error) {
-    console.log(JSON.stringify({ 
-      status: 'warning', 
-      message: 'Lint errors found',
-      errors: error.stdout?.toString() 
-    }));
-  }
-});
+| Event | When | Use Case |
+|-------|------|----------|
+| `beforeTabFileRead` | Before Tab reads file | Redact secrets |
+| `afterTabFileEdit` | After Tab edits file | Format Tab edits |
+
+### Example: Audit Hook
+
+```bash
+#!/bin/bash
+# .cursor/hooks/audit.sh - Log all agent actions
+
+json_input=$(cat)
+timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+echo "[$timestamp] $json_input" >> /tmp/agent-audit.log
+exit 0
+```
+
+### Example: Block Git Commands Hook
+
+```bash
+#!/bin/bash
+# .cursor/hooks/block-git.sh - Require gh CLI instead of git
+
+input=$(cat)
+command=$(echo "$input" | jq -r '.command // empty')
+
+if [[ "$command" =~ ^git[[:space:]] ]]; then
+  cat << EOF
+{
+  "permission": "deny",
+  "user_message": "Git command blocked. Use gh CLI instead.",
+  "agent_message": "The git command was blocked. Use gh tool for GitHub operations."
+}
+EOF
+else
+  echo '{"permission": "allow"}'
+fi
+```
+
+### Hook Input/Output Schema
+
+**Input (all hooks receive):**
+```json
+{
+  "conversation_id": "string",
+  "generation_id": "string", 
+  "model": "string",
+  "hook_event_name": "string",
+  "cursor_version": "string",
+  "workspace_roots": ["<path>"]
+}
+```
+
+**Output (permission hooks):**
+```json
+{
+  "permission": "allow" | "deny" | "ask",
+  "user_message": "<shown to user>",
+  "agent_message": "<sent to agent>"
+}
 ```
 
 ---
