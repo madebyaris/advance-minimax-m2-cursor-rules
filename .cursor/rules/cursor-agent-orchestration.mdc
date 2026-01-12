@@ -52,7 +52,7 @@ Package: Next.js
 Searching with actual values, not templates.
 </think>
 
-→ web_search("Next.js npm latest stable version January 2026")
+→ WebSearch(search_term="Next.js npm latest stable version January 2026")
 ```
 
 ---
@@ -77,7 +77,7 @@ Previous fix attempts:
 STATUS: 4th attempt reached → MANDATORY WEB SEARCH
 </think>
 
-→ web_search("[exact error message] solution [framework] [current month year]")
+→ WebSearch(search_term="[exact error message] solution [framework] [current month year]")
 ```
 
 ### Error Counter Protocol
@@ -103,17 +103,17 @@ After 4th failed attempt:
 
 ```
 // 1. Search for the exact error
-→ web_search("[exact error text] fix [framework] [year]")
+→ WebSearch(search_term="[exact error text] fix [framework] [year]")
 
 // 2. If no results, search for the error type
-→ web_search("[error type] [framework] common causes [year]")
+→ WebSearch(search_term="[error type] [framework] common causes [year]")
 
 // 3. If still no results, search for the context
-→ web_search("[what I was trying to do] [framework] tutorial [year]")
+→ WebSearch(search_term="[what I was trying to do] [framework] tutorial [year]")
 
-// 4. Use Context7 for official documentation
-→ resolve-library-id(libraryName="[framework]")
-→ get-library-docs(topic="[error-related-topic]")
+// 4. Use Context7 for official documentation (if available)
+→ user-context7-resolve-library-id(libraryName="[framework]")
+→ user-context7-query-docs(libraryId="...", query="[error-related-topic]")
 ```
 
 ---
@@ -181,7 +181,7 @@ todos: [
 Just created: src/app/login/page.tsx
 
 Verification steps:
-1. Check syntax with linter → read_lints(["src/app/login/page.tsx"])
+1. Check syntax with linter → ReadLints(paths=["src/app/login/page.tsx"])
 2. Check imports resolve → run build for that file area
 3. Check component renders → browser test if UI
 
@@ -194,7 +194,7 @@ DO: Verify this single file works before moving to next
 
 ```
 After EACH file creation:
-1. read_lints(paths=["path/to/new/file"])
+1. ReadLints(paths=["path/to/new/file"])
 2. If UI component: Quick browser snapshot
 3. If API route: Quick curl/fetch test
 4. Mark sub-task complete only after file verified
@@ -209,6 +209,106 @@ After ALL EPICs:
 2. E2E testing
 3. Mark project complete
 ```
+
+---
+
+## Cursor-Native Tools for Orchestration
+
+### Task Tool - Sub-Agent Delegation
+
+The `Task` tool launches specialized sub-agents for complex, multi-step tasks:
+
+```
+→ Task(
+    subagent_type="generalPurpose",
+    prompt="Implement user authentication with NextAuth.js. Create login/register pages, API routes, and middleware.",
+    description="Implement auth feature",
+    model="fast"  // Use fast model for cost efficiency
+  )
+```
+
+**Parameters:**
+- `subagent_type`: "generalPurpose" or "explore"
+- `prompt`: Detailed task description with all context needed
+- `description`: Short 3-5 word summary
+- `model`: Optional - use "fast" for simple tasks to reduce cost
+- `readonly`: Optional - restrict to read-only operations
+
+**When to Use Task:**
+| Scenario | Approach |
+|----------|----------|
+| Independent feature implementation | Task with generalPurpose |
+| Codebase exploration / research | Task with explore |
+| Simple single-file edit | Direct work (don't use Task) |
+| Sequential dependencies | Direct work |
+
+**Best Practices:**
+- Sub-agents start fresh - include ALL necessary context in prompt
+- Use `model="fast"` for exploration and simple tasks
+- Launch multiple Tasks in parallel for independent features
+- Sub-agent results are not visible to user - summarize in your response
+
+---
+
+### TodoWrite Tool - Task Management
+
+Use `TodoWrite` for EPIC-based task tracking:
+
+```
+→ TodoWrite(
+    todos=[
+      { id: "EPIC0", content: "Setup: Install dependencies and configure project", status: "in_progress" },
+      { id: "EPIC0.1", content: "Run npx create-next-app with TypeScript", status: "pending" },
+      { id: "EPIC0.2", content: "Install and configure shadcn-ui", status: "pending" },
+      { id: "EPIC1", content: "Feature: User Authentication", status: "pending" },
+      { id: "EPIC1.1", content: "Create login page with form validation", status: "pending" },
+      { id: "EPIC1.2", content: "Create register page", status: "pending" }
+    ],
+    merge=false  // Replace all todos
+  )
+```
+
+**Updating Todo Status:**
+```
+→ TodoWrite(
+    todos=[{ id: "EPIC0", status: "completed" }],
+    merge=true  // Only update specified todos
+  )
+```
+
+**When to Use TodoWrite:**
+- Complex multi-step tasks (3+ steps)
+- Tasks requiring careful planning
+- User provides multiple tasks
+- After receiving new instructions - capture as todos
+
+**When NOT to Use:**
+- Single straightforward tasks
+- Tasks completable in < 3 steps
+- Purely conversational requests
+
+---
+
+### CreatePlan Tool - Plan Mode
+
+Use `CreatePlan` in Plan Mode for structured planning:
+
+```
+→ CreatePlan(
+    name="Authentication System",
+    overview="Implement complete auth with NextAuth.js, including login, register, and protected routes",
+    plan="# Implementation Plan\n\n## Phase 1: Setup\n...",
+    todos=[
+      { id: "setup", content: "Install dependencies", status: "pending" },
+      { id: "auth-pages", content: "Create auth pages", status: "pending" }
+    ]
+  )
+```
+
+**When to Use:**
+- Large/ambiguous tasks requiring user approval
+- Tasks with multiple valid approaches
+- Architectural decisions needed
 
 ---
 
@@ -282,7 +382,7 @@ Create a `.cursor/specs/` directory with detailed specs:
 
 ### Testing
 - Test each file independently after creation
-- Use `read_lints` to verify no syntax errors
+- Use `ReadLints` to verify no syntax errors
 - Use browser tools to test UI rendering
 ```
 

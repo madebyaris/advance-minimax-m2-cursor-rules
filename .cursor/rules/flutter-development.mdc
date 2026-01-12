@@ -16,12 +16,12 @@ Before writing ANY Flutter code:
 
 ```
 1. CHECK FLUTTER INSTALLATION
-   → run_terminal_cmd("flutter --version")
-   → run_terminal_cmd("flutter doctor")
+   → Shell(command="flutter --version", description="Check Flutter version")
+   → Shell(command="flutter doctor", description="Run Flutter doctor")
    
-2. VERIFY CURRENT VERSIONS (use web_search)
-   → web_search("Flutter stable version December 2024")
-   → web_search("Dart SDK version December 2024")
+2. VERIFY CURRENT VERSIONS (use WebSearch)
+   → WebSearch(search_term="Flutter stable version January 2026")
+   → WebSearch(search_term="Dart SDK version January 2026")
    
 3. CHECK EXISTING PROJECT
    → Does pubspec.yaml exist? Read it first!
@@ -30,7 +30,7 @@ Before writing ANY Flutter code:
    
 4. FOR NEW PROJECTS - USE flutter create
    → NEVER manually create pubspec.yaml from scratch
-   → run_terminal_cmd("flutter create my_app")
+   → Shell(command="flutter create my_app", description="Create Flutter project")
 ```
 
 ### CLI-First Flutter Development

@@ -13,6 +13,50 @@ When users provide simple or ambiguous prompts, ask targeted clarifying question
 
 The goal is to gather essential information that significantly impacts implementation, not to quiz the user on every detail.
 
+---
+
+## AskQuestion Tool - Structured Clarification
+
+Use the `AskQuestion` tool for structured, multiple-choice questions:
+
+```
+→ AskQuestion(
+    title="Authentication Setup",
+    questions=[
+      {
+        id: "auth-type",
+        prompt: "Which authentication method do you prefer?",
+        options: [
+          { id: "oauth", label: "OAuth 2.0 (Google, GitHub) - easiest setup" },
+          { id: "jwt", label: "JWT email/password - full control" },
+          { id: "magic-link", label: "Magic link (passwordless) - modern UX" }
+        ]
+      },
+      {
+        id: "session-storage",
+        prompt: "Where should sessions be stored?",
+        options: [
+          { id: "jwt-stateless", label: "Stateless JWT tokens (scalable)" },
+          { id: "database", label: "Database sessions (more control)" }
+        ]
+      }
+    ]
+  )
+```
+
+**When to Use AskQuestion:**
+- Multiple valid approaches with significant trade-offs
+- User preferences are essential
+- Need structured input for decision-making
+
+**Best Practices:**
+- Maximum 1-2 questions at a time
+- Provide clear options with brief explanations
+- First option should be the recommended default
+- Include context for why each option matters
+
+---
+
 ## When to Clarify vs. Proceed
 
 ### PROCEED Without Asking When:
@@ -308,11 +352,11 @@ Instead of asking, use tools to find out:
 
 | Don't Ask | Just Check |
 |-----------|------------|
-| "Is Node.js installed?" | `run_terminal_cmd("node --version")` |
-| "What framework is this?" | `read_file("package.json")` |
-| "Does the file exist?" | `read_file("path/to/file")` |
-| "What's the current structure?" | `list_dir("./")` |
-| "Is this package installed?" | `read_file("package-lock.json")` |
+| "Is Node.js installed?" | `Shell(command="node --version")` |
+| "What framework is this?" | `Read(path="package.json")` |
+| "Does the file exist?" | `Read(path="path/to/file")` |
+| "What's the current structure?" | `LS(target_directory="./")` |
+| "Is this package installed?" | `Read(path="package-lock.json")` |
 | "What version are you using?" | Check config files first |
 
 ### Proactive Context Gathering
@@ -321,12 +365,12 @@ Before asking ANY clarifying question, first:
 
 ```
 1. CHECK PROJECT STATE
-   → list_dir to understand structure
-   → read_file for package.json, pubspec.yaml, Cargo.toml
-   → grep for existing patterns
+   → LS to understand structure
+   → Read for package.json, pubspec.yaml, Cargo.toml
+   → Grep for existing patterns
 
 2. CHECK TOOL AVAILABILITY
-   → run_terminal_cmd to verify CLIs exist
+   → Shell to verify CLIs exist
    → Check versions match requirements
 
 3. CHECK EXISTING CONVENTIONS
@@ -350,9 +394,9 @@ Before I add authentication, I need to know:
 ```
 <thinking>
 Let me check what exists first:
-- read_file("package.json") → Oh, it's Next.js 14
-- read_file("prisma/schema.prisma") → PostgreSQL with Prisma
-- grep("auth") → No existing auth implementation
+- Read(path="package.json") → Oh, it's Next.js 14
+- Read(path="prisma/schema.prisma") → PostgreSQL with Prisma
+- Grep(pattern="auth") → No existing auth implementation
 
 Now I know the context!
 </thinking>
@@ -370,9 +414,9 @@ I see you're using Next.js 14 with Prisma/PostgreSQL. For authentication:
 Before implementing framework-specific features:
 
 ```
-1. web_search("Next.js 14 App Router authentication December 2024")
-2. web_search("shadcn ui latest installation method 2024")
-3. Context7 for detailed API docs
+1. WebSearch(search_term="Next.js 14 App Router authentication December 2024")
+2. WebSearch(search_term="shadcn ui latest installation method 2024")
+3. Context7 for detailed API docs (if available)
 ```
 
 This prevents writing outdated code or using deprecated patterns.

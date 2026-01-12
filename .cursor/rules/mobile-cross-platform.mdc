@@ -15,13 +15,13 @@ Before writing ANY mobile code:
 
 ```
 1. CHECK CLI AVAILABILITY
-   → run_terminal_cmd("flutter --version") // For Flutter
-   → run_terminal_cmd("npx react-native --version") // For RN
-   → run_terminal_cmd("dotnet --list-sdks") // For MAUI
+   → Shell(command="flutter --version", description="Check Flutter") // For Flutter
+   → Shell(command="npx react-native --version", description="Check RN") // For RN
+   → Shell(command="dotnet --list-sdks", description="Check .NET") // For MAUI
    
-2. VERIFY CURRENT VERSIONS (use web_search)
-   → web_search("Flutter stable version December 2024")
-   → web_search("React Native latest version 2024")
+2. VERIFY CURRENT VERSIONS (use WebSearch)
+   → WebSearch(search_term="Flutter stable version January 2026")
+   → WebSearch(search_term="React Native latest version 2026")
    
 3. CHECK EXISTING PROJECT
    → Does pubspec.yaml/package.json exist?

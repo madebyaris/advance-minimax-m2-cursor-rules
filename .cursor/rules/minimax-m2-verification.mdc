@@ -362,6 +362,44 @@ struct ContentView: View {
 
 ---
 
+## ReadLints Tool - Linter Error Checking
+
+The `ReadLints` tool reads linter errors from the workspace. Use it after every file edit.
+
+### Usage
+
+```
+→ ReadLints(paths=["src/components/Button.tsx"])
+```
+
+### Parameters
+- `paths`: Array of file or directory paths to check
+
+### Best Practices
+
+1. **Only check files you've edited** - Don't scan entire codebase
+2. **Check immediately after edits** - Catch errors early
+3. **Fix errors before proceeding** - Don't accumulate lint errors
+4. **Use specific paths** - More efficient than broad scans
+
+### Example Workflow
+
+```
+// 1. Edit a file
+→ StrReplace(path="src/utils.ts", ...)
+
+// 2. Check for linter errors
+→ ReadLints(paths=["src/utils.ts"])
+
+// 3. If errors found, fix them
+→ StrReplace(path="src/utils.ts", ...)
+
+// 4. Verify fix
+→ ReadLints(paths=["src/utils.ts"])
+```
+
+---
+
 ## Post-Generation Verification
 
 ### For Every Code Change
@@ -393,38 +431,38 @@ struct ContentView: View {
 
 **Node.js/JavaScript:**
 ```
-→ run_terminal_cmd("npm install", required_permissions=["network"])
-→ run_terminal_cmd("npm run build")
-→ run_terminal_cmd("npm run lint")
-→ read_lints(paths=["src/"])
+→ Shell(command="npm install", description="Install dependencies")
+→ Shell(command="npm run build", description="Build project")
+→ Shell(command="npm run lint", description="Run linter")
+→ ReadLints(paths=["src/"])
 ```
 
 **Python:**
 ```
-→ run_terminal_cmd("pip install -r requirements.txt", required_permissions=["network"])
-→ run_terminal_cmd("python -m py_compile main.py")
-→ run_terminal_cmd("python -m pytest", required_permissions=["network"])
+→ Shell(command="pip install -r requirements.txt", description="Install dependencies")
+→ Shell(command="python -m py_compile main.py", description="Check syntax")
+→ Shell(command="python -m pytest", description="Run tests")
 ```
 
 **Go:**
 ```
-→ run_terminal_cmd("go build ./...")
-→ run_terminal_cmd("go test ./...")
-→ run_terminal_cmd("go vet ./...")
+→ Shell(command="go build ./...", description="Build Go project")
+→ Shell(command="go test ./...", description="Run Go tests")
+→ Shell(command="go vet ./...", description="Vet Go code")
 ```
 
 **Rust:**
 ```
-→ run_terminal_cmd("cargo check")
-→ run_terminal_cmd("cargo build")
-→ run_terminal_cmd("cargo test")
-→ run_terminal_cmd("cargo clippy")
+→ Shell(command="cargo check", description="Check Rust code")
+→ Shell(command="cargo build", description="Build Rust project")
+→ Shell(command="cargo test", description="Run Rust tests")
+→ Shell(command="cargo clippy", description="Run Clippy lints")
 ```
 
 **C/C++:**
 ```
-→ run_terminal_cmd("make")
-→ run_terminal_cmd("make test")
+→ Shell(command="make", description="Build with make")
+→ Shell(command="make test", description="Run tests")
 ```
 
 ---
@@ -485,25 +523,25 @@ After generating UI code:
 
 ```
 // 1. Start dev server if needed
-→ run_terminal_cmd("npm run dev", is_background=true, required_permissions=["network"])
+→ Shell(command="npm run dev", is_background=true, description="Start dev server")
 
 // 2. Wait for server to start
-→ browser_wait_for(time=3)
+→ cursor-ide-browser-browser_wait_for(time=3)
 
 // 3. Navigate to page
-→ browser_navigate(url="http://localhost:3000")
+→ cursor-ide-browser-browser_navigate(url="http://localhost:3000")
 
 // 4. Get page snapshot
-→ browser_snapshot()
+→ cursor-ide-browser-browser_snapshot()
 
 // 5. Check console for errors
-→ browser_console_messages()
+→ cursor-ide-browser-browser_console_messages()
 
 // 6. Test interactive elements
-→ browser_click(element="Submit button", ref="button-submit")
+→ cursor-ide-browser-browser_click(element="Submit button", ref="button-submit")
 
 // 7. Verify result
-→ browser_snapshot()
+→ cursor-ide-browser-browser_snapshot()
 ```
 
 ---

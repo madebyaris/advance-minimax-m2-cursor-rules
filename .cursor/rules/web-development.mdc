@@ -47,8 +47,8 @@ Before creating a project, I MUST:
 3. Check for compatibility issues
 </think>
 
-→ web_search("create-next-app latest version options December 2024")
-→ web_search("shadcn-ui Next.js 15 compatibility 2024")
+→ WebSearch(search_term="create-next-app latest version options December 2024")
+→ WebSearch(search_term="shadcn-ui Next.js 15 compatibility 2024")
 ```
 
 ---

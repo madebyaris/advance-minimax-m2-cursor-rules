@@ -58,7 +58,7 @@ Before writing ANY code, gather intelligence:
 ```
 
 **Then execute:**
-- Web search for package versions with current date
+- WebSearch for package versions with current date
 - Read existing project files
 - Check for existing CLI configurations
 
@@ -134,14 +134,14 @@ Issues found:
 **For npm/JavaScript packages:**
 ```
 Step 1: Web search with current date
-→ web_search("[package-name] npm latest version [current-month] [current-year]")
+→ WebSearch(search_term="[package-name] npm latest version [current-month] [current-year]")
 
-Step 2: If web search fails, use Context7
-→ resolve-library-id(libraryName="[package-name]")
-→ get-library-docs(context7CompatibleLibraryID="[id]", topic="installation")
+Step 2: If web search fails, use Context7 (if available)
+→ user-context7-resolve-library-id(libraryName="[package-name]")
+→ user-context7-query-docs(libraryId="[id]", query="installation")
 
 Step 3: Verify compatibility
-→ web_search("[package-name] [framework] compatibility [current-year]")
+→ WebSearch(search_term="[package-name] [framework] compatibility [current-year]")
 ```
 
 **Example:**
@@ -151,9 +151,9 @@ User wants to use React with Next.js. Let me check current stable versions.
 Current date: December 2024
 </think>
 
-→ web_search("Next.js npm latest stable version December 2024")
-→ web_search("React 19 stable release December 2024")
-→ web_search("shadcn/ui Next.js 15 compatibility 2024")
+→ WebSearch(search_term="Next.js npm latest stable version December 2024")
+→ WebSearch(search_term="React 19 stable release December 2024")
+→ WebSearch(search_term="shadcn/ui Next.js 15 compatibility 2024")
 ```
 
 ### Version Checking Triggers
@@ -247,9 +247,9 @@ Internal knowledge is insufficient.
 ACTION: Web search for community solutions.
 </think>
 
-→ web_search("[exact error message] solution [framework] [current date]")
-→ web_search("[error type] fix [framework] GitHub issues")
-→ Context7 for official documentation on the error topic
+→ WebSearch(search_term="[exact error message] solution [framework] [current date]")
+→ WebSearch(search_term="[error type] fix [framework] GitHub issues")
+→ Context7 for official documentation on the error topic (if available)
 ```
 
 **Error tracking:**
@@ -471,6 +471,131 @@ With 1M tokens available:
 3. Test files and specifications
 4. Configuration files
 5. Documentation (lowest)
+
+---
+
+## Cost Optimization for M2.1
+
+Minimize token usage and API costs while maintaining quality.
+
+### 1. Batch Parallel Tool Calls
+
+Read multiple files in a single message - they execute in parallel:
+
+```
+// GOOD: All execute in parallel (faster, same cost)
+→ Read(path="src/index.ts")
+→ Read(path="src/config.ts")
+→ Read(path="package.json")
+
+// BAD: Sequential calls (slower, same cost)
+→ Read(path="src/index.ts")
+[wait for response]
+→ Read(path="src/config.ts")
+[wait for response]
+```
+
+### 2. Use Fast Model for Sub-Agents
+
+For simple exploration or research tasks, use the fast model:
+
+```
+// GOOD: Fast model for exploration
+→ Task(
+    subagent_type="explore",
+    model="fast",
+    prompt="Find all API route files in this project",
+    description="Find API routes"
+  )
+
+// GOOD: Fast model for simple research
+→ Task(
+    subagent_type="generalPurpose",
+    model="fast",
+    prompt="Check if authentication is already implemented",
+    description="Check auth status"
+  )
+
+// Use default model for complex implementation
+→ Task(
+    subagent_type="generalPurpose",
+    prompt="Implement full authentication system with NextAuth.js...",
+    description="Implement auth"
+  )
+```
+
+### 3. Avoid Redundant Reads
+
+Track files already read in the session:
+
+```
+<think>
+[SESSION MEMORY]
+
+Files already read this session:
+- package.json (line 1-50)
+- src/index.ts (full file)
+- src/config.ts (full file)
+
+Don't re-read these unless they've been modified.
+</think>
+```
+
+### 4. Minimize Context in Sub-Agents
+
+Sub-agents start fresh - provide only essential context:
+
+```
+// GOOD: Focused context
+→ Task(
+    prompt="Create a login form component at src/components/LoginForm.tsx. 
+           Use React Hook Form for validation. 
+           Follow the existing Button component pattern in src/components/Button.tsx.",
+    ...
+  )
+
+// BAD: Too much context (wastes tokens)
+→ Task(
+    prompt="Here's the entire codebase structure... [500 lines]
+           Here's the full package.json... [100 lines]
+           Now create a login form...",
+    ...
+  )
+```
+
+### 5. Use Targeted Searches
+
+```
+// GOOD: Specific search
+→ Grep(pattern="useAuth", path="src/", type="ts")
+
+// BAD: Broad search (returns too much)
+→ Grep(pattern="auth", path="./")
+
+// GOOD: Targeted semantic search
+→ SemanticSearch(query="Where is user authentication handled?", target_directories=["src/auth/"])
+
+// BAD: Vague semantic search
+→ SemanticSearch(query="authentication", target_directories=[])
+```
+
+### 6. Incremental Verification
+
+Don't run full test suites after every change:
+
+```
+// GOOD: Check only edited file
+→ ReadLints(paths=["src/components/Button.tsx"])
+
+// BAD: Check entire codebase
+→ ReadLints(paths=["src/"])
+
+// GOOD: Run specific test
+→ Shell(command="npm test -- Button.test.tsx", description="Test Button")
+
+// BAD: Run all tests after small change
+→ Shell(command="npm test", description="Run all tests")
+```
 
 ---
 
