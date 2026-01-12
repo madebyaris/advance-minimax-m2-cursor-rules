@@ -306,8 +306,8 @@ Hooks let you observe, control, and extend the agent loop using custom scripts. 
 {
   "version": 1,
   "hooks": {
-    "afterFileEdit": [
-      { "command": ".cursor/hooks/verify-edit.sh" }
+    "stop": [
+      { "command": "node .cursor/hooks/grind.js" }
     ],
     "beforeShellExecution": [
       { "command": ".cursor/hooks/audit.sh" }
@@ -333,7 +333,7 @@ Hooks let you observe, control, and extend the agent loop using custom scripts. 
 | `beforeSubmitPrompt` | Before prompt sent | PII scanning, validation |
 | `afterAgentResponse` | After agent message | Analytics, logging |
 | `afterAgentThought` | After thinking block | Observe reasoning |
-| `stop` | Agent loop ends | Auto follow-up, cleanup |
+| `stop` | Agent loop ends | **RALPH loop**: Continue until goals met (tests pass, build succeeds) |
 
 ### Hook Events (Tab/Inline Completions)
 
@@ -352,6 +352,56 @@ json_input=$(cat)
 timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 echo "[$timestamp] $json_input" >> /tmp/agent-audit.log
 exit 0
+```
+
+### Example: Long-Running Agent Loop (RALPH Pattern)
+
+The `stop` hook enables RALPH-style iterative improvement - agent keeps working until verification goals are met.
+
+**Based on**: [Cursor agent best practices - long-running agent loop](https://cursor.com/blog/agent-best-practices#example-long-running-agent-loop)
+
+```javascript
+// .cursor/hooks/grind.js - RALPH loop implementation
+
+const input = JSON.parse(await readStdin());
+const { status, loop_count = 0 } = input;
+const MAX_ITERATIONS = 5;
+
+// Stop if aborted/errored or max iterations reached
+if (status !== 'completed' || loop_count >= MAX_ITERATIONS) {
+  console.log(JSON.stringify({}));
+  process.exit(0);
+}
+
+// Check if goals are met (tests pass, build succeeds, etc.)
+const goalsMet = checkGoals(); // Run npm test, npm run build, etc.
+
+if (goalsMet) {
+  // Goals met - stop the loop
+  console.log(JSON.stringify({}));
+} else {
+  // Goals not met - continue with followup message
+  console.log(JSON.stringify({
+    followup_message: `Continue working. Iteration ${loop_count + 1}/${MAX_ITERATIONS}. Tests/build still failing.`
+  }));
+}
+```
+
+**How it works:**
+1. Agent completes a task
+2. `stop` hook runs and checks verification goals (tests, build, lint)
+3. If goals met → return `{}` to stop
+4. If goals not met → return `{ followup_message: "..." }` to continue
+5. Agent receives followup and works on fixing issues
+6. Loop continues until goals met or max iterations reached
+
+**Configuration** (`.cursor/grind.json`):
+```json
+{
+  "maxIterations": 5,
+  "commands": ["npm test", "npm run build"],
+  "stopOnSuccess": true
+}
 ```
 
 ### Example: Block Git Commands Hook
@@ -396,6 +446,16 @@ fi
   "permission": "allow" | "deny" | "ask",
   "user_message": "<shown to user>",
   "agent_message": "<sent to agent>"
+}
+```
+
+**Output (stop hook - for RALPH loop):**
+```json
+{}  // Empty object = stop the loop
+
+// OR continue with:
+{
+  "followup_message": "Continue working on the task. Fix the failing tests."
 }
 ```
 

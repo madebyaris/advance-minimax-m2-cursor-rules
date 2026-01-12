@@ -349,6 +349,12 @@ Apply these learnings to current task.
 | Confidence drops to "low" | Ask user for clarification |
 | No progress after 5 attempts | Admit limitation, suggest alternatives |
 
+### Operational Implementation via Stop Hook
+
+RALPH can be **implemented operationally** using Cursor's `stop` hook pattern for long-running agent loops. See [Cursor agent best practices](https://cursor.com/blog/agent-best-practices#example-long-running-agent-loop) and the `cursor-agent-orchestration.mdc` rules for details.
+
+The `stop` hook enables outcome-based iteration: agent keeps working until verification goals are met (tests pass, build succeeds, etc.), implementing the RALPH cycle automatically.
+
 ---
 
 ## Confidence Scoring Protocol

@@ -1,0 +1,6 @@
+{
+  "maxIterations": 5,
+  "commands": [],
+  "stopOnSuccess": true,
+  "_comment": "Optional config for .cursor/hooks/grind.js. Leave commands empty to auto-detect from package.json scripts (test > lint > build). Set custom commands array to override."
+}
