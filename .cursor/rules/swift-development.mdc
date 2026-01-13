@@ -23,7 +23,7 @@ Before writing ANY Swift/iOS code:
 2. VERIFY CURRENT VERSIONS (use WebSearch)
    → WebSearch(search_term="Swift version January 2026")
    → WebSearch(search_term="iOS SDK version January 2026")
-   → WebSearch(search_term="Xcode latest version 2026")
+   → WebSearch(search_term="Xcode latest version January 2026")
    
 3. CHECK EXISTING PROJECT
    → Does *.xcodeproj exist? If yes, use Xcode to modify!
