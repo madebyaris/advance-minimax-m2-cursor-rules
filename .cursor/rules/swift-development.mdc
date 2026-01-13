@@ -16,14 +16,14 @@ Before writing ANY Swift/iOS code:
 
 ```
 1. CHECK XCODE/SWIFT AVAILABILITY
-   → run_terminal_cmd("swift --version")
-   → run_terminal_cmd("xcodebuild -version")
-   → run_terminal_cmd("xcrun simctl list")  # Available simulators
+   → Shell(command="swift --version", description="Check Swift version")
+   → Shell(command="xcodebuild -version", description="Check Xcode version")
+   → Shell(command="xcrun simctl list", description="List simulators")
    
-2. VERIFY CURRENT VERSIONS (use web_search)
-   → web_search("Swift version December 2024")
-   → web_search("iOS SDK version December 2024")
-   → web_search("Xcode latest version 2024")
+2. VERIFY CURRENT VERSIONS (use WebSearch)
+   → WebSearch(search_term="Swift version January 2026")
+   → WebSearch(search_term="iOS SDK version January 2026")
+   → WebSearch(search_term="Xcode latest version January 2026")
    
 3. CHECK EXISTING PROJECT
    → Does *.xcodeproj exist? If yes, use Xcode to modify!

@@ -16,12 +16,12 @@ Before writing ANY Rust code:
 
 ```
 1. CHECK RUST INSTALLATION
-   → run_terminal_cmd("rustc --version")
-   → run_terminal_cmd("cargo --version")
+   → Shell(command="rustc --version", description="Check Rust version")
+   → Shell(command="cargo --version", description="Check Cargo version")
    
-2. VERIFY CURRENT VERSIONS (use web_search)
-   → web_search("Rust stable version December 2024")
-   → web_search("Rust edition 2024 features")
+2. VERIFY CURRENT VERSIONS (use WebSearch)
+   → WebSearch(search_term="Rust stable version January 2026")
+   → WebSearch(search_term="Rust edition 2024 features")
    
 3. CHECK EXISTING PROJECT
    → Does Cargo.toml exist? Read it first!
@@ -30,8 +30,8 @@ Before writing ANY Rust code:
    
 4. FOR NEW PROJECTS - USE cargo new
    → NEVER manually create Cargo.toml from scratch
-   → run_terminal_cmd("cargo new my_project")
-   → run_terminal_cmd("cargo new --lib my_library")
+   → Shell(command="cargo new my_project", description="Create Rust project")
+   → Shell(command="cargo new --lib my_library", description="Create Rust library")
 ```
 
 ### CLI-First Rust Development

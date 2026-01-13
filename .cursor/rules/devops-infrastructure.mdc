@@ -16,15 +16,15 @@ Before writing ANY DevOps configuration:
 
 ```
 1. CHECK TOOL AVAILABILITY
-   → run_terminal_cmd("docker --version")
-   → run_terminal_cmd("kubectl version --client")
-   → run_terminal_cmd("terraform --version")
-   → run_terminal_cmd("helm version")
+   → Shell(command="docker --version", description="Check Docker")
+   → Shell(command="kubectl version --client", description="Check kubectl")
+   → Shell(command="terraform --version", description="Check Terraform")
+   → Shell(command="helm version", description="Check Helm")
    
-2. VERIFY CURRENT VERSIONS (use web_search)
-   → web_search("Terraform latest version December 2024")
-   → web_search("Kubernetes latest stable version 2024")
-   → web_search("Docker best practices 2024")
+2. VERIFY CURRENT VERSIONS (use WebSearch)
+   → WebSearch(search_term="Terraform latest version January 2026")
+   → WebSearch(search_term="Kubernetes latest stable version 2026")
+   → WebSearch(search_term="Docker best practices 2026")
    
 3. CHECK EXISTING INFRASTRUCTURE
    → Read existing Dockerfile, docker-compose.yml, *.tf files

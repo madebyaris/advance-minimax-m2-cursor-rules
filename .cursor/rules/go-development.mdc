@@ -16,10 +16,10 @@ Before writing ANY Go code:
 
 ```
 1. CHECK GO INSTALLATION
-   → run_terminal_cmd("go version")
+   → Shell(command="go version", description="Check Go version")
    
-2. VERIFY CURRENT GO VERSION (use web_search)
-   → web_search("Go golang stable version December 2024")
+2. VERIFY CURRENT GO VERSION (use WebSearch)
+   → WebSearch(search_term="Go golang stable version January 2026")
    → Ensure go.mod uses correct version
    
 3. CHECK EXISTING PROJECT
@@ -29,7 +29,7 @@ Before writing ANY Go code:
    
 4. FOR NEW PROJECTS - USE go mod init
    → NEVER manually create go.mod
-   → run_terminal_cmd("go mod init github.com/org/project")
+   → Shell(command="go mod init github.com/org/project", description="Initialize Go module")
 ```
 
 ### CLI-First Go Development

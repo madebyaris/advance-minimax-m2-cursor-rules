@@ -152,7 +152,7 @@ EPIC2: Feature B
 Instead of testing the whole system, each file is verified immediately after creation using `read_lints` and quick tests.
 
 ### Cursor Hooks Integration
-Includes `.cursor/hooks.json` configuration for automated post-edit linting and verification.
+Includes `.cursor/hooks.json` with `stop` hook for **long-running agent loops** (RALPH pattern). Agent iterates until verification goals are met (tests pass, build succeeds). Based on [Cursor agent best practices](https://cursor.com/blog/agent-best-practices#example-long-running-agent-loop).
 
 ### Sub-Agent / Parallel Agent Support
 Patterns for coordinating parallel agents working in git worktrees (Cursor 2.3+ feature).
@@ -166,6 +166,8 @@ Implements Reinforcement Learning with AI Preferences - the agent learns from fa
 ATTEMPT → EVALUATE (0-10) → REFLECT → LEARN → RETRY
 ```
 After 4 failed attempts, automatically escalates to web search for community solutions.
+
+**Operational Implementation**: RALPH is implemented via Cursor's `stop` hook (`grind.js`), enabling outcome-based iteration - agent keeps working until tests pass/build succeeds. See `.cursor/hooks/grind.js` and `.cursor/grind.json` for configuration.
 
 ### Context Window Optimization
 Rules restructured for efficiency:

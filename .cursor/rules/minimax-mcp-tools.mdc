@@ -7,6 +7,62 @@ alwaysApply: false
 
 MiniMax provides powerful MCP tools that are ESSENTIAL for reliable code generation. **Version checking and verification are not optional.**
 
+---
+
+## Web Search Tool Priority
+
+### Primary: Cursor's Native WebSearch
+
+Always try Cursor's native `WebSearch` tool first - it's always available:
+
+```
+→ WebSearch(search_term="Next.js 15 stable version January 2026")
+```
+
+### Fallback: MiniMax MCP web_search
+
+If MiniMax MCP is configured, you can also use:
+
+```
+→ user-MiniMax-web_search(query="Next.js 15 stable version January 2026")
+```
+
+### Decision Pattern
+
+```
+<think>
+[WEB SEARCH TOOL SELECTION]
+
+1. Use Cursor's native WebSearch (always available)
+2. If MiniMax MCP is configured, can use user-MiniMax-web_search as alternative
+3. Both work similarly - prefer native WebSearch for simplicity
+</think>
+```
+
+---
+
+## Context7 MCP - Optional Documentation Tool
+
+Context7 provides up-to-date library documentation but **requires separate setup**.
+
+### If Context7 is Available
+
+```
+→ user-context7-resolve-library-id(libraryName="react", query="hooks documentation")
+→ user-context7-query-docs(libraryId="/facebook/react", query="useEffect cleanup")
+```
+
+### If Context7 is NOT Available (Fallback)
+
+Use web search for documentation instead:
+
+```
+→ WebSearch(search_term="React 19 useEffect cleanup function documentation")
+→ WebSearch(search_term="Next.js 15 App Router official documentation")
+```
+
+---
+
 ## Critical Workflow: Version Checking
 
 ### MANDATORY Before Using Any Package
@@ -18,11 +74,11 @@ Every time you need to use a package/library:
 [VERSION CHECK REQUIRED]
 
 Package: [package-name]
-Current date: [get from context, e.g., December 2024]
+Current date: [get from context, e.g., January 2026]
 Framework context: [what framework/project]
 
-Step 1: Web search for current version
-Step 2: If unclear, use Context7
+Step 1: Web search for current version (use WebSearch)
+Step 2: If unclear, use Context7 (if available) or more web searches
 Step 3: Verify compatibility with project
 </think>
 ```
@@ -31,16 +87,19 @@ Step 3: Verify compatibility with project
 
 ```
 // Step 1: Always include current month and year in search
-→ web_search("react latest stable version December 2024")
-→ web_search("next.js 15 vs 14 which stable December 2024")
-→ web_search("tailwindcss npm latest version 2024")
+→ WebSearch(search_term="react latest stable version January 2026")
+→ WebSearch(search_term="next.js 15 vs 14 which stable January 2026")
+→ WebSearch(search_term="tailwindcss npm latest version 2026")
 
-// Step 2: If web search is inconclusive
-→ resolve-library-id(libraryName="react")
-→ get-library-docs(context7CompatibleLibraryID="/facebook/react", topic="installation")
+// Step 2: If web search is inconclusive and Context7 available
+→ user-context7-resolve-library-id(libraryName="react", query="installation")
+→ user-context7-query-docs(libraryId="/facebook/react", query="installation")
+
+// Step 2 Alternative: If Context7 NOT available
+→ WebSearch(search_term="react 19 installation guide official docs")
 
 // Step 3: Check compatibility
-→ web_search("react 19 next.js 15 compatibility issues 2024")
+→ WebSearch(search_term="react 19 next.js 15 compatibility issues 2026")
 ```
 
 ### When to Check Versions
@@ -166,9 +225,9 @@ User wants to create a Next.js app. I need to check current stable versions
 before proceeding. Current date: December 2024.
 </think>
 
-→ web_search("Next.js npm latest stable version December 2024")
-→ web_search("React 19 stable release date 2024")
-→ web_search("create-next-app latest version December 2024")
+→ WebSearch(search_term="Next.js npm latest stable version December 2024")
+→ WebSearch(search_term="React 19 stable release date 2024")
+→ WebSearch(search_term="create-next-app latest version December 2024")
 ```
 
 #### CLI Tool Availability
@@ -178,8 +237,8 @@ Before manually creating files, I should check if there's a CLI tool
 available for this task.
 </think>
 
-→ web_search("shadcn-ui CLI add components command 2024")
-→ web_search("next.js create-next-app options typescript tailwind 2024")
+→ WebSearch(search_term="shadcn-ui CLI add components command 2024")
+→ WebSearch(search_term="next.js create-next-app options typescript tailwind 2024")
 ```
 
 #### Error Debugging
@@ -188,8 +247,8 @@ available for this task.
 User has an error I don't recognize. Let me search for recent solutions.
 </think>
 
-→ web_search("Next.js 15 NEXT_REDIRECT error app router 2024")
-→ web_search("hydration mismatch error React 19 server components")
+→ WebSearch(search_term="Next.js 15 NEXT_REDIRECT error app router 2024")
+→ WebSearch(search_term="hydration mismatch error React 19 server components")
 ```
 
 #### Breaking Changes Check
@@ -198,8 +257,8 @@ User has an error I don't recognize. Let me search for recent solutions.
 Before suggesting an upgrade, I should check for breaking changes.
 </think>
 
-→ web_search("Next.js 15 breaking changes from 14 migration guide")
-→ web_search("React 19 breaking changes upgrade path 2024")
+→ WebSearch(search_term="Next.js 15 breaking changes from 14 migration guide")
+→ WebSearch(search_term="React 19 breaking changes upgrade path 2024")
 ```
 
 ---
@@ -263,11 +322,12 @@ by taking a screenshot and analyzing it.
 
 ---
 
-## Context7 MCP Integration
+## Context7 MCP Integration (OPTIONAL)
 
 Context7 provides up-to-date library documentation directly in your workflow.
+**This is an optional MCP that requires separate setup.**
 
-### Setup
+### Setup (Optional)
 Add to `.cursor/mcp.json`:
 ```json
 {
@@ -280,33 +340,39 @@ Add to `.cursor/mcp.json`:
 }
 ```
 
-### Tools
+### Tools (If Configured)
 
-#### 1. `resolve-library-id`
+#### 1. `user-context7-resolve-library-id`
 Find the Context7-compatible library ID for any package.
 
 ```
-→ resolve-library-id(libraryName="next.js")
+→ user-context7-resolve-library-id(libraryName="next.js", query="routing documentation")
 Returns: /vercel/next.js
 ```
 
-#### 2. `get-library-docs`
+#### 2. `user-context7-query-docs`
 Fetch up-to-date documentation for a library.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `context7CompatibleLibraryID` | string | Yes | Library ID (e.g., `/vercel/next.js`) |
-| `mode` | string | No | `code` for API/examples, `info` for guides |
-| `topic` | string | No | Focus topic (e.g., `hooks`, `routing`) |
-| `page` | integer | No | Pagination (1-10) for more results |
+| `libraryId` | string | Yes | Library ID (e.g., `/vercel/next.js`) |
+| `query` | string | Yes | What you want to learn about |
 
-### When to Use Context7
+### When to Use Context7 (If Available)
 
 **Use Context7 when:**
 - Web search didn't provide clear version/API information
 - Need accurate function signatures and parameters
 - Looking for official code examples
 - Verifying API usage patterns
+
+### Fallback When Context7 NOT Available
+
+Use web search for documentation:
+```
+→ WebSearch(search_term="Next.js 15 App Router routing documentation")
+→ WebSearch(search_term="React 19 useFormStatus hook API reference")
+```
 
 **Prefer web_search when:**
 - Checking latest versions (Context7 may lag behind releases)
@@ -325,7 +391,7 @@ Step 2: If unclear, use Context7 for official docs
 </think>
 
 // Step 1: Web search
-→ web_search("React 19 useActionState hook API signature December 2024")
+→ WebSearch(search_term="React 19 useActionState hook API signature December 2024")
 
 // If result is unclear:
 // Step 2: Context7
@@ -345,16 +411,13 @@ Step 2: If unclear, use Context7 for official docs
 
 ```
 // 1. Check versions
-→ web_search("create-next-app latest version options December 2024")
+→ WebSearch(search_term="create-next-app latest version options December 2024")
 
 // 2. Use CLI with verified version
-→ run_terminal_cmd(
-    "npx create-next-app@latest my-app --typescript --tailwind --app",
-    required_permissions=["network"]
-  )
+→ Shell(command="npx create-next-app@latest my-app --typescript --tailwind --app", description="Create Next.js app")
 
 // 3. Verify it works
-→ run_terminal_cmd("cd my-app && npm run build", required_permissions=["network"])
+→ Shell(command="cd my-app && npm run build", description="Build to verify")
 ```
 
 ### Pattern 2: Error Screenshot → Analysis → Fix
@@ -367,51 +430,49 @@ Step 2: If unclear, use Context7 for official docs
   )
 
 // 2. Search for solution
-→ web_search("[extracted error message] solution 2024")
+→ WebSearch(search_term="[extracted error message] solution 2024")
 
 // 3. Apply fix and verify
-→ search_replace(...)
-→ run_terminal_cmd("npm run build")
+→ StrReplace(path="...", old_string="...", new_string="...")
+→ Shell(command="npm run build", description="Verify fix")
 ```
 
 ### Pattern 3: Documentation → Implementation → Test
 
 ```
 // 1. Get documentation
-→ web_search("shadcn-ui data table example December 2024")
-→ get-library-docs(
-    context7CompatibleLibraryID="/shadcn/ui",
-    topic="data-table",
-    mode="code"
+→ WebSearch(search_term="shadcn-ui data table example December 2024")
+→ user-context7-query-docs(
+    libraryId="/shadcn/ui",
+    query="data-table implementation"
   )
 
 // 2. Implement using CLI if available
-→ run_terminal_cmd("npx shadcn-ui@latest add table", required_permissions=["network"])
+→ Shell(command="npx shadcn-ui@latest add table", description="Add shadcn table")
 
 // 3. Test in browser
-→ browser_navigate(url="http://localhost:3000")
-→ browser_snapshot()
+→ cursor-ide-browser-browser_navigate(url="http://localhost:3000")
+→ cursor-ide-browser-browser_snapshot()
 ```
 
 ### Pattern 4: New Library → Version + Compatibility Check
 
 ```
 // 1. Check latest version
-→ web_search("zod npm latest version December 2024")
+→ WebSearch(search_term="zod npm latest version December 2024")
 
 // 2. Check compatibility with existing stack
-→ web_search("zod react-hook-form compatibility 2024")
-→ web_search("zod TypeScript 5 support")
+→ WebSearch(search_term="zod react-hook-form compatibility 2024")
+→ WebSearch(search_term="zod TypeScript 5 support")
 
-// 3. Get installation docs
-→ get-library-docs(
-    context7CompatibleLibraryID="/colinhacks/zod",
-    topic="installation",
-    mode="code"
+// 3. Get installation docs (if Context7 available)
+→ user-context7-query-docs(
+    libraryId="/colinhacks/zod",
+    query="installation guide"
   )
 
 // 4. Install with verified version
-→ run_terminal_cmd("npm install zod@latest", required_permissions=["network"])
+→ Shell(command="npm install zod@latest", description="Install zod")
 ```
 
 ---
@@ -465,7 +526,7 @@ User wants Next.js app. Before I start, I MUST check:
 This is not optional - I must verify before proceeding.
 </think>
 
-→ web_search("Next.js latest stable version December 2024")
+→ WebSearch(search_term="Next.js latest stable version December 2024")
 ```
 
 ### CLI Availability
@@ -478,8 +539,8 @@ Before manually creating a button component, I should check:
 2. Is there a CLI command to add it?
 </think>
 
-→ read_file("package.json")  // Check for shadcn
-→ web_search("shadcn-ui add button command 2024")
+→ Read(path="package.json")  // Check for shadcn
+→ WebSearch(search_term="shadcn-ui add button command 2024")
 ```
 
 ### Compatibility Checks
@@ -493,8 +554,8 @@ Before installing, I should verify:
 3. Any known issues
 </think>
 
-→ web_search("Prisma latest version December 2024")
-→ web_search("Prisma Next.js 15 app router compatibility 2024")
+→ WebSearch(search_term="Prisma latest version December 2024")
+→ WebSearch(search_term="Prisma Next.js 15 app router compatibility 2024")
 ```
 
 ---
@@ -505,21 +566,21 @@ Every significant coding task should follow this pattern:
 
 ```
 1. VERSION CHECK
-   → web_search("[package] latest version [current month year]")
+   → WebSearch(search_term="[package] latest version [current month year]")
 
 2. CLI CHECK
-   → web_search("[task] CLI tool command 2024")
+   → WebSearch(search_term="[task] CLI tool command 2024")
 
 3. COMPATIBILITY CHECK
-   → web_search("[package A] [package B] compatibility [year]")
+   → WebSearch(search_term="[package A] [package B] compatibility [year]")
 
 4. IMPLEMENTATION
    → Use CLI if available, otherwise manual with verified patterns
 
 5. VERIFICATION
-   → run_terminal_cmd("npm run build")
-   → browser tools to test UI
-   → read_lints to check for errors
+   → Shell(command="npm run build", description="Build project")
+   → Browser tools to test UI
+   → ReadLints(paths=["src/"]) to check for errors
 ```
 
 This workflow prevents:

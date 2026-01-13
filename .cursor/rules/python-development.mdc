@@ -16,14 +16,14 @@ Before writing ANY Python code:
 
 ```
 1. CHECK PYTHON INSTALLATION
-   → run_terminal_cmd("python3 --version")
-   → run_terminal_cmd("pip --version")
-   → run_terminal_cmd("uv --version")  # Modern package manager
+   → Shell(command="python3 --version", description="Check Python version")
+   → Shell(command="pip --version", description="Check pip version")
+   → Shell(command="uv --version", description="Check uv version")  # Modern package manager
    
-2. VERIFY CURRENT VERSIONS (use web_search)
-   → web_search("Python stable version December 2024")
-   → web_search("FastAPI latest version 2024")
-   → web_search("Django LTS version 2024")
+2. VERIFY CURRENT VERSIONS (use WebSearch)
+   → WebSearch(search_term="Python stable version January 2026")
+   → WebSearch(search_term="FastAPI latest version 2026")
+   → WebSearch(search_term="Django LTS version 2026")
    
 3. CHECK EXISTING PROJECT
    → Does pyproject.toml/requirements.txt exist? Read it first!
@@ -31,8 +31,8 @@ Before writing ANY Python code:
    → What dependencies are already installed?
    
 4. VIRTUAL ENVIRONMENT (ALWAYS USE)
-   → run_terminal_cmd("python3 -m venv .venv")
-   → run_terminal_cmd("source .venv/bin/activate")
+   → Shell(command="python3 -m venv .venv", description="Create virtual environment")
+   → Shell(command="source .venv/bin/activate", description="Activate venv")
 ```
 
 ### CLI-First Python Development

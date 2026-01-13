@@ -44,7 +44,7 @@ Before using package X:
 3. Are there known issues?
 </think>
 
-→ web_search("[package] latest stable version [current month year]")
+→ WebSearch(search_term="[package] latest stable version [current month year]")
 ```
 
 ---

@@ -1,9 +1,9 @@
 {
   "version": 1,
   "hooks": {
-    "afterFileEdit": [
+    "stop": [
       {
-        "command": ".cursor/hooks/verify-edit.sh"
+        "command": "node .cursor/hooks/grind.js"
       }
     ]
   }
