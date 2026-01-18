@@ -15,6 +15,16 @@ Every piece of generated code must be verified before considering the task compl
 
 ---
 
+## Lightweight Verification Gates (GPT-5.2 Extra High)
+
+Verification must be **minimal but sufficient**:
+
+- Prefer **file-scoped** checks (e.g., `ReadLints` on edited files).
+- Run the **smallest effective** build/test command for the change.
+- Mark tasks complete only after **verification passes**.
+
+---
+
 ## Pre-Generation Checks
 
 ### Before Writing ANY Code

@@ -21,6 +21,7 @@
 - **✅ CLI-First Development** — Always use framework CLIs, never create config files manually
 - **🔍 Version Verification** — Web search for current package versions before using
 - **❓ Clarify-First Prompting** — AI checks context first, then asks targeted questions
+- **⚡ GPT-5.2 Extra High Mode** — Autonomous, concise, tool-first execution with minimal questions
 - **💭 Preserved Thinking** — Maintains reasoning context across conversations
 - **🛠️ Full Cursor 2.3/2.4 Support** — All tools documented and optimized (works with Nightly)
 - **🔌 MiniMax MCP** — `web_search` + `understand_image` integration
@@ -32,6 +33,15 @@
 ## 🎯 Philosophy
 
 These rules are designed to make AI code generation **actually work** by enforcing real development practices:
+
+### GPT-5.2 Extra High Mode (Autonomy + Concision)
+
+This mode keeps the Opus 4.5 workflow internally but tunes behavior for coding speed and clarity:
+
+- **Autonomous by default**: proceed without asking unless a decision affects security, data integrity, or core architecture
+- **Concise updates**: progress notes are 1–2 sentences, high-signal only
+- **Tool-first**: prefer targeted tool calls and parallel reads
+- **Verification-first**: done means verified, not just implemented
 
 ### The Golden Rule: Verify Before You Act
 
@@ -97,8 +107,8 @@ Add to Cursor Settings → MCP:
 
 | Rule | Lines | Purpose |
 |------|-------|---------|
-| `minimax-m2-core.mdc` | ~350 | Agentic behavior, Opus 4.5-style thinking, RALPH loop |
-| `cursor-agent-orchestration.mdc` | ~400 | Sub-agents, parallel workflows, EPIC todos, hooks |
+| `minimax-m2-core.mdc` | ~350 | Agentic behavior, Opus 4.5-style thinking, GPT-5.2 Extra High mode, RALPH loop |
+| `cursor-agent-orchestration.mdc` | ~400 | Sub-agents, parallel workflows, GPT-5.2 planning style, EPIC todos, hooks |
 
 ### Agent-Requestable Skills (Loaded on Demand)
 
