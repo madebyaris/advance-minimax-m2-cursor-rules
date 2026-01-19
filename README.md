@@ -9,7 +9,7 @@
 
 **Agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
 
-[Quick Start](#-quick-start) • [Features](#-features) • [Rules](#-rules) • [Philosophy](#-philosophy) • [Contributing](#-contributing)
+[Quick Start](#-quick-start) • [AGENTS.md](#-agentsmd-for-other-ides--clis) • [Features](#-features) • [Rules](#-rules) • [Contributing](#-contributing)
 
 </div>
 
@@ -27,6 +27,7 @@
 - **🔌 MiniMax MCP** — `web_search` + `understand_image` integration
 - **🌐 Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
 - **⚠️ Syntax Trap Prevention** — Common mistakes documented per language
+- **📄 AGENTS.md** — Portable version for other IDEs and CLI tools
 
 ---
 
@@ -68,12 +69,16 @@ This mode keeps the Opus 4.5 workflow internally but tunes behavior for coding s
 
 ## 🚀 Quick Start
 
-### 1. Clone & Copy
+### For Cursor Users
 
 ```bash
 git clone https://github.com/madebyaris/advance-minimax-m2-cursor-rules.git
-cp -r advance-minimax-m2-cursor-rules/.cursor/rules/ your-project/.cursor/rules/
+cp -r advance-minimax-m2-cursor-rules/.cursor your-project/.cursor
 ```
+
+### For Other IDEs/CLIs
+
+Copy [`AGENTS.md`](AGENTS.md) to your repo root or use as system prompt. See [AGENTS.md section](#-agentsmd-for-other-ides--clis) for details.
 
 ### 2. Configure MiniMax MCP
 
@@ -98,6 +103,29 @@ Add to Cursor Settings → MCP:
 > Get your API key at [platform.minimax.io](https://platform.minimax.io)
 
 ### 3. Restart Cursor
+
+---
+
+## 📄 AGENTS.md (For Other IDEs & CLIs)
+
+Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same MiniMax M2.1 patterns in a portable, IDE-agnostic format.
+
+### Use With
+
+- **OpenAI Codex / ChatGPT** — Copy as custom instructions
+- **GitHub Copilot Chat** — Add to system prompt
+- **Claude** (in other IDEs) — Use as context
+- **Cline / Aider / Continue** — Place in repo root
+- **Any CLI coding assistant** — Include in prompts
+
+### What's Included
+
+- Core agentic workflow (INVESTIGATE → PLAN → EXECUTE → VERIFY)
+- CLI-first development patterns
+- Version checking protocol
+- RALPH loop for error recovery
+- EPIC-based task decomposition
+- Communication style guidelines
 
 ---
 
