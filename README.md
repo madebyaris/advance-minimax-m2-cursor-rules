@@ -9,7 +9,7 @@
 
 **Agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
 
-[Quick Start](#-quick-start) • [Features](#-features) • [Rules](#-rules) • [Philosophy](#-philosophy) • [Contributing](#-contributing)
+[Quick Start](#-quick-start) • [AGENTS.md](#-agentsmd-for-other-ides--clis) • [Features](#-features) • [Rules](#-rules) • [Contributing](#-contributing)
 
 </div>
 
@@ -21,17 +21,28 @@
 - **✅ CLI-First Development** — Always use framework CLIs, never create config files manually
 - **🔍 Version Verification** — Web search for current package versions before using
 - **❓ Clarify-First Prompting** — AI checks context first, then asks targeted questions
+- **⚡ GPT-5.2 Extra High Mode** — Autonomous, concise, tool-first execution with minimal questions
 - **💭 Preserved Thinking** — Maintains reasoning context across conversations
 - **🛠️ Full Cursor 2.3/2.4 Support** — All tools documented and optimized (works with Nightly)
 - **🔌 MiniMax MCP** — `web_search` + `understand_image` integration
 - **🌐 Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
 - **⚠️ Syntax Trap Prevention** — Common mistakes documented per language
+- **📄 AGENTS.md** — Portable version for other IDEs and CLI tools
 
 ---
 
 ## 🎯 Philosophy
 
 These rules are designed to make AI code generation **actually work** by enforcing real development practices:
+
+### GPT-5.2 Extra High Mode (Autonomy + Concision)
+
+This mode keeps the Opus 4.5 workflow internally but tunes behavior for coding speed and clarity:
+
+- **Autonomous by default**: proceed without asking unless a decision affects security, data integrity, or core architecture
+- **Concise updates**: progress notes are 1–2 sentences, high-signal only
+- **Tool-first**: prefer targeted tool calls and parallel reads
+- **Verification-first**: done means verified, not just implemented
 
 ### The Golden Rule: Verify Before You Act
 
@@ -58,12 +69,16 @@ These rules are designed to make AI code generation **actually work** by enforci
 
 ## 🚀 Quick Start
 
-### 1. Clone & Copy
+### For Cursor Users
 
 ```bash
 git clone https://github.com/madebyaris/advance-minimax-m2-cursor-rules.git
-cp -r advance-minimax-m2-cursor-rules/.cursor/rules/ your-project/.cursor/rules/
+cp -r advance-minimax-m2-cursor-rules/.cursor your-project/.cursor
 ```
+
+### For Other IDEs/CLIs
+
+Copy [`AGENTS.md`](AGENTS.md) to your repo root or use as system prompt. See [AGENTS.md section](#-agentsmd-for-other-ides--clis) for details.
 
 ### 2. Configure MiniMax MCP
 
@@ -91,14 +106,37 @@ Add to Cursor Settings → MCP:
 
 ---
 
+## 📄 AGENTS.md (For Other IDEs & CLIs)
+
+Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same MiniMax M2.1 patterns in a portable, IDE-agnostic format.
+
+### Use With
+
+- **OpenAI Codex / ChatGPT** — Copy as custom instructions
+- **GitHub Copilot Chat** — Add to system prompt
+- **Claude** (in other IDEs) — Use as context
+- **Cline / Aider / Continue** — Place in repo root
+- **Any CLI coding assistant** — Include in prompts
+
+### What's Included
+
+- Core agentic workflow (INVESTIGATE → PLAN → EXECUTE → VERIFY)
+- CLI-first development patterns
+- Version checking protocol
+- RALPH loop for error recovery
+- EPIC-based task decomposition
+- Communication style guidelines
+
+---
+
 ## 📁 Rules
 
 ### Core (Always Active) - Optimized for Context Efficiency
 
 | Rule | Lines | Purpose |
 |------|-------|---------|
-| `minimax-m2-core.mdc` | ~350 | Agentic behavior, Opus 4.5-style thinking, RALPH loop |
-| `cursor-agent-orchestration.mdc` | ~400 | Sub-agents, parallel workflows, EPIC todos, hooks |
+| `minimax-m2-core.mdc` | ~350 | Agentic behavior, Opus 4.5-style thinking, GPT-5.2 Extra High mode, RALPH loop |
+| `cursor-agent-orchestration.mdc` | ~400 | Sub-agents, parallel workflows, GPT-5.2 planning style, EPIC todos, hooks |
 
 ### Agent-Requestable Skills (Loaded on Demand)
 

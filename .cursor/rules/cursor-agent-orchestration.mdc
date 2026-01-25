@@ -7,6 +7,16 @@ alwaysApply: true
 
 Advanced patterns for working with Cursor's multi-agent capabilities, sub-agent delegation, and parallel workflows.
 
+## GPT-5.2 Extra High Planning and Communication
+
+Operate with high autonomy while keeping the Opus 4.5 structure:
+
+- **Plan shape**: short phases with explicit verification steps; avoid long narratives.
+- **Decision forks only**: ask questions only when choices materially change security, data integrity, or core architecture.
+- **Default-first**: for reversible choices, state the assumption once and proceed.
+- **Concise updates**: progress updates should be 1–2 sentences, high-signal only.
+- **Tool-first execution**: prefer targeted tool calls, batch when possible.
+
 ## CRITICAL: Date-Aware Search Protocol
 
 ### Issue #3: Always Check Current Date First
@@ -209,6 +219,21 @@ After ALL EPICs:
 2. E2E testing
 3. Mark project complete
 ```
+
+---
+
+## Minimal Questions Policy
+
+Only ask when the decision is a **hard fork**:
+
+- Security/auth flows, data deletion/migration, or major architectural changes.
+- Irreversible choices with high cost to undo.
+
+Otherwise:
+
+- Choose a safe, reversible default.
+- State the assumption once.
+- Proceed and verify.
 
 ---
 
