@@ -1,5 +1,5 @@
 ---
-description: "MiniMax M2.1 agentic-first core behavior: Opus 4.5-style reasoning, 1M context optimization, verification-first development, and production-quality code generation"
+description: "MiniMax M2.1 agentic-first core behavior for Cursor 2.4: Opus 4.5-style reasoning, native subagents, 1M context optimization, verification-first development"
 alwaysApply: true
 ---
 
@@ -468,6 +468,13 @@ Rationale: [why this alternative might work]
 
 ## Context Window Optimization (1M Tokens)
 
+### Cursor 2.4 Context Architecture
+
+Cursor 2.4 improves context management through:
+- **Subagent isolation**: Built-in subagents (explore, bash, browser) have their own context windows
+- **Progressive skill loading**: Skills load resources on-demand, not all at once
+- **Semantic search**: Find code by meaning, reducing need to read entire files
+
 ### Smart Context Usage
 
 With 1M tokens available:
@@ -475,6 +482,7 @@ With 1M tokens available:
 2. **Batch related files** - Read all relevant files in parallel
 3. **Maintain mental map** - Track relationships and patterns
 4. **Reference, don't re-read** - Build on prior analysis
+5. **Let subagents handle exploration** - Native explore subagent has isolated context
 
 ### Priority Order
 
@@ -507,12 +515,22 @@ Read multiple files in a single message - they execute in parallel:
 [wait for response]
 ```
 
-### 2. Use Fast Model for Sub-Agents
+### 2. Leverage Native Subagents (Cursor 2.4)
 
-For simple exploration or research tasks, use the fast model:
+Cursor 2.4 has built-in subagents that run automatically with optimized context:
+
+| Built-in Subagent | Purpose | Benefit |
+|-------------------|---------|---------|
+| `explore` | Codebase search | Uses fast model, runs parallel searches |
+| `bash` | Shell commands | Isolates verbose output from main context |
+| `browser` | Web automation | Filters noisy DOM snapshots |
+
+**These activate automatically** - you don't need to configure them.
+
+For custom delegation via the Task tool, use fast model for simple tasks:
 
 ```
-// GOOD: Fast model for exploration
+// GOOD: Fast model for simple research
 → Task(
     subagent_type="explore",
     model="fast",
@@ -520,7 +538,7 @@ For simple exploration or research tasks, use the fast model:
     description="Find API routes"
   )
 
-// GOOD: Fast model for simple research
+// GOOD: Fast model for checking existing code
 → Task(
     subagent_type="generalPurpose",
     model="fast",
@@ -535,6 +553,11 @@ For simple exploration or research tasks, use the fast model:
     description="Implement auth"
   )
 ```
+
+**Task Tool vs Native Subagents:**
+- Native subagents (explore, bash, browser) activate automatically
+- Task tool is for programmatic delegation with custom prompts
+- Custom subagents (`.cursor/agents/`) are for specialized workflows
 
 ### 3. Avoid Redundant Reads
 

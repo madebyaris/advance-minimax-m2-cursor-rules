@@ -1,11 +1,11 @@
 ---
-description: "Complete Cursor 2.2 native tools reference: search, edit, run, and advanced features for agentic workflows"
+description: "Complete Cursor 2.4 native tools reference: search, edit, run, subagents, skills, and advanced features for agentic workflows"
 alwaysApply: false
 ---
 
-# Cursor 2.2 Tools Mastery
+# Cursor 2.4 Tools Mastery
 
-Complete reference for all Cursor IDE tools. Use these tools effectively to accomplish tasks efficiently.
+Complete reference for all Cursor 2.4 tools including native subagents, Agent Skills, and advanced features.
 
 ## CRITICAL: Agentic-First Tool Usage
 
@@ -488,13 +488,98 @@ If configured, provides:
 
 ---
 
+## Native Subagents (Cursor 2.4)
+
+Cursor 2.4 introduces native subagents - independent agents with isolated context windows.
+
+### Built-in Subagents
+
+These activate automatically when appropriate:
+
+| Subagent | Purpose | When Used |
+|----------|---------|-----------|
+| **explore** | Codebase search and analysis | Finding code, understanding structure |
+| **bash** | Shell command sequences | Running multiple commands |
+| **browser** | Web automation via MCP | Testing UI, browser interactions |
+
+**You don't invoke these directly** - the agent delegates automatically.
+
+### Custom Subagents
+
+Define in `.cursor/agents/` (project) or `~/.cursor/agents/` (user):
+
+```markdown
+---
+name: verifier
+description: Validates completed work. Use after tasks marked done.
+model: fast
+---
+
+You are a skeptical validator...
+```
+
+**Invoke explicitly**: `/verifier check the auth implementation`
+
+### Task Tool (Programmatic Delegation)
+
+For explicit subagent delegation:
+
+```
+→ Task(
+    subagent_type="explore",  // or "generalPurpose"
+    model="fast",
+    prompt="Find all authentication-related files",
+    description="Find auth files"
+  )
+```
+
+---
+
+## Agent Skills (Cursor 2.4)
+
+Skills are portable packages of domain knowledge.
+
+### Skill Locations
+
+| Location | Scope |
+|----------|-------|
+| `.cursor/skills/` | Project-level |
+| `~/.cursor/skills/` | User-level (global) |
+
+### Skill Structure
+
+```
+.cursor/skills/
+└── deploy-app/
+    ├── SKILL.md          # Required
+    ├── scripts/          # Optional - executable code
+    └── references/       # Optional - detailed docs
+```
+
+### Invoking Skills
+
+**Automatic**: Agent discovers based on context and description.
+
+**Explicit**: Use `/skill-name` in chat:
+```
+> /deploy-app deploy to staging
+> /migrate-to-skills convert my rules
+```
+
+### Built-in Migration Skill
+
+Cursor 2.4 includes `/migrate-to-skills` to convert dynamic rules to skills.
+
+---
+
 ## Tool Selection Decision Tree
 
 ```
 Need to find code?
 ├─ By meaning/concept → SemanticSearch
 ├─ Exact text/symbol → Grep
-└─ By filename → Glob
+├─ By filename → Glob
+└─ Complex exploration → Native explore subagent (automatic)
 
 Need to read?
 ├─ File contents → Read
@@ -508,7 +593,8 @@ Need to edit?
 └─ Jupyter notebook → EditNotebook
 
 Need to execute?
-├─ Shell command → Shell
+├─ Single command → Shell
+├─ Command sequence → Native bash subagent (automatic)
 └─ MCP tool → Use MCP tool directly
 
 Need external info?
@@ -517,12 +603,29 @@ Need external info?
 └─ Image analysis → user-MiniMax-understand_image (if configured)
 
 Need to test web UI?
-├─ Navigate to page → cursor-ide-browser-browser_navigate
-├─ Get page structure → cursor-ide-browser-browser_snapshot
-├─ Interact with elements → cursor-ide-browser-browser_click / browser_type
-├─ Check for errors → cursor-ide-browser-browser_console_messages
-└─ Debug API calls → cursor-ide-browser-browser_network_requests
+├─ Navigate/interact → Native browser subagent (automatic)
+├─ Or manually:
+│   ├─ Navigate → cursor-ide-browser-browser_navigate
+│   ├─ Snapshot → cursor-ide-browser-browser_snapshot
+│   └─ Interact → cursor-ide-browser-browser_click / browser_type
+
+Need specialized work?
+├─ Validate completed work → /verifier custom subagent
+├─ Debug errors → /debugger custom subagent
+├─ Domain knowledge → Invoke skill with /skill-name
+└─ Programmatic delegation → Task tool
 ```
+
+### Subagents vs Skills vs Task Tool
+
+| Need | Solution |
+|------|----------|
+| Codebase exploration | Native `explore` (automatic) |
+| Shell command sequences | Native `bash` (automatic) |
+| Browser testing | Native `browser` (automatic) |
+| Validate work | Custom subagent `/verifier` |
+| Domain-specific knowledge | Skill `/skill-name` |
+| Programmatic agent launch | Task tool |
 
 ## Parallel vs Sequential Tool Calls
 
@@ -547,7 +650,19 @@ Reading multiple files simultaneously:
 [All called in single batch]
 ```
 
-## Cursor 2.2 Advanced Features
+## Cursor 2.4 Advanced Features
+
+### Native Subagents
+- **explore**: Codebase search with isolated context
+- **bash**: Shell command execution with output filtering
+- **browser**: Web automation via MCP with DOM filtering
+- Custom subagents in `.cursor/agents/`
+
+### Agent Skills
+- Portable knowledge packages in `.cursor/skills/`
+- Auto-discovery or `/skill-name` invocation
+- Progressive loading (scripts, references, assets)
+- Migration: `/migrate-to-skills`
 
 ### Debug Mode
 - Instruments apps with runtime logs
@@ -564,14 +679,15 @@ Reading multiple files simultaneously:
 - Send to-dos to new agents
 - Structured task management
 
-### Multi-Agent Judging
-- Run parallel agents
-- Best solution selection
-- Automated comparison
+### Multi-Agent Features
+- Parallel subagents with isolated context
+- Background subagents (`is_background: true`)
+- Multi-agent judging for comparing solutions
 
-### Pinned Chats
-- Quick access to important threads
-- Persistent conversation references
+### Image Generation
+- Generate images directly from agent
+- Saved to `assets/` folder by default
+- Useful for mockups and diagrams
 
 ---
 

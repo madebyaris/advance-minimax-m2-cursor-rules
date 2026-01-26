@@ -4,7 +4,7 @@
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Cursor 2.3+](https://img.shields.io/badge/Cursor-2.3%2B-blue?style=flat-square)](https://cursor.com)
+[![Cursor 2.4+](https://img.shields.io/badge/Cursor-2.4%2B-blue?style=flat-square)](https://cursor.com)
 [![MiniMax M2.1](https://img.shields.io/badge/MiniMax-M2.1-purple?style=flat-square)](https://platform.minimax.io)
 
 **Agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
@@ -18,12 +18,14 @@
 ## ✨ Features
 
 - **🧠 Agentic-First Workflow** — Verify → Plan → Act → Validate (like Opus 4.5)
+- **🤖 Native Subagents (2.4)** — Custom subagents for validation, debugging, and specialized work
+- **📦 Agent Skills (2.4)** — Portable knowledge packages with scripts and progressive loading
 - **✅ CLI-First Development** — Always use framework CLIs, never create config files manually
 - **🔍 Version Verification** — Web search for current package versions before using
 - **❓ Clarify-First Prompting** — AI checks context first, then asks targeted questions
 - **⚡ GPT-5.2 Extra High Mode** — Autonomous, concise, tool-first execution with minimal questions
 - **💭 Preserved Thinking** — Maintains reasoning context across conversations
-- **🛠️ Full Cursor 2.3/2.4 Support** — All tools documented and optimized (works with Nightly)
+- **🛠️ Full Cursor 2.4 Support** — Subagents, skills, and all tools documented and optimized
 - **🔌 MiniMax MCP** — `web_search` + `understand_image` integration
 - **🌐 Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
 - **⚠️ Syntax Trap Prevention** — Common mistakes documented per language
@@ -129,16 +131,23 @@ Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same MiniMax M2
 
 ---
 
-## 📁 Rules
+## 📁 Rules, Subagents, and Skills
 
-### Core (Always Active) - Optimized for Context Efficiency
+### Core Rules (Always Active)
 
-| Rule | Lines | Purpose |
-|------|-------|---------|
-| `minimax-m2-core.mdc` | ~350 | Agentic behavior, Opus 4.5-style thinking, GPT-5.2 Extra High mode, RALPH loop |
-| `cursor-agent-orchestration.mdc` | ~400 | Sub-agents, parallel workflows, GPT-5.2 planning style, EPIC todos, hooks |
+| Rule | Purpose |
+|------|---------|
+| `minimax-m2-core.mdc` | Agentic behavior, Opus 4.5-style thinking, GPT-5.2 Extra High mode, RALPH loop |
+| `cursor-agent-orchestration.mdc` | Cursor 2.4 subagents, skills, parallel workflows, EPIC todos, hooks |
 
-### Agent-Requestable Skills (Loaded on Demand)
+### Custom Subagents (`.cursor/agents/`)
+
+| Subagent | Purpose | Invocation |
+|----------|---------|------------|
+| `verifier.md` | Validates completed work, catches incomplete implementations | `/verifier` |
+| `debugger.md` | Deep error investigation, root cause analysis | `/debugger` |
+
+### Agent-Requestable Rules (Loaded on Demand)
 
 These rules are **not always loaded** - the agent requests them when relevant, saving context window:
 
@@ -146,7 +155,7 @@ These rules are **not always loaded** - the agent requests them when relevant, s
 |------|---------|--------------|
 | `minimax-m2-verification.mdc` | Pre/post verification protocols | Code generation tasks |
 | `minimax-mcp-tools.mdc` | MiniMax MCP + version checking | Web search, image analysis |
-| `cursor-tools-mastery.mdc` | Cursor 2.3/2.4 tools reference | Complex tool usage |
+| `cursor-tools-mastery.mdc` | Cursor 2.4 tools reference | Complex tool usage |
 | `clarify-first-prompting.mdc` | Check first, then ask questions | Ambiguous requests |
 
 ### Language-Specific (Auto-Activate)
@@ -164,7 +173,19 @@ These rules are **not always loaded** - the agent requests them when relevant, s
 
 ---
 
-## 🆕 v2.2+ Enhancements (Cursor 2.3/2.4 Compatible)
+## 🆕 Cursor 2.4 Enhancements
+
+### Native Subagents
+Cursor 2.4 introduces native subagents with isolated context windows:
+- **Built-in**: `explore` (codebase search), `bash` (shell commands), `browser` (web automation)
+- **Custom**: Define your own in `.cursor/agents/` (includes `verifier` and `debugger`)
+
+### Agent Skills System
+Skills are the new way to package domain knowledge:
+- Location: `.cursor/skills/<name>/SKILL.md`
+- Supports scripts, references, and assets
+- Invoke with `/skill-name` or auto-discovery
+- Migrate existing rules with `/migrate-to-skills`
 
 ### Issue #3: Date-Aware Searches
 All web searches now **extract the current date first** and use concrete values, never placeholders.
@@ -186,17 +207,11 @@ EPIC2: Feature B
   ...
 ```
 
-### Per-File Verification
-Instead of testing the whole system, each file is verified immediately after creation using `read_lints` and quick tests.
+### Verifier Subagent Pattern
+The `/verifier` subagent validates completed work - addresses the common issue where AI marks tasks done but implementations are incomplete.
 
 ### Cursor Hooks Integration
 Includes `.cursor/hooks.json` with `stop` hook for **long-running agent loops** (RALPH pattern). Agent iterates until verification goals are met (tests pass, build succeeds). Based on [Cursor agent best practices](https://cursor.com/blog/agent-best-practices#example-long-running-agent-loop).
-
-### Sub-Agent / Parallel Agent Support
-Patterns for coordinating parallel agents working in git worktrees (Cursor 2.3+ feature).
-
-### Agent Skills Integration
-Rules are organized for Cursor's Agent Skills system - agents automatically request relevant skills based on file context.
 
 ### RALPH Loop (Self-Correction)
 Implements Reinforcement Learning with AI Preferences - the agent learns from failures within a session:
@@ -205,13 +220,11 @@ ATTEMPT → EVALUATE (0-10) → REFLECT → LEARN → RETRY
 ```
 After 4 failed attempts, automatically escalates to web search for community solutions.
 
-**Operational Implementation**: RALPH is implemented via Cursor's `stop` hook (`grind.js`), enabling outcome-based iteration - agent keeps working until tests pass/build succeeds. See `.cursor/hooks/grind.js` and `.cursor/grind.json` for configuration.
-
 ### Context Window Optimization
-Rules restructured for efficiency:
-- **2 always-applied rules** (~987 lines total) vs previous 6 rules (~3,300 lines)
-- **All other rules** are now requestable skills loaded only when needed
-- Reduces context overhead by **70%**
+- **Native subagents** have isolated context (explore, bash, browser)
+- **2 always-applied rules** vs previous 6 rules
+- **Skills load progressively** - only when needed
+- **Custom subagents** for specialized work without bloating main context
 
 ### Opus 4.5-Style Enhancements
 - **Confidence Scoring**: Rate confidence (0-100%) before risky operations

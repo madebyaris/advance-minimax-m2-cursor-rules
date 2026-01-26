@@ -1,11 +1,34 @@
 ---
-description: "Advanced Cursor agent orchestration: sub-agents, parallel workflows, hierarchical task decomposition, and multi-agent coordination"
+description: "Cursor 2.4 agent orchestration: native subagents, Agent Skills, parallel workflows, hierarchical task decomposition, and multi-agent coordination"
 alwaysApply: true
 ---
 
-# Cursor Agent Orchestration
+# Cursor 2.4 Agent Orchestration
 
-Advanced patterns for working with Cursor's multi-agent capabilities, sub-agent delegation, and parallel workflows.
+Advanced patterns for working with Cursor 2.4's native subagents, Agent Skills system, and multi-agent coordination.
+
+## Cursor 2.4 Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CURSOR 2.4 AGENT                         │
+├─────────────────────────────────────────────────────────────┤
+│  Main Agent                                                 │
+│    ├── Built-in Subagents (automatic)                       │
+│    │     ├── explore   → codebase search (fast model)       │
+│    │     ├── bash      → shell commands (isolated output)   │
+│    │     └── browser   → web automation (MCP-based)         │
+│    │                                                        │
+│    ├── Custom Subagents (.cursor/agents/)                   │
+│    │     ├── verifier  → validate completed work            │
+│    │     └── debugger  → error analysis                     │
+│    │                                                        │
+│    └── Context Sources                                      │
+│          ├── Rules (.cursor/rules/) → always/glob-triggered │
+│          ├── Skills (.cursor/skills/) → on-demand/slash cmd │
+│          └── Semantic Index → meaning-based search          │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## GPT-5.2 Extra High Planning and Communication
 
@@ -237,41 +260,94 @@ Otherwise:
 
 ---
 
-## Cursor-Native Tools for Orchestration
+## Cursor 2.4 Native Subagents
 
-### Task Tool - Sub-Agent Delegation
+Cursor 2.4 introduces **native subagents** - independent agents that handle discrete parts of tasks with their own context windows.
 
-The `Task` tool launches specialized sub-agents for complex, multi-step tasks:
+### Built-in Subagents (Automatic)
+
+These subagents are used automatically by the agent when appropriate:
+
+| Subagent | Purpose | Why It's a Subagent |
+|----------|---------|---------------------|
+| **explore** | Searches and analyzes codebases | Generates large intermediate output; uses fast model for parallel searches |
+| **bash** | Runs series of shell commands | Command output is verbose; isolates logs from main context |
+| **browser** | Controls browser via MCP tools | DOM snapshots are noisy; filters down to relevant results |
+
+**You don't configure these** - they activate automatically based on task context.
+
+### Custom Subagents
+
+Define custom subagents in `.cursor/agents/` (project) or `~/.cursor/agents/` (user).
+
+**File Format** (markdown with YAML frontmatter):
+
+```markdown
+---
+name: security-auditor
+description: Security specialist. Use when implementing auth, payments, or handling sensitive data.
+model: fast
+---
+
+You are a security expert auditing code for vulnerabilities.
+
+When invoked:
+1. Identify security-sensitive code paths
+2. Check for common vulnerabilities (injection, XSS, auth bypass)
+3. Verify secrets are not hardcoded
+4. Review input validation
+
+Report findings by severity: Critical, High, Medium.
+```
+
+**Frontmatter Fields:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | No | Unique identifier (lowercase, hyphens). Defaults to filename. |
+| `description` | No | When to use this subagent. Agent reads this to decide delegation. |
+| `model` | No | `fast`, `inherit`, or specific model ID. Default: `inherit`. |
+| `readonly` | No | If `true`, restricted write permissions. |
+| `is_background` | No | If `true`, runs in background without blocking. |
+
+### Invoking Custom Subagents
+
+**Automatic**: Agent delegates based on task and description match.
+
+**Explicit**: Use `/name` syntax in prompts:
+```
+> /verifier confirm the auth flow is complete
+> /debugger investigate this error
+```
+
+### Task Tool (Different from Native Subagents)
+
+The `Task` tool still exists but operates differently - it's for launching sub-agents programmatically:
 
 ```
 → Task(
-    subagent_type="generalPurpose",
-    prompt="Implement user authentication with NextAuth.js. Create login/register pages, API routes, and middleware.",
-    description="Implement auth feature",
-    model="fast"  // Use fast model for cost efficiency
+    subagent_type="generalPurpose",  // or "explore"
+    prompt="Check if authentication is already implemented",
+    description="Check auth status",
+    model="fast"
   )
 ```
 
-**Parameters:**
-- `subagent_type`: "generalPurpose" or "explore"
-- `prompt`: Detailed task description with all context needed
-- `description`: Short 3-5 word summary
-- `model`: Optional - use "fast" for simple tasks to reduce cost
-- `readonly`: Optional - restrict to read-only operations
+**When to Use Task vs Native Subagents:**
 
-**When to Use Task:**
-| Scenario | Approach |
+| Use Case | Approach |
 |----------|----------|
-| Independent feature implementation | Task with generalPurpose |
-| Codebase exploration / research | Task with explore |
-| Simple single-file edit | Direct work (don't use Task) |
-| Sequential dependencies | Direct work |
+| Complex codebase exploration | Native `explore` (automatic) or Task with explore |
+| Shell command sequences | Native `bash` (automatic) |
+| Browser testing | Native `browser` (automatic) |
+| Custom specialized work | Custom subagent in `.cursor/agents/` |
+| Programmatic delegation | Task tool |
 
-**Best Practices:**
-- Sub-agents start fresh - include ALL necessary context in prompt
-- Use `model="fast"` for exploration and simple tasks
+**Task Tool Best Practices:**
+- Subagents start fresh - include ALL necessary context in prompt
+- Use `model="fast"` for exploration and simple research
 - Launch multiple Tasks in parallel for independent features
-- Sub-agent results are not visible to user - summarize in your response
+- Results are not visible to user - summarize in your response
 
 ---
 
@@ -337,51 +413,53 @@ Use `CreatePlan` in Plan Mode for structured planning:
 
 ---
 
-## Sub-Agent / Parallel Agent Patterns
+## Parallel Agent Patterns (Cursor 2.4)
 
-### Understanding Cursor Parallel Agents
+### Cursor 2.4 Parallel Capabilities
 
-Cursor 2.x supports:
-- **Parallel Agents**: Multiple agents working simultaneously in git worktrees
-- **Multi-Agent Judging**: Compare solutions from multiple agents/models
-- **Background Agents**: Long-running tasks in cloud environments
+- **Native Subagents**: Built-in explore, bash, browser run in parallel automatically
+- **Custom Subagents**: Define specialized agents that run independently
+- **Background Subagents**: Set `is_background: true` for non-blocking execution
+- **Multi-Agent Worktrees**: Multiple agents in git worktrees for large features
+- **Cloud Agents**: Long-running tasks in cloud environments
 
-### When to Use Parallel Agents
+### When to Use Each Pattern
 
 | Scenario | Approach |
 |----------|----------|
-| Single focused task | Single agent |
-| Multiple independent features | Parallel agents in worktrees |
-| Need to compare approaches | Multi-agent judging |
-| Long-running task | Background/cloud agent |
+| Codebase exploration | Native `explore` subagent (automatic) |
+| Multiple shell commands | Native `bash` subagent (automatic) |
+| Browser testing | Native `browser` subagent (automatic) |
+| Validate completed work | Custom `verifier` subagent |
+| Debug errors | Custom `debugger` subagent |
+| Independent features | Parallel custom subagents or worktrees |
+| Compare approaches | Multi-agent judging |
 
-### Parallel Agent Orchestration Pattern
-
-For large projects, split work across agents:
+### Orchestrator Pattern with Custom Subagents
 
 ```
-ORCHESTRATOR (Main Agent):
-├── Plans overall architecture
-├── Creates spec files for sub-agents
-├── Coordinates integration
-└── Does final verification
+MAIN AGENT (Orchestrator):
+├── Plans architecture
+├── Delegates to custom subagents
+├── Coordinates results
+└── Runs /verifier for final check
 
-SUB-AGENT 1 (Worktree: feature/auth):
-├── Reads spec file
-├── Implements auth feature
-├── Tests auth feature
-└── Commits to worktree
+SUBAGENT: verifier
+├── Checks implementation exists
+├── Runs tests
+├── Validates edge cases
+└── Reports pass/fail with details
 
-SUB-AGENT 2 (Worktree: feature/dashboard):
-├── Reads spec file
-├── Implements dashboard
-├── Tests dashboard
-└── Commits to worktree
+SUBAGENT: debugger
+├── Analyzes error
+├── Identifies root cause
+├── Suggests fix
+└── Returns diagnosis
 ```
 
-### Spec File Format for Sub-Agents
+### Spec File Pattern (Still Useful)
 
-Create a `.cursor/specs/` directory with detailed specs:
+For complex multi-agent work, create specs in `.cursor/specs/`:
 
 ```markdown
 # .cursor/specs/feature-auth.md
@@ -394,7 +472,7 @@ Create a `.cursor/specs/` directory with detailed specs:
 - Environment variables set
 
 ### Tasks
-1. Create `/app/login/page.tsx` - Login form with email/password
+1. Create `/app/login/page.tsx` - Login form
 2. Create `/app/register/page.tsx` - Registration form
 3. Create `/app/api/auth/[...nextauth]/route.ts` - NextAuth config
 4. Create `/middleware.ts` - Route protection
@@ -403,19 +481,27 @@ Create a `.cursor/specs/` directory with detailed specs:
 - [ ] User can register with email/password
 - [ ] User can login and receive session
 - [ ] Protected routes redirect to login
-- [ ] Logout clears session
 
-### Testing
-- Test each file independently after creation
-- Use `ReadLints` to verify no syntax errors
-- Use browser tools to test UI rendering
+### Verification
+After completion, invoke: `/verifier confirm auth feature`
 ```
 
-### Sub-Agent Communication Protocol
+### Background Subagent Example
 
-1. **Spec Files**: Main agent creates specs, sub-agents read them
-2. **Status Files**: Sub-agents update progress in `.cursor/status/`
-3. **Integration Points**: Clearly defined interfaces between features
+For long-running tasks, use `is_background: true`:
+
+```markdown
+---
+name: test-runner
+description: Test automation expert. Use proactively to run tests and fix failures.
+is_background: true
+---
+
+You are a test automation expert.
+
+When you see code changes, proactively run appropriate tests.
+If tests fail, analyze and report findings.
+```
 
 ---
 
@@ -586,62 +672,129 @@ fi
 
 ---
 
-## Cursor Skills Integration
+## Cursor 2.4 Agent Skills
 
-### Agent-Requestable Skills
+Agent Skills are portable, version-controlled packages that teach agents domain-specific tasks. Skills are the preferred way to package specialized knowledge in Cursor 2.4.
 
-Skills are specialized rule files that agents can request based on context.
+### Skills vs Rules
 
-### Skill Organization
+| Feature | Rules (`.cursor/rules/`) | Skills (`.cursor/skills/`) |
+|---------|--------------------------|----------------------------|
+| Activation | `alwaysApply: true` or glob patterns | Auto-discovery or `/skill-name` |
+| Format | Single `.mdc` file | Folder with `SKILL.md` + optional scripts |
+| Executable | No | Yes - can include scripts |
+| Progressive loading | No | Yes - loads resources on-demand |
+| Best for | Always-on conventions, file-type patterns | Domain knowledge, procedures, how-tos |
+
+### Skill Directory Structure
 
 ```
-.cursor/rules/
-├── always-applied/          # alwaysApply: true
-│   ├── minimax-m2-core.mdc
-│   └── cursor-agent-orchestration.mdc
-├── requestable/             # Agents request when needed
-│   ├── web-development.mdc
-│   ├── flutter-development.mdc
-│   ├── python-development.mdc
-│   └── ...
-└── project-specific/        # Project-local rules
-    └── custom-conventions.mdc
+.cursor/skills/
+└── deploy-app/
+    ├── SKILL.md           # Required - main instructions
+    ├── scripts/           # Optional - executable code
+    │   ├── deploy.sh
+    │   └── validate.py
+    ├── references/        # Optional - detailed docs (loaded on-demand)
+    │   └── REFERENCE.md
+    └── assets/            # Optional - templates, configs
+        └── config-template.json
 ```
 
-### How Skills Work
-
-1. Agent sees task context (files, imports, package.json)
-2. Agent requests relevant skills (e.g., "flutter-development" for .dart files)
-3. Skills provide specialized knowledge for that domain
-
-### Enabling Skills
-
-In Cursor Settings → Rules → Import Settings:
-- Toggle "Agent Skills" ON
-- Skills from `.cursor/rules/` with matching descriptions are available
-
-### Writing Requestable Skills
+### SKILL.md Format
 
 ```markdown
 ---
-description: "Authentication patterns: NextAuth, JWT, OAuth, session management for web apps"
-alwaysApply: false  # Agent will request when relevant
+name: deploy-app
+description: Deploy the application to staging or production. Use when deploying code or when user mentions deployment.
 ---
 
-# Authentication Patterns
+# Deploy App
 
-## When This Skill Applies
-- User mentions "auth", "login", "authentication"
-- Files contain NextAuth, JWT, session imports
-- Routes have /api/auth/* patterns
+Deploy the application using the provided scripts.
 
-## Patterns and Best Practices
-...
+## Usage
+
+Run the deployment script: `scripts/deploy.sh <environment>`
+
+## Pre-deployment Validation
+
+Before deploying, run: `python scripts/validate.py`
+```
+
+**Frontmatter Fields:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Skill identifier. Must match folder name. |
+| `description` | Yes | When to use. Agent reads this to determine relevance. |
+| `license` | No | License name or file reference. |
+| `disable-model-invocation` | No | If `true`, only invoked via `/skill-name`. |
+
+### Invoking Skills
+
+**Automatic**: Agent discovers and applies based on context + description.
+
+**Explicit**: Type `/skill-name` in chat:
+```
+> /deploy-app deploy to staging
+> /migrate-to-skills convert my rules
+```
+
+### Migration: Rules to Skills
+
+Cursor 2.4 includes `/migrate-to-skills` to convert dynamic rules:
+
+```
+> /migrate-to-skills
+```
+
+This converts:
+- **Dynamic rules** (`alwaysApply: false`, no globs) → Standard skills
+- **Slash commands** → Skills with `disable-model-invocation: true`
+
+**What NOT to migrate:**
+- Rules with `alwaysApply: true` (keep as rules)
+- Rules with `globs` patterns (keep as rules - skills don't have glob triggers)
+
+### Recommended Organization
+
+```
+.cursor/
+├── rules/                    # Keep these as rules
+│   ├── minimax-m2-core.mdc          # alwaysApply: true
+│   ├── cursor-agent-orchestration.mdc  # alwaysApply: true
+│   ├── web-development.mdc          # globs: ["*.ts", "*.tsx"]
+│   └── python-development.mdc       # globs: ["*.py"]
+│
+├── skills/                   # Domain knowledge, procedures
+│   ├── deploy-production/
+│   │   └── SKILL.md
+│   ├── database-migration/
+│   │   └── SKILL.md
+│   └── security-audit/
+│       └── SKILL.md
+│
+└── agents/                   # Custom subagents
+    ├── verifier.md
+    └── debugger.md
+```
+
+### Anti-Hallucination: Clear Descriptions
+
+**Good** - Specific trigger conditions:
+```yaml
+description: "Deploy to production. Use when user mentions 'deploy', 'release', 'push to prod', or 'go live'."
+```
+
+**Bad** - Vague, will trigger inappropriately:
+```yaml
+description: "Helps with general deployment tasks"
 ```
 
 ---
 
-## Summary: Optimized Agent Workflow
+## Summary: Cursor 2.4 Optimized Workflow
 
 ### Before Starting Any Task
 
@@ -668,12 +821,12 @@ alwaysApply: false  # Agent will request when relevant
    → Continue
 
 5. AFTER EPIC COMPLETE
+   → Run /verifier to validate
    → Integration test for EPIC
-   → Update status
    → Continue to next EPIC
 ```
 
-### Quality Gates
+### Cursor 2.4 Quality Gates
 
 ```
 □ Date included in all version searches
@@ -681,6 +834,18 @@ alwaysApply: false  # Agent will request when relevant
 □ EPIC-based todo structure created
 □ Each file verified after creation
 □ Web search triggered after 4th error
-□ Sub-agent specs created for parallel work
+□ Custom subagents created for validation (.cursor/agents/)
+□ Skills organized for domain knowledge (.cursor/skills/)
 □ Hooks configured for automation
 ```
+
+### Quick Reference: Subagents vs Skills vs Rules
+
+| Need | Solution |
+|------|----------|
+| Always-on conventions | Rules with `alwaysApply: true` |
+| File-type patterns | Rules with `globs` |
+| Domain knowledge | Skills in `.cursor/skills/` |
+| Specialized agents | Custom subagents in `.cursor/agents/` |
+| Validation | `/verifier` subagent |
+| Debugging | `/debugger` subagent |
