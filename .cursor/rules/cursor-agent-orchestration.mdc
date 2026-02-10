@@ -1,5 +1,5 @@
 ---
-description: "Cursor 2.4 agent orchestration: native subagents, Agent Skills, parallel workflows, hierarchical task decomposition, and multi-agent coordination"
+description: "Cursor 2.4 agent orchestration with Opus 4.6 Max: native subagents, Agent Skills, adaptive effort delegation, parallel workflows, hierarchical task decomposition, and multi-agent coordination"
 alwaysApply: true
 ---
 
@@ -30,132 +30,78 @@ Advanced patterns for working with Cursor 2.4's native subagents, Agent Skills s
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## GPT-5.2 Extra High Planning and Communication
+## Opus 4.6 Max Planning and Communication
 
-Operate with high autonomy while keeping the Opus 4.5 structure:
+Operate with Opus 4.6 behavioral patterns — adaptive effort, self-critical, intellectually honest:
 
-- **Plan shape**: short phases with explicit verification steps; avoid long narratives.
-- **Decision forks only**: ask questions only when choices materially change security, data integrity, or core architecture.
-- **Default-first**: for reversible choices, state the assumption once and proceed.
-- **Concise updates**: progress updates should be 1–2 sentences, high-signal only.
-- **Tool-first execution**: prefer targeted tool calls, batch when possible.
+- **Adaptive effort**: Scale planning depth to task complexity. Don't create EPIC todos for a typo fix. Use full investigation for architecture changes.
+- **Decision forks only**: Ask questions only when choices materially change security, data integrity, or core architecture.
+- **Default-first**: For reversible choices, state the assumption once and proceed.
+- **Concise updates**: Progress updates should be 1-2 sentences, high-signal only.
+- **Tool-first execution**: Prefer targeted tool calls, batch when possible.
+- **Self-review before delivery**: Challenge your own solutions. What would break? What edge case is missing?
 
 ## CRITICAL: Date-Aware Search Protocol
 
-### Issue #3: Always Check Current Date First
+### Always Check Current Date First
 
 **BEFORE any web search for tech stack, versions, or solutions:**
 
 ```
 <think>
-[DATE CONTEXT CHECK]
-
-Current date from system: [extract from user_info or context]
-Format for searches: [Month Year] - e.g., "January 2026"
-
+Current date: [extract from user_info — e.g., "February 2026"]
 This date MUST be used in all version/tech queries.
 </think>
 ```
 
 **Correct search format:**
 ```
-✅ "Next.js latest stable version January 2026"
-✅ "React 19 useFormStatus hook January 2026"
-✅ "shadcn-ui installation guide 2026"
-
-❌ "Next.js latest version {date_year}"  ← NO PLACEHOLDERS
-❌ "React {version} hooks {month} {year}" ← NO TEMPLATE VARIABLES
-❌ "Next.js latest version"              ← NO DATE = OUTDATED RESULTS
+"Next.js latest stable version February 2026"
+"React 19 useFormStatus hook February 2026"
+"shadcn-ui installation guide 2026"
 ```
 
-### Issue #5: No Template Placeholders in Searches
+**NEVER use template placeholders** — no `{version}`, `{date_year}`, `${variable}`, `[PLACEHOLDER]`. Always use concrete values.
 
-**NEVER use these patterns in web_search:**
-- `{version}` 
-- `{date_year}`
-- `{month}`
-- `${variable}`
-- `[PLACEHOLDER]`
-
-**ALWAYS use concrete values:**
-```
-<think>
-Extracting current date: January 2026
-Package: Next.js
-Searching with actual values, not templates.
-</think>
-
-→ WebSearch(search_term="Next.js npm latest stable version January 2026")
-```
+**Strategic laziness**: Only search versions for NEW packages being added. Don't re-search versions for packages already in the project unless there's a version-related error.
 
 ---
 
-## Issue #4: Auto Web-Search Error Recovery
+## Auto Web-Search Error Recovery
 
-### Persistent Error Detection
+### Persistent Error Escalation
 
-When the same error occurs 3+ times:
-
-```
-<think>
-[ERROR PATTERN DETECTED]
-
-Error: [exact error message]
-Attempt count: [1/2/3/4+]
-Previous fix attempts:
-  - Attempt 1: [what was tried]
-  - Attempt 2: [what was tried]
-  - Attempt 3: [what was tried]
-
-STATUS: 4th attempt reached → MANDATORY WEB SEARCH
-</think>
-
-→ WebSearch(search_term="[exact error message] solution [framework] [current month year]")
-```
-
-### Error Counter Protocol
+After 3-4 failed attempts at the same error, stop trying variations and search:
 
 ```
 <think>
-[ERROR TRACKING]
-
-Tracking errors by signature:
-- Error signature: hash/fingerprint of error message
-- Current count: [N]
-- Threshold: 4
-
-If count >= 4:
-  ACTION: Stop trying same fixes, search for solutions online
-  REASON: Internal knowledge insufficient for this specific issue
+Same error after [N] attempts. My internal knowledge is insufficient.
+Escalating to web search.
 </think>
-```
 
-### Web Search Escalation Pattern
-
-After 4th failed attempt:
-
-```
-// 1. Search for the exact error
+// 1. Exact error
 → WebSearch(search_term="[exact error text] fix [framework] [year]")
 
-// 2. If no results, search for the error type
+// 2. Error type
 → WebSearch(search_term="[error type] [framework] common causes [year]")
 
-// 3. If still no results, search for the context
+// 3. Context-based
 → WebSearch(search_term="[what I was trying to do] [framework] tutorial [year]")
 
-// 4. Use Context7 for official documentation (if available)
+// 4. Official docs (if Context7 available)
 → user-context7-resolve-library-id(libraryName="[framework]")
 → user-context7-query-docs(libraryId="...", query="[error-related-topic]")
 ```
 
+**Key**: Track errors by their core message. After 3-4 failures with the same signature, the threshold is reached — mandatory web search.
+
 ---
 
-## Issue #6: Hierarchical Task Decomposition
+## Hierarchical Task Decomposition (Exhaustive-Level Only)
 
 ### EPIC-Based Todo Structure
 
-For complex projects, use hierarchical task organization:
+For **Exhaustive-level** complex projects, use hierarchical task organization. Do NOT create EPIC structures for Instant/Light tasks.
 
 ```
 TODO Structure:
@@ -203,27 +149,9 @@ todos: [
 ]
 ```
 
-### Per-File Testing (Not Whole System)
+### Per-File Verification
 
-**CRITICAL**: Test after each file, not after the whole feature:
-
-```
-<think>
-[PER-FILE VERIFICATION]
-
-Just created: src/app/login/page.tsx
-
-Verification steps:
-1. Check syntax with linter → ReadLints(paths=["src/app/login/page.tsx"])
-2. Check imports resolve → run build for that file area
-3. Check component renders → browser test if UI
-
-DO NOT: Run full system tests yet
-DO: Verify this single file works before moving to next
-</think>
-```
-
-### Incremental Testing Protocol
+Test after each file, not after the whole feature:
 
 ```
 After EACH file creation:
@@ -343,11 +271,19 @@ The `Task` tool still exists but operates differently - it's for launching sub-a
 | Custom specialized work | Custom subagent in `.cursor/agents/` |
 | Programmatic delegation | Task tool |
 
+**Adaptive Effort + Subagent Delegation (Opus 4.6 Pattern):**
+
+| Task Effort Level | Delegation Strategy |
+|-------------------|---------------------|
+| Instant / Light | Do it yourself — no subagent overhead |
+| Deep | Use `model="fast"` subagents for investigation, do implementation yourself |
+| Exhaustive | Parallel subagents for independent features, full model for complex work |
+
 **Task Tool Best Practices:**
-- Subagents start fresh - include ALL necessary context in prompt
-- Use `model="fast"` for exploration and simple research
+- Subagents start fresh — include ALL necessary context in prompt
+- Use `model="fast"` for exploration and simple research (Instant/Light effort)
 - Launch multiple Tasks in parallel for independent features
-- Results are not visible to user - summarize in your response
+- Results are not visible to user — summarize in your response
 
 ---
 
@@ -377,16 +313,17 @@ Use `TodoWrite` for EPIC-based task tracking:
   )
 ```
 
-**When to Use TodoWrite:**
+**When to Use TodoWrite (Deep/Exhaustive effort only):**
 - Complex multi-step tasks (3+ steps)
 - Tasks requiring careful planning
 - User provides multiple tasks
-- After receiving new instructions - capture as todos
+- After receiving new instructions — capture as todos
 
-**When NOT to Use:**
+**When NOT to Use (Instant/Light effort):**
 - Single straightforward tasks
 - Tasks completable in < 3 steps
 - Purely conversational requests
+- Simple fixes, renames, or one-file changes
 
 ---
 
@@ -672,6 +609,45 @@ fi
 
 ---
 
+## Context Compaction for Long-Running Tasks
+
+Opus 4.6 introduces **compaction** — the ability to summarize its own context to sustain longer tasks. Apply this principle in agentic workflows:
+
+### When to Compact
+
+- After completing each EPIC in a multi-EPIC task
+- When context is getting large (many files read, many tool calls)
+- Before starting a new phase of work
+
+### How to Compact
+
+```
+<think>
+[COMPACTION — End of EPIC N]
+
+Essential state to carry forward:
+- Project: [stack, conventions]
+- Completed: [what's done and verified]
+- Current: [what I'm working on next]
+- Decisions: [key choices made and why]
+- Known issues: [anything to watch for]
+
+Can release from active context:
+- Detailed file contents already processed
+- Intermediate debugging steps
+- Exploration results that didn't lead anywhere
+</think>
+```
+
+### Compaction + Subagents
+
+For exhaustive tasks, use subagents to isolate context-heavy work:
+- Exploration subagent reads and analyzes files (its context is isolated)
+- Main agent receives a summary, not the raw data
+- This naturally compacts context without explicit summarization
+
+---
+
 ## Cursor 2.4 Agent Skills
 
 Agent Skills are portable, version-controlled packages that teach agents domain-specific tasks. Skills are the preferred way to package specialized knowledge in Cursor 2.4.
@@ -794,49 +770,52 @@ description: "Helps with general deployment tasks"
 
 ---
 
-## Summary: Cursor 2.4 Optimized Workflow
+## Summary: Opus 4.6 Max + Cursor 2.4 Workflow
 
 ### Before Starting Any Task
 
 ```
-1. CHECK DATE
+1. CALIBRATE EFFORT
+   → Instant / Light / Deep / Exhaustive?
+   → Match workflow depth to complexity
+
+2. CHECK DATE (for version searches)
    → Extract current date from context
-   → Use in all web searches
+   → Use concrete values, never placeholders
 
-2. CREATE EPIC TODO
-   → EPIC0: Prerequisites
-   → EPIC1-N: Features  
-   → Each with sub-tasks (EPIC1.1, EPIC1.2, etc.)
+3. FOR DEEP/EXHAUSTIVE TASKS
+   → Create EPIC todos (Exhaustive only)
+   → Investigate codebase patterns first
+   → Plan with tradeoffs stated
 
-3. FOR EACH SUB-TASK
-   → Implement single file
-   → Verify that file (lint, compile, render)
-   → Mark sub-task complete
-   → Continue to next
+4. FOR EACH FILE/CHANGE
+   → Implement
+   → Lint check (ReadLints on edited file)
+   → Self-review (Light+): What would break?
+   → Mark complete only after verified
 
-4. ON REPEATED ERRORS (4+)
+5. ON REPEATED ERRORS (3-4+)
    → Stop trying same fix
    → Web search for solution
    → Apply community solution
-   → Continue
 
-5. AFTER EPIC COMPLETE
+6. AFTER EPIC/FEATURE COMPLETE
    → Run /verifier to validate
-   → Integration test for EPIC
-   → Continue to next EPIC
+   → Integration test
+   → Compact context before next phase
 ```
 
-### Cursor 2.4 Quality Gates
+### Quality Gates
 
 ```
-□ Date included in all version searches
+□ Effort calibrated to task complexity
+□ Adversarial self-review performed (Light+)
+□ Date included in version searches (for NEW packages)
 □ No template placeholders in searches
-□ EPIC-based todo structure created
 □ Each file verified after creation
-□ Web search triggered after 4th error
-□ Custom subagents created for validation (.cursor/agents/)
-□ Skills organized for domain knowledge (.cursor/skills/)
-□ Hooks configured for automation
+□ Web search triggered after 3-4 repeated errors
+□ Context compacted between phases (long tasks)
+□ Honest about uncertainty
 ```
 
 ### Quick Reference: Subagents vs Skills vs Rules

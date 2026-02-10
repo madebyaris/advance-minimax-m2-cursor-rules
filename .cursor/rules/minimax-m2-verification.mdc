@@ -1,11 +1,11 @@
 ---
-description: "MiniMax M2.1 verification protocols: code compilation, UI testing, syntax correctness, and production-readiness checks"
+description: "MiniMax M2.1 verification protocols with Opus 4.6 Max: proportional verification, adversarial self-review, code compilation, UI testing, syntax correctness, and production-readiness checks"
 alwaysApply: false
 ---
 
 # MiniMax M2.1 Verification Protocols
 
-Code generation is NOT complete until verification passes. This rule defines mandatory verification steps.
+Code generation is NOT complete until verification passes. This rule defines mandatory verification steps, scaled to effort level.
 
 ## Golden Rule
 
@@ -15,40 +15,72 @@ Every piece of generated code must be verified before considering the task compl
 
 ---
 
-## Lightweight Verification Gates (GPT-5.2 Extra High)
+## Proportional Verification (Opus 4.6 Pattern)
 
-Verification must be **minimal but sufficient**:
+Verification depth must match the change complexity. Don't run a full test suite for a typo fix.
 
-- Prefer **file-scoped** checks (e.g., `ReadLints` on edited files).
-- Run the **smallest effective** build/test command for the change.
-- Mark tasks complete only after **verification passes**.
+| Effort Level | Verification Steps |
+|-------------|-------------------|
+| **Instant** | ReadLints on edited file. Done. |
+| **Light** | ReadLints + build check. Quick self-review. |
+| **Deep** | ReadLints + build + tests + adversarial self-review. |
+| **Exhaustive** | ReadLints + build + full tests + browser testing + /verifier subagent. |
 
 ---
 
-## Pre-Generation Checks
+## Adversarial Self-Review (Pre-Delivery Check)
 
-### Before Writing ANY Code
+Before presenting any non-trivial solution (Light level and above), run the inner critic:
 
 ```
 <think>
-[PRE-GENERATION CHECKLIST]
+[SELF-REVIEW]
 
-1. Package versions verified? 
+1. What would break this?
+   - Edge cases: [empty input, null, concurrent access, large data, etc.]
+   - Error paths: [what if network fails, disk full, permissions denied?]
+
+2. What am I assuming that might be wrong?
+   - [List implicit assumptions about environment, data, user behavior]
+
+3. Is there a simpler way?
+   - Am I over-engineering?
+   - Could standard library handle this?
+
+4. Am I solving the right problem?
+   - Does this match what was actually asked?
+
+5. What would a senior engineer critique?
+   - [Name the likely code review feedback]
+</think>
+```
+
+**Skip for Instant-level changes** (typo fixes, simple renames).
+
+---
+
+## Pre-Generation Checks (Deep/Exhaustive Only)
+
+For Instant/Light tasks, skip this — just read the file and make the change.
+
+For Deep/Exhaustive tasks:
+
+```
+<think>
+1. Package versions verified? (for NEW packages only)
    □ Searched current versions with date
    □ Checked compatibility
 
-2. CLI tools checked?
-   □ Searched for available scaffolding CLI
-   □ Searched for component generation CLI
+2. CLI tools available?
+   □ Project scaffolding CLI
+   □ Component generation CLI
 
 3. Project patterns understood?
    □ Read existing code for conventions
-   □ Identified import patterns
-   □ Noted styling approach
+   □ Identified import/error handling patterns
 
 4. IDE project files required?
    □ If Xcode/VS/.sln needed → REFUSE, instruct user
-   □ If not needed → Proceed
 </think>
 ```
 
@@ -412,28 +444,28 @@ The `ReadLints` tool reads linter errors from the workspace. Use it after every 
 
 ## Post-Generation Verification
 
-### For Every Code Change
+### Effort-Scaled Verification
 
+**Instant**: Just lint the edited file.
+```
+→ ReadLints(paths=["path/to/edited/file"])
+```
+
+**Light**: Lint + build + quick self-review.
+```
+→ ReadLints(paths=["path/to/edited/file"])
+→ Shell(command="npm run build", description="Build check")  // or equivalent
+```
+
+**Deep/Exhaustive**: Full verification with self-review.
 ```
 <think>
 [POST-GENERATION VERIFICATION]
 
-1. Syntax check:
-   □ No typos in keywords
-   □ Proper indentation
-   □ Balanced brackets/braces
-   □ Correct string quotes
-
-2. Logic check:
-   □ Variables declared before use
-   □ Functions called correctly
-   □ Return types match
-   □ Error handling present
-
-3. Framework check:
-   □ Correct import statements
-   □ Proper component structure
-   □ Framework conventions followed
+1. Syntax: No typos, balanced brackets, correct quotes
+2. Logic: Variables declared, functions called correctly, error handling present
+3. Framework: Correct imports, proper conventions followed
+4. Self-review: Edge cases handled? Assumptions valid? Simpler approach?
 </think>
 ```
 
@@ -527,9 +559,9 @@ new Chart(ctx, {
 □ Cleanup on component unmount (React/Vue)
 ```
 
-### Browser Testing Protocol
+### Browser Testing Protocol (Deep/Exhaustive Only)
 
-After generating UI code:
+After generating UI code at Deep/Exhaustive effort level:
 
 ```
 // 1. Start dev server if needed
@@ -571,24 +603,13 @@ After generating UI code:
 
 ### Proper Response When Asked
 
-```
-<think>
-User wants me to create an Xcode/VS/Android Studio project.
-I cannot generate these project files as they will be corrupted.
-I should explain this clearly.
-</think>
+Explain clearly that these files have complex formats AI cannot reliably produce, then provide the manual steps:
 
-I cannot generate Xcode project files - they have a complex binary-like 
-format that AI models cannot reliably produce. Here's what to do instead:
+1. Open Xcode/VS/Android Studio
+2. Create the project using the IDE's project wizard
+3. Once created, offer to help with the actual code
 
-1. Open Xcode
-2. File → New → Project
-3. Select [appropriate template]
-4. Configure project settings
-5. Once created, I can help you write the Swift/Objective-C code
-
-Would you like me to help with the code after you create the project?
-```
+Do NOT attempt to generate these files, even partially.
 
 ---
 
@@ -596,28 +617,25 @@ Would you like me to help with the code after you create the project?
 
 ### When Verification Fails
 
+Reason genuinely about the error — don't fill in a template:
+
 ```
 <think>
-[ERROR RECOVERY]
-
-Error type: [Build error / Lint error / Runtime error / Visual bug]
-
-Error message: [Exact error]
-
-Root cause analysis:
-- Is it a typo? Check against syntax reference
-- Is it a version mismatch? Web search for compatibility
-- Is it a missing dependency? Check package.json/requirements.txt
-- Is it a logic error? Trace through code flow
-
-Fix approach:
-1. [Specific fix]
-2. [Verification step]
+What happened: [the actual error]
+Why I think it happened: [hypothesis — typo? version mismatch? missing dep? logic error?]
+Confidence: [certain / likely / uncertain]
+Fix: [specific change]
 </think>
 
 [Apply fix]
 [Verify again]
+
+<think>
+Did it work? If no — was my hypothesis wrong, or was the fix insufficient?
+</think>
 ```
+
+After 3-4 failed attempts at the same error, escalate to web search (see core rules).
 
 ### Common Error Patterns
 
@@ -634,19 +652,45 @@ Fix approach:
 
 ## Verification Summary Checklist
 
-Before marking ANY task complete:
+Before marking ANY task complete (scale to effort level):
 
+### Instant
 ```
-□ Package versions checked with web search
+□ Linter passes on edited file
+```
+
+### Light
+```
+□ Linter passes on edited file
+□ Build succeeds
+□ Adversarial self-review performed
+```
+
+### Deep
+```
+□ Package versions checked for NEW dependencies
 □ CLI tools used where available
-□ Syntax verified against language reference
-□ No IDE project files generated manually
-□ Build command runs successfully
-□ Linter passes (read_lints)
-□ UI renders correctly (browser tools)
-□ Interactive elements work
-□ Console shows no errors
+□ Linter passes on all edited files
+□ Build succeeds
+□ Relevant tests pass
+□ Adversarial self-review performed
 □ Error handling is present
 ```
 
-**If ANY checkbox is not verified, the task is NOT complete.**
+### Exhaustive
+```
+□ Package versions checked for NEW dependencies
+□ CLI tools used where available
+□ Syntax verified against language reference
+□ No IDE project files generated manually
+□ Build succeeds
+□ All relevant tests pass
+□ UI renders correctly (browser tools, if applicable)
+□ Interactive elements work (if applicable)
+□ Console shows no errors
+□ Error handling is present
+□ Adversarial self-review performed
+□ /verifier subagent confirms completion
+```
+
+**If the required checkboxes for the effort level are not verified, the task is NOT complete.**

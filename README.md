@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Advanced MiniMax M2.1 Cursor Rules
+# Advanced MiniMax M2.1 Cursor Rules
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
@@ -9,67 +9,79 @@
 
 **Agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
 
-[Quick Start](#-quick-start) • [AGENTS.md](#-agentsmd-for-other-ides--clis) • [Features](#-features) • [Rules](#-rules) • [Contributing](#-contributing)
+*Now emulating **Claude Opus 4.6 Max** — adaptive thinking, adversarial self-review, and proportional effort*
+
+[Quick Start](#-quick-start) | [AGENTS.md](#-agentsmd-for-other-ides--clis) | [Features](#-features) | [Rules](#-rules) | [Contributing](#-contributing)
 
 </div>
 
 ---
 
-## ✨ Features
+## Features
 
-- **🧠 Agentic-First Workflow** — Verify → Plan → Act → Validate (like Opus 4.5)
-- **🤖 Native Subagents (2.4)** — Custom subagents for validation, debugging, and specialized work
-- **📦 Agent Skills (2.4)** — Portable knowledge packages with scripts and progressive loading
-- **✅ CLI-First Development** — Always use framework CLIs, never create config files manually
-- **🔍 Version Verification** — Web search for current package versions before using
-- **❓ Clarify-First Prompting** — AI checks context first, then asks targeted questions
-- **⚡ GPT-5.2 Extra High Mode** — Autonomous, concise, tool-first execution with minimal questions
-- **💭 Preserved Thinking** — Maintains reasoning context across conversations
-- **🛠️ Full Cursor 2.4 Support** — Subagents, skills, and all tools documented and optimized
-- **🔌 MiniMax MCP** — `web_search` + `understand_image` integration
-- **🌐 Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
-- **⚠️ Syntax Trap Prevention** — Common mistakes documented per language
-- **📄 AGENTS.md** — Portable version for other IDEs and CLI tools
+- **Opus 4.6 Max Reasoning** — Adaptive effort, adversarial self-review, intellectual honesty, and strategic laziness
+- **Adaptive Thinking** — Scales reasoning depth to problem complexity (Instant/Light/Deep/Exhaustive)
+- **Adversarial Self-Review** — AI challenges its own solutions before presenting them: "What would break this?"
+- **Native Subagents (2.4)** — Custom subagents for validation, debugging, and specialized work
+- **Agent Skills (2.4)** — Portable knowledge packages with scripts and progressive loading
+- **CLI-First Development** — Always use framework CLIs, never create config files manually
+- **Version Verification** — Web search for current package versions before using
+- **Intellectual Honesty** — Three-tier certainty (Certain/Likely/Uncertain) instead of hallucinated confidence
+- **Strategic Laziness** — Minimum correct change, no over-engineering
+- **Compaction** — Context compression for sustained productivity over long sessions
+- **Full Cursor 2.4 Support** — Subagents, skills, hooks, and all tools documented and optimized
+- **MiniMax MCP** — `web_search` + `understand_image` integration
+- **Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
+- **Syntax Trap Prevention** — Common mistakes documented per language
+- **AGENTS.md** — Portable version for other IDEs and CLI tools
 
 ---
 
-## 🎯 Philosophy
+## Philosophy
 
-These rules are designed to make AI code generation **actually work** by enforcing real development practices:
+These rules are designed to make AI code generation **actually work** by emulating how the best coding models think.
 
-### GPT-5.2 Extra High Mode (Autonomy + Concision)
+### Opus 4.6 Max Mode
 
-This mode keeps the Opus 4.5 workflow internally but tunes behavior for coding speed and clarity:
+Based on [Claude Opus 4.6](https://anthropic.com/news/claude-opus-4-6) behavioral patterns:
 
-- **Autonomous by default**: proceed without asking unless a decision affects security, data integrity, or core architecture
-- **Concise updates**: progress notes are 1–2 sentences, high-signal only
-- **Tool-first**: prefer targeted tool calls and parallel reads
-- **Verification-first**: done means verified, not just implemented
+> "The model brings more focus to the most challenging parts of a task without being told to, moves quickly through the more straightforward parts, handles ambiguous problems with better judgment, and stays productive over longer sessions."
+
+Key behaviors:
+
+- **Adaptive effort**: A typo fix gets instant treatment. An architecture redesign gets exhaustive analysis.
+- **Self-critical**: Before presenting a solution, mentally attack it — edge cases, assumptions, simpler alternatives.
+- **Intellectually honest**: "I'm not certain about this API — let me check" instead of hallucinating confidence.
+- **Strategically lazy**: Make the minimum correct change. Don't refactor what wasn't asked for.
+- **Verification-first**: "Done" means verified (builds, lints, tests), not just implemented.
 
 ### The Golden Rule: Verify Before You Act
 
 ```
-1. CHECK  — What exists? What's the current state?
-2. VERIFY — What versions? What CLIs are available?
-3. ACT    — Make the change using proper tools
-4. VALIDATE — Did it work? Any errors?
+1. CALIBRATE — How complex is this? Match effort to complexity.
+2. CHECK     — What exists? What versions? What CLIs?
+3. ACT       — Make the change using proper tools.
+4. REVIEW    — What would break? What did I miss?
+5. VALIDATE  — Build, lint, test. Did it actually work?
 ```
 
 ### What This Prevents
 
-| ❌ Bad Practice | ✅ What Rules Enforce |
-|-----------------|----------------------|
+| Bad Practice | What Rules Enforce |
+|-------------|-------------------|
 | Manually creating `package.json` | Use `npm init` or `npx create-next-app` |
 | Manually creating `pubspec.yaml` | Use `flutter create` |
 | Manually creating `Cargo.toml` | Use `cargo new` |
-| Manually creating `.xcodeproj` | **NEVER** - use Xcode only |
+| Manually creating `.xcodeproj` | **NEVER** — use Xcode only |
 | Skipping `npm install` | Always run after setup |
 | Using outdated package versions | Web search for current versions |
 | Charts without container heights | Explicit Chart.js guidelines |
+| Over-engineering simple fixes | Adaptive effort levels prevent this |
+| Hallucinating API knowledge | Intellectual honesty protocol |
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### For Cursor Users
 
@@ -84,7 +96,7 @@ Copy [`AGENTS.md`](AGENTS.md) to your repo root or use as system prompt. See [AG
 
 ### 2. Configure MiniMax MCP
 
-Add to Cursor Settings → MCP:
+Add to Cursor Settings > MCP:
 
 ```json
 {
@@ -108,9 +120,9 @@ Add to Cursor Settings → MCP:
 
 ---
 
-## 📄 AGENTS.md (For Other IDEs & CLIs)
+## AGENTS.md (For Other IDEs & CLIs)
 
-Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same MiniMax M2.1 patterns in a portable, IDE-agnostic format.
+Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 Max patterns in a portable, IDE-agnostic format.
 
 ### Use With
 
@@ -122,22 +134,25 @@ Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same MiniMax M2
 
 ### What's Included
 
-- Core agentic workflow (INVESTIGATE → PLAN → EXECUTE → VERIFY)
+- Opus 4.6 Max behavioral patterns (adaptive effort, self-review, honesty)
+- Effort-scaled workflow (Instant/Light/Deep/Exhaustive)
+- Adversarial self-review protocol
 - CLI-first development patterns
 - Version checking protocol
-- RALPH loop for error recovery
+- Self-correction loop for error recovery
 - EPIC-based task decomposition
+- Code reading strategy
 - Communication style guidelines
 
 ---
 
-## 📁 Rules, Subagents, and Skills
+## Rules, Subagents, and Skills
 
 ### Core Rules (Always Active)
 
 | Rule | Purpose |
 |------|---------|
-| `minimax-m2-core.mdc` | Agentic behavior, Opus 4.5-style thinking, GPT-5.2 Extra High mode, RALPH loop |
+| `minimax-m2-core.mdc` | Opus 4.6 Max reasoning, adaptive effort, adversarial self-review, self-correction, compaction |
 | `cursor-agent-orchestration.mdc` | Cursor 2.4 subagents, skills, parallel workflows, EPIC todos, hooks |
 
 ### Custom Subagents (`.cursor/agents/`)
@@ -149,7 +164,7 @@ Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same MiniMax M2
 
 ### Agent-Requestable Rules (Loaded on Demand)
 
-These rules are **not always loaded** - the agent requests them when relevant, saving context window:
+These rules are **not always loaded** — the agent requests them when relevant:
 
 | Rule | Purpose | Triggered By |
 |------|---------|--------------|
@@ -173,80 +188,77 @@ These rules are **not always loaded** - the agent requests them when relevant, s
 
 ---
 
-## 🆕 Cursor 2.4 Enhancements
+## Cursor 2.4 + Opus 4.6 Enhancements
+
+### Adaptive Thinking (NEW)
+The core behavioral upgrade. AI now calibrates effort to task complexity:
+- **Instant**: Fix a typo — just do it, lint, done
+- **Light**: Add a function — brief scan, implement, verify
+- **Deep**: Build a feature — investigate, plan, implement, self-review, verify
+- **Exhaustive**: Redesign architecture — full investigation, EPIC todos, incremental implementation
+
+### Adversarial Self-Review (NEW)
+Before presenting solutions, the AI attacks its own work:
+- What would break this?
+- What edge case am I missing?
+- Is there a simpler way?
+- Am I solving the right problem?
+
+### Intellectual Honesty (NEW)
+Three-tier certainty replaces fake confidence scores:
+- **Certain**: Verified knowledge — proceed confidently
+- **Likely**: Best understanding — proceed and verify
+- **Uncertain**: Possibly stale — search first or flag to user
+
+### Strategic Laziness (NEW)
+Prevents over-engineering:
+- Make the minimum correct change
+- Don't create EPIC todos for a typo fix
+- Don't web search versions for existing dependencies
+- Don't read 20 files to fix a one-line bug
+
+### Context Compaction (NEW)
+For long tasks, the AI compresses its context to stay productive:
+- Build codebase "spine" (entry points, data flow, conventions)
+- Track essential state between phases
+- Release detailed contents no longer needed
 
 ### Native Subagents
-Cursor 2.4 introduces native subagents with isolated context windows:
+Cursor 2.4 native subagents with isolated context windows:
 - **Built-in**: `explore` (codebase search), `bash` (shell commands), `browser` (web automation)
-- **Custom**: Define your own in `.cursor/agents/` (includes `verifier` and `debugger`)
+- **Custom**: `verifier` and `debugger` in `.cursor/agents/`
 
 ### Agent Skills System
-Skills are the new way to package domain knowledge:
+Portable knowledge packages:
 - Location: `.cursor/skills/<name>/SKILL.md`
 - Supports scripts, references, and assets
 - Invoke with `/skill-name` or auto-discovery
-- Migrate existing rules with `/migrate-to-skills`
 
-### Issue #3: Date-Aware Searches
-All web searches now **extract the current date first** and use concrete values, never placeholders.
-
-### Issue #4: Auto Web-Search on Persistent Errors
-After 4 failed attempts with the same error, the AI automatically searches the web for community solutions.
-
-### Issue #5: No Template Placeholders
-Searches use actual values like `"Next.js 15 stable January 2026"` instead of `"{framework} {version} {date}"`.
-
-### Issue #6: EPIC-Based Task Decomposition
-Complex tasks use hierarchical todos:
-```
-EPIC0: Prerequisites (deps, config, setup)
-EPIC1: Feature A
-  EPIC1.1: Sub-task A.1
-  EPIC1.2: Sub-task A.2
-EPIC2: Feature B
-  ...
-```
-
-### Verifier Subagent Pattern
-The `/verifier` subagent validates completed work - addresses the common issue where AI marks tasks done but implementations are incomplete.
+### Self-Correction Loop
+Replaces the rigid RALPH template with genuine reasoning:
+- Form hypothesis about error cause
+- Test the smallest thing that distinguishes hypotheses
+- Update beliefs based on evidence
+- After 3-4 failures: auto-escalate to web search
 
 ### Cursor Hooks Integration
-Includes `.cursor/hooks.json` with `stop` hook for **long-running agent loops** (RALPH pattern). Agent iterates until verification goals are met (tests pass, build succeeds). Based on [Cursor agent best practices](https://cursor.com/blog/agent-best-practices#example-long-running-agent-loop).
-
-### RALPH Loop (Self-Correction)
-Implements Reinforcement Learning with AI Preferences - the agent learns from failures within a session:
-```
-ATTEMPT → EVALUATE (0-10) → REFLECT → LEARN → RETRY
-```
-After 4 failed attempts, automatically escalates to web search for community solutions.
-
-### Context Window Optimization
-- **Native subagents** have isolated context (explore, bash, browser)
-- **2 always-applied rules** vs previous 6 rules
-- **Skills load progressively** - only when needed
-- **Custom subagents** for specialized work without bloating main context
-
-### Opus 4.5-Style Enhancements
-- **Confidence Scoring**: Rate confidence (0-100%) before risky operations
-- **Hypothesis Testing**: Form explicit hypotheses, test, update beliefs
-- **Backtracking Protocol**: When stuck, explicitly backtrack and try alternatives
-- **Session Memory**: Track successful patterns within conversation
+`.cursor/hooks.json` with `stop` hook for iterative improvement loops. Agent keeps working until verification goals are met.
 
 ---
 
-## 🔧 Key Improvements in v2.1
+## Key Improvements in v2.1
 
 ### 1. CLI-First Development
 
 Every language rule now includes:
-- **Pre-development checks**: Verify CLI availability with `--version`
+- **Pre-development checks**: Verify CLI availability
 - **Project creation commands**: Never manually create generated files
-- **Dependency management**: Use CLI to add packages, not manual editing
+- **Dependency management**: Use CLI to add packages
 
 ### 2. Version Verification Protocol
 
 ```
-Before using ANY package:
+Before using any NEW package:
 1. web_search("[package] latest version [current month year]")
 2. If unclear, use Context7: get-library-docs
 3. Verify compatibility with project stack
@@ -290,7 +302,7 @@ python -m py_compile # Python
 
 ---
 
-## 🔌 Optional: Context7 MCP
+## Optional: Context7 MCP
 
 Get up-to-date library documentation directly in your workflow:
 
@@ -306,12 +318,12 @@ Get up-to-date library documentation directly in your workflow:
 ```
 
 **Tools provided:**
-- `resolve-library-id` — Find library IDs (e.g., "react" → `/facebook/react`)
+- `resolve-library-id` — Find library IDs (e.g., "react" -> `/facebook/react`)
 - `get-library-docs` — Fetch current API docs, examples, and guides
 
 ---
 
-## ⚠️ Critical Warnings
+## Critical Warnings
 
 These rules explicitly prevent common AI code generation failures:
 
@@ -341,18 +353,19 @@ go build ./... && go test ./...
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-1. ⭐ Star this repo
-2. 🍴 Fork & create a branch
-3. 📝 Follow existing rule format
-4. 🧪 Test with real projects
-5. 🔄 Submit a PR
+1. Star this repo
+2. Fork & create a branch
+3. Follow existing rule format
+4. Test with real projects
+5. Submit a PR
 
 ---
 
-## 📚 References
+## References
 
+- [Claude Opus 4.6 Announcement](https://anthropic.com/news/claude-opus-4-6)
 - [MiniMax M2.1 Docs](https://platform.minimax.io/docs/guides/text-ai-coding-tools)
 - [MiniMax Coding Plan MCP](https://github.com/MiniMax-AI/MiniMax-Coding-Plan-MCP)
 - [Cursor Rules Docs](https://cursor.com/docs/context/rules)
@@ -362,8 +375,8 @@ go build ./... && go test ./...
 
 <div align="center">
 
-**Made with ❤️ by [Aris Setiawan](https://github.com/madebyaris)**
+**Made with care by [Aris Setiawan](https://github.com/madebyaris)**
 
-*Rules optimized for production-quality code generation*
+*Rules optimized for production-quality code generation with Opus 4.6 Max behavioral patterns*
 
 </div>
