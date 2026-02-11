@@ -25,7 +25,7 @@ Before ANY significant action:
 BEFORE CREATING PROJECT:
 1. Check if CLI tool exists: Shell(command="which flutter")
 2. Check CLI version: Shell(command="flutter --version")
-3. Web search for current version: WebSearch(search_term="Flutter stable December 2024")
+3. Web search for current version: WebSearch(search_term="Flutter stable [current month] [current year]")
 4. Check if project already exists: LS(target_directory="./")
 
 BEFORE INSTALLING PACKAGES:
@@ -54,7 +54,7 @@ WebSearch(search_term="[package/framework] [specific feature] [current year/mont
 ```
 
 Examples:
-- `WebSearch(search_term="Next.js 15 App Router server actions December 2024")`
+- `WebSearch(search_term="Next.js App Router server actions [current month] [current year]")`
 - `WebSearch(search_term="React 19 useFormStatus hook syntax")`
 - `WebSearch(search_term="shadcn ui button component installation")`
 

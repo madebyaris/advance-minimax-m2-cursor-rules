@@ -1,11 +1,11 @@
 ---
-description: "MiniMax M2.1 MCP tools: web_search for version checking and real-time info, understand_image for visual analysis, Context7 for documentation"
+description: "MCP tools integration: web_search for version checking and real-time info, understand_image for visual analysis, Context7 for documentation"
 alwaysApply: false
 ---
 
-# MiniMax M2.1 MCP Tools Integration
+# MCP Tools Integration
 
-MiniMax provides powerful MCP tools that are ESSENTIAL for reliable code generation. **Version checking and verification are not optional.**
+MCP tools provide capabilities ESSENTIAL for reliable code generation. **Version checking and verification are not optional.**
 
 ---
 
@@ -128,7 +128,7 @@ When calling MiniMax MCP tools:
 **Correct format:**
 ```json
 {
-  "query": "React 19 hooks documentation December 2024"
+  "query": "React 19 hooks documentation [current month] [current year]"
 }
 ```
 
@@ -200,20 +200,20 @@ This MUST be used in all searches. No templates. No placeholders.
 
 #### 3. Add Framework Context
 ```
-✅ Good: "Chart.js container height issue Next.js app router 2024"
+✅ Good: "Chart.js container height issue Next.js app router [current year]"
 ❌ Bad:  "Chart.js not working"
 
-✅ Good: "Tailwind CSS v4 migration from v3 December 2024"
+✅ Good: "Tailwind CSS v4 migration from v3 [current month] [current year]"
 ❌ Bad:  "Tailwind upgrade"
 ```
 
 #### 4. Reformulate if No Good Results
 ```
 Original: "react server components streaming"
-Retry:    "RSC streaming SSR Next.js 15 December 2024"
+Retry:    "RSC streaming SSR Next.js 15 [current month] [current year]"
 
 Original: "shadcn button not working"
-Retry:    "shadcn/ui button component tailwind config error 2024"
+Retry:    "shadcn/ui button component tailwind config error [current year]"
 ```
 
 ### Usage Patterns
@@ -222,12 +222,12 @@ Retry:    "shadcn/ui button component tailwind config error 2024"
 ```
 <think>
 User wants to create a Next.js app. I need to check current stable versions
-before proceeding. Current date: December 2024.
+before proceeding. Current date: [current month] [current year].
 </think>
 
-→ WebSearch(search_term="Next.js npm latest stable version December 2024")
-→ WebSearch(search_term="React 19 stable release date 2024")
-→ WebSearch(search_term="create-next-app latest version December 2024")
+→ WebSearch(search_term="Next.js npm latest stable version [current month] [current year]")
+→ WebSearch(search_term="React latest stable version [current month] [current year]")
+→ WebSearch(search_term="create-next-app latest version [current month] [current year]")
 ```
 
 #### CLI Tool Availability
@@ -237,8 +237,8 @@ Before manually creating files, I should check if there's a CLI tool
 available for this task.
 </think>
 
-→ WebSearch(search_term="shadcn-ui CLI add components command 2024")
-→ WebSearch(search_term="next.js create-next-app options typescript tailwind 2024")
+→ WebSearch(search_term="shadcn-ui CLI add components command [current year]")
+→ WebSearch(search_term="next.js create-next-app options typescript tailwind [current year]")
 ```
 
 #### Error Debugging
@@ -247,7 +247,7 @@ available for this task.
 User has an error I don't recognize. Let me search for recent solutions.
 </think>
 
-→ WebSearch(search_term="Next.js 15 NEXT_REDIRECT error app router 2024")
+→ WebSearch(search_term="Next.js 15 NEXT_REDIRECT error app router [current year]")
 → WebSearch(search_term="hydration mismatch error React 19 server components")
 ```
 
@@ -258,7 +258,7 @@ Before suggesting an upgrade, I should check for breaking changes.
 </think>
 
 → WebSearch(search_term="Next.js 15 breaking changes from 14 migration guide")
-→ WebSearch(search_term="React 19 breaking changes upgrade path 2024")
+→ WebSearch(search_term="React 19 breaking changes upgrade path [current year]")
 ```
 
 ---
@@ -391,7 +391,7 @@ Step 2: If unclear, use Context7 for official docs
 </think>
 
 // Step 1: Web search
-→ WebSearch(search_term="React 19 useActionState hook API signature December 2024")
+→ WebSearch(search_term="React 19 useActionState hook API signature [current month] [current year]")
 
 // If result is unclear:
 // Step 2: Context7
@@ -411,7 +411,7 @@ Step 2: If unclear, use Context7 for official docs
 
 ```
 // 1. Check versions
-→ WebSearch(search_term="create-next-app latest version options December 2024")
+→ WebSearch(search_term="create-next-app latest version options [current month] [current year]")
 
 // 2. Use CLI with verified version
 → Shell(command="npx create-next-app@latest my-app --typescript --tailwind --app", description="Create Next.js app")
@@ -430,7 +430,7 @@ Step 2: If unclear, use Context7 for official docs
   )
 
 // 2. Search for solution
-→ WebSearch(search_term="[extracted error message] solution 2024")
+→ WebSearch(search_term="[extracted error message] solution [current year]")
 
 // 3. Apply fix and verify
 → StrReplace(path="...", old_string="...", new_string="...")
@@ -441,7 +441,7 @@ Step 2: If unclear, use Context7 for official docs
 
 ```
 // 1. Get documentation
-→ WebSearch(search_term="shadcn-ui data table example December 2024")
+→ WebSearch(search_term="shadcn-ui data table example [current month] [current year]")
 → user-context7-query-docs(
     libraryId="/shadcn/ui",
     query="data-table implementation"
@@ -459,10 +459,10 @@ Step 2: If unclear, use Context7 for official docs
 
 ```
 // 1. Check latest version
-→ WebSearch(search_term="zod npm latest version December 2024")
+→ WebSearch(search_term="zod npm latest version [current month] [current year]")
 
 // 2. Check compatibility with existing stack
-→ WebSearch(search_term="zod react-hook-form compatibility 2024")
+→ WebSearch(search_term="zod react-hook-form compatibility [current year]")
 → WebSearch(search_term="zod TypeScript 5 support")
 
 // 3. Get installation docs (if Context7 available)
@@ -526,7 +526,7 @@ User wants Next.js app. Before I start, I MUST check:
 This is not optional - I must verify before proceeding.
 </think>
 
-→ WebSearch(search_term="Next.js latest stable version December 2024")
+→ WebSearch(search_term="Next.js latest stable version [current month] [current year]")
 ```
 
 ### CLI Availability
@@ -540,7 +540,7 @@ Before manually creating a button component, I should check:
 </think>
 
 → Read(path="package.json")  // Check for shadcn
-→ WebSearch(search_term="shadcn-ui add button command 2024")
+→ WebSearch(search_term="shadcn-ui add button command [current year]")
 ```
 
 ### Compatibility Checks
@@ -554,8 +554,8 @@ Before installing, I should verify:
 3. Any known issues
 </think>
 
-→ WebSearch(search_term="Prisma latest version December 2024")
-→ WebSearch(search_term="Prisma Next.js 15 app router compatibility 2024")
+→ WebSearch(search_term="Prisma latest version [current month] [current year]")
+→ WebSearch(search_term="Prisma Next.js 15 app router compatibility [current year]")
 ```
 
 ---
@@ -569,7 +569,7 @@ Every significant coding task should follow this pattern:
    → WebSearch(search_term="[package] latest version [current month year]")
 
 2. CLI CHECK
-   → WebSearch(search_term="[task] CLI tool command 2024")
+   → WebSearch(search_term="[task] CLI tool command [current year]")
 
 3. COMPATIBILITY CHECK
    → WebSearch(search_term="[package A] [package B] compatibility [year]")
