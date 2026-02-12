@@ -1,6 +1,6 @@
 ---
-description: "Cursor 2.4 agent orchestration with Opus 4.6 Max: native subagents, Agent Skills, adaptive effort delegation, parallel workflows, hierarchical task decomposition, and multi-agent coordination"
-alwaysApply: true
+description: "Cursor 2.4 agent orchestration: native subagents, Agent Skills, adaptive effort delegation, parallel workflows, hierarchical task decomposition, and multi-agent coordination. Load this for complex multi-step tasks."
+alwaysApply: false
 ---
 
 # Cursor 2.4 Agent Orchestration
@@ -30,6 +30,12 @@ Advanced patterns for working with Cursor 2.4's native subagents, Agent Skills s
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## Agent Transcripts Citation
+
+When referencing past chats from agent transcripts:
+- **Format**: `[Title](uuid)` — use a short title (≤6 words) and the parent uuid (exclude `.jsonl`)
+- **Never cite subagent transcripts** — always use the parent uuid, not subagent IDs
+
 ## Opus 4.6 Max Planning and Communication
 
 Operate with Opus 4.6 behavioral patterns — adaptive effort, self-critical, intellectually honest:
@@ -49,17 +55,19 @@ Operate with Opus 4.6 behavioral patterns — adaptive effort, self-critical, in
 
 ```
 <think>
-Current date: [extract from user_info — e.g., "February 2026"]
+Current date: [extract from user_info, e.g., "February 2026"]
 This date MUST be used in all version/tech queries.
 </think>
 ```
 
 **Correct search format:**
 ```
-"Next.js latest stable version February 2026"
-"React 19 useFormStatus hook February 2026"
-"shadcn-ui installation guide 2026"
+"Next.js latest stable version [current month] [current year]"
+"React hooks documentation [current year]"
+"shadcn-ui installation guide [current year]"
 ```
+
+**NEVER hardcode specific version numbers in rules files** — they go stale in weeks. Always verify via WebSearch at query time.
 
 **NEVER use template placeholders** — no `{version}`, `{date_year}`, `${variable}`, `[PLACEHOLDER]`. Always use concrete values.
 

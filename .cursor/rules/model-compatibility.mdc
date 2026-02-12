@@ -1,0 +1,182 @@
+---
+description: "Model compatibility guide for non-Claude models running in Cursor: tool calling format, StrReplace protocol, prompt injection architecture, and common failure modes"
+alwaysApply: false
+---
+
+# Model Compatibility in Cursor
+
+This rule helps non-native models (MiniMax, GPT, Gemini, Codex, etc.) operate effectively in Cursor. If you're Claude/Anthropic, you likely don't need this — but reading it won't hurt.
+
+---
+
+## How Cursor's Prompt Architecture Works
+
+Cursor constructs the prompt sent to your model in layers:
+
+```
+Layer 1: Cursor's internal system prompt (tool definitions, safety, formatting)
+Layer 2: alwaysApply rules (.cursor/rules/ with alwaysApply: true)
+Layer 3: Glob-triggered rules (when matching files are open/edited)
+Layer 4: Agent-requestable rules (loaded on-demand by description)
+Layer 5: Skills (.cursor/skills/ — on-demand or /skill-name)
+Layer 6: User message + attached context
+```
+
+### Key Differences by Model Type
+
+**Anthropic (Claude) models:**
+- Layer 1 uses the native `system` parameter — strongly binding
+- Tool definitions use native `tools` parameter — first-class schema
+- The model understands tool-call format natively
+
+**Non-Anthropic models:**
+- Layer 1 may be concatenated as text into the prompt
+- Tool definitions may be text-injected rather than native function schemas
+- The model must parse and follow tool-call format from text instructions
+- **This means:** Layer 1 instructions may feel less "authoritative" — but you must follow them with the same priority
+
+---
+
+## The #1 Failure: Text Generation Instead of Tool Usage
+
+The single most common failure for non-native models:
+
+```
+User: "Compare these two files"
+
+WRONG (what non-native models often do):
+  "These files likely differ in X, Y, Z based on..."
+  → Generated from training data, not actual file contents
+
+CORRECT:
+  Read(path="file1.ts")
+  Read(path="file2.ts")
+  → Then compare based on actual contents
+```
+
+**Rule: If you can answer with a tool call, do it. If you can verify with a tool call, do it.**
+
+---
+
+## Tool Call Format
+
+Your system prompt defines the exact tool call format. Follow it precisely.
+
+**Common mistakes:**
+- Wrapping tool calls in markdown code blocks (don't do this)
+- Adding extra text around tool calls (just call the tool)
+- Using wrong parameter names (check the schema)
+- Calling tools with guessed parameters (verify first)
+
+**Batch independent calls:**
+```
+GOOD: Call Read(file1) and Read(file2) in the same response
+BAD: Call Read(file1), wait for result, then call Read(file2)
+```
+
+---
+
+## StrReplace: The Most Error-Prone Tool
+
+`StrReplace` requires an `old_string` that EXACTLY matches text in the file. Non-native models fail here most often because they:
+
+1. **Guess at file contents** instead of reading first
+2. **Get whitespace wrong** — tabs vs spaces, trailing newlines
+3. **Use too little context** — old_string matches multiple locations
+4. **Don't re-read after changes** — file state has changed
+
+### Mandatory StrReplace Workflow
+
+```
+Step 1: Read(path="file.ts")              ← always read first
+Step 2: Identify exact text to change      ← copy from Read output
+Step 3: StrReplace(
+          path="file.ts",
+          old_string="<exact text from step 2>",
+          new_string="<your modification>"
+        )
+Step 4: ReadLints(paths=["file.ts"])       ← verify no errors
+```
+
+### If StrReplace Fails
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| "old_string not found" | Text doesn't match file contents | Read the file again, copy exact text |
+| "old_string not unique" | Multiple matches | Include more context lines (3-5+) |
+| Edit in wrong location | Ambiguous context | Include unique surrounding code |
+
+### When to Use Write Instead
+
+If you need to change >30% of a file, use `Write` to rewrite the whole file. StrReplace is for surgical edits.
+
+---
+
+## Version Handling
+
+**NEVER hardcode framework versions.** They go stale within weeks.
+
+```
+WRONG (in rules files):
+  "Current: Next.js 16.1.6, React 19.2.4"
+  → Will be wrong in a month
+
+CORRECT (in rules files):
+  "Always verify current version via WebSearch before using"
+  → Stays accurate forever
+```
+
+When you need version info:
+```
+WebSearch(search_term="[package] npm latest version [current month] [current year]")
+```
+
+---
+
+## Context Window Management
+
+Non-native models may receive more text in their prompt (since tool schemas arrive as text). This means:
+
+1. **Don't read files "just in case"** — only what you need
+2. **Use targeted searches** — `Grep` with specific patterns, not broad scans
+3. **Batch parallel reads** — multiple `Read` calls in one response
+4. **Track what you've learned** — don't re-read files you've already processed
+
+---
+
+## Common Failure Modes and Fixes
+
+### 1. "I'll analyze this for you..." (Text instead of action)
+**Fix**: Call the tool immediately. Don't announce what you'll do.
+
+### 2. Creating excessive plans before acting
+**Fix**: For Instant/Light tasks, skip planning. Just Read → Edit → Lint.
+
+### 3. Asking the user for information you could find with tools
+**Fix**: Use `Grep`, `SemanticSearch`, `LS`, `Glob` to find it yourself.
+
+### 4. Long explanatory text between tool calls
+**Fix**: Keep inter-tool commentary to 1-2 sentences.
+
+### 5. Not using browser tools for UI verification
+**Fix**: After UI changes, use `browser_navigate` + `browser_snapshot` to verify rendering.
+
+### 6. Forgetting to ReadLints after edits
+**Fix**: Every `StrReplace` or `Write` should be followed by `ReadLints` on that file.
+
+---
+
+## Quick Checklist for Non-Native Models
+
+Before responding to any user message:
+
+```
+[ ] Did I READ relevant files before analyzing? (not just training data)
+[ ] Did I use the correct tool call format from my system prompt?
+[ ] Did I batch independent tool calls?
+[ ] Am I DOING the task, or just DESCRIBING what I'll do?
+[ ] If editing: did I Read the file first, then StrReplace?
+[ ] If StrReplace: is old_string an EXACT copy from the file?
+[ ] Did I ReadLints after editing?
+[ ] Did I verify versions via WebSearch (not from memory)?
+```

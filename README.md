@@ -1,17 +1,18 @@
 <div align="center">
 
-# Advanced MiniMax M2.1 Cursor Rules
+# MiniMax M2.5 Cursor Rules
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Cursor 2.4+](https://img.shields.io/badge/Cursor-2.4%2B-blue?style=flat-square)](https://cursor.com)
-[![MiniMax M2.1](https://img.shields.io/badge/MiniMax-M2.1-purple?style=flat-square)](https://platform.minimax.io)
+[![MiniMax M2.5](https://img.shields.io/badge/MiniMax-M2.5-purple?style=flat-square)](https://platform.minimax.io)
+[![Any Model](https://img.shields.io/badge/Compatible-Any%20Model-green?style=flat-square)](#model-compatibility)
 
-**Agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
+**MiniMax M2.5 agentic-first Cursor rules that transform simple prompts into production-ready, verified code**
 
-*Now emulating **Claude Opus 4.6 Max** — adaptive thinking, adversarial self-review, and proportional effort*
+*Built for **MiniMax M2.5**, compatible with **any model** — Claude, GPT, Gemini, Codex. Emulates **Opus 4.6 Max** behavioral patterns.*
 
-[Quick Start](#-quick-start) | [AGENTS.md](#-agentsmd-for-other-ides--clis) | [Features](#-features) | [Rules](#-rules) | [Contributing](#-contributing)
+[Quick Start](#-quick-start) | [Model Compatibility](#-model-compatibility) | [AGENTS.md](#-agentsmd-for-other-ides--clis) | [Features](#-features) | [Rules](#-rules) | [Contributing](#-contributing)
 
 </div>
 
@@ -19,27 +20,64 @@
 
 ## Features
 
-- **Opus 4.6 Max Reasoning** — Adaptive effort, adversarial self-review, intellectual honesty, and strategic laziness
-- **Adaptive Thinking** — Scales reasoning depth to problem complexity (Instant/Light/Deep/Exhaustive)
-- **Adversarial Self-Review** — AI challenges its own solutions before presenting them: "What would break this?"
+- **Action-First Protocol** — Tools before text. Read before edit. Verify before deliver. No philosophical essays.
+- **Model-Agnostic** — Works with Claude, GPT, MiniMax, Gemini, Codex, or any model Cursor supports
+- **Opus 4.6 Max Reasoning** — Adaptive effort, adversarial self-review, intellectual honesty, strategic laziness
+- **Adaptive Thinking** — Scales reasoning depth to problem complexity (Instant / Light / Deep / Exhaustive)
+- **StrReplace Safety** — Detailed protocol preventing the #1 editing failure for non-native models
+- **No Hardcoded Versions** — Always verified via WebSearch at query time, never stale
 - **Native Subagents (2.4)** — Custom subagents for validation, debugging, and specialized work
 - **Agent Skills (2.4)** — Portable knowledge packages with scripts and progressive loading
 - **CLI-First Development** — Always use framework CLIs, never create config files manually
-- **Version Verification** — Web search for current package versions before using
-- **Intellectual Honesty** — Three-tier certainty (Certain/Likely/Uncertain) instead of hallucinated confidence
+- **Intellectual Honesty** — Three-tier certainty (Certain / Likely / Uncertain) instead of hallucinated confidence
 - **Strategic Laziness** — Minimum correct change, no over-engineering
 - **Compaction** — Context compression for sustained productivity over long sessions
-- **Full Cursor 2.4 Support** — Subagents, skills, hooks, and all tools documented and optimized
-- **MiniMax MCP** — `web_search` + `understand_image` integration
+- **Full Cursor 2.4 Support** — Subagents, skills, hooks, and all tools documented
 - **Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
 - **Syntax Trap Prevention** — Common mistakes documented per language
 - **AGENTS.md** — Portable version for other IDEs and CLI tools
 
 ---
 
+## Model Compatibility
+
+These rules are built for **MiniMax M2.5** harnessed to Cursor, but designed to work with **any model** — Claude, GPT, Gemini, Codex.
+
+### The Problem
+
+When Cursor uses non-Anthropic models (MiniMax M2.5, GPT, Gemini, etc.), the system prompt and tool definitions are delivered differently — as concatenated text rather than native API parameters. This causes non-native models to:
+
+1. **Generate text instead of using tools** — the #1 failure mode
+2. **Fail StrReplace** — by guessing at file contents instead of reading first
+3. **Hallucinate versions** — instead of verifying via WebSearch
+4. **Over-plan** — creating lengthy plans instead of acting
+
+### How These Rules Fix It
+
+| Problem | Solution |
+|---------|----------|
+| Text-first behavior | **First Action Rule** at the top of core rules — "tool calls before text output" |
+| StrReplace failures | **StrReplace Safety Protocol** — mandatory Read-before-Edit workflow |
+| Version hallucination | **No hardcoded versions** — always verify via WebSearch with current date |
+| Context overload | Only 1 rule is `alwaysApply` (~250 lines). Everything else loads on-demand |
+| Model-specific quirks | Dedicated `model-compatibility.mdc` explaining Cursor's prompt architecture |
+
+### Supported Models
+
+| Model | Status | Notes |
+|-------|--------|-------|
+| **MiniMax M2.5** | **Primary** | Built and optimized for this model |
+| MiniMax M2.1 | Tested | Full compatibility |
+| Claude (Opus, Sonnet) | Native | Best tool integration — Cursor's native model |
+| GPT-4o / GPT-5.x | Compatible | Follow model-compatibility rules |
+| Gemini | Compatible | Follow model-compatibility rules |
+| Codex | Compatible | Follow model-compatibility rules |
+
+---
+
 ## Philosophy
 
-These rules are designed to make AI code generation **actually work** by emulating how the best coding models think.
+These rules make AI code generation **actually work** by emulating how the best coding models think.
 
 ### Opus 4.6 Max Mode
 
@@ -49,17 +87,18 @@ Based on [Claude Opus 4.6](https://anthropic.com/news/claude-opus-4-6) behaviora
 
 Key behaviors:
 
+- **Action-first**: Use tools BEFORE generating text. Read files before analyzing them.
 - **Adaptive effort**: A typo fix gets instant treatment. An architecture redesign gets exhaustive analysis.
 - **Self-critical**: Before presenting a solution, mentally attack it — edge cases, assumptions, simpler alternatives.
 - **Intellectually honest**: "I'm not certain about this API — let me check" instead of hallucinating confidence.
 - **Strategically lazy**: Make the minimum correct change. Don't refactor what wasn't asked for.
 - **Verification-first**: "Done" means verified (builds, lints, tests), not just implemented.
 
-### The Golden Rule: Verify Before You Act
+### The Golden Rule: Act First, Verify Always
 
 ```
 1. CALIBRATE — How complex is this? Match effort to complexity.
-2. CHECK     — What exists? What versions? What CLIs?
+2. READ      — What exists? Use tools to check, not training data.
 3. ACT       — Make the change using proper tools.
 4. REVIEW    — What would break? What did I miss?
 5. VALIDATE  — Build, lint, test. Did it actually work?
@@ -69,13 +108,11 @@ Key behaviors:
 
 | Bad Practice | What Rules Enforce |
 |-------------|-------------------|
+| Writing essays instead of using tools | First Action Rule — tool calls before text |
+| Guessing at file contents | StrReplace Safety — always Read before Edit |
+| Hardcoding package versions | Version protocol — always WebSearch with current date |
 | Manually creating `package.json` | Use `npm init` or `npx create-next-app` |
-| Manually creating `pubspec.yaml` | Use `flutter create` |
-| Manually creating `Cargo.toml` | Use `cargo new` |
 | Manually creating `.xcodeproj` | **NEVER** — use Xcode only |
-| Skipping `npm install` | Always run after setup |
-| Using outdated package versions | Web search for current versions |
-| Charts without container heights | Explicit Chart.js guidelines |
 | Over-engineering simple fixes | Adaptive effort levels prevent this |
 | Hallucinating API knowledge | Intellectual honesty protocol |
 
@@ -90,13 +127,15 @@ git clone https://github.com/madebyaris/advance-minimax-m2-cursor-rules.git
 cp -r advance-minimax-m2-cursor-rules/.cursor your-project/.cursor
 ```
 
+The core rule (`minimax-m2-core.mdc`) is `alwaysApply: true` — it activates immediately. All other rules load on-demand based on file types or agent request.
+
 ### For Other IDEs/CLIs
 
 Copy [`AGENTS.md`](AGENTS.md) to your repo root or use as system prompt. See [AGENTS.md section](#-agentsmd-for-other-ides--clis) for details.
 
-### 2. Configure MiniMax MCP
+### Optional: MiniMax MCP
 
-Add to Cursor Settings > MCP:
+Add to Cursor Settings > MCP for web search and image analysis:
 
 ```json
 {
@@ -116,13 +155,11 @@ Add to Cursor Settings > MCP:
 
 > Get your API key at [platform.minimax.io](https://platform.minimax.io)
 
-### 3. Restart Cursor
-
 ---
 
 ## AGENTS.md (For Other IDEs & CLIs)
 
-Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 Max patterns in a portable, IDE-agnostic format.
+Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 Max patterns in a portable, IDE-agnostic, model-agnostic format.
 
 ### Use With
 
@@ -134,11 +171,13 @@ Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 M
 
 ### What's Included
 
+- Action-first protocol (tools before text)
+- Model compatibility guidance
 - Opus 4.6 Max behavioral patterns (adaptive effort, self-review, honesty)
-- Effort-scaled workflow (Instant/Light/Deep/Exhaustive)
+- Effort-scaled workflow (Instant / Light / Deep / Exhaustive)
 - Adversarial self-review protocol
 - CLI-first development patterns
-- Version checking protocol
+- Version checking protocol (no hardcoded versions)
 - Self-correction loop for error recovery
 - EPIC-based task decomposition
 - Code reading strategy
@@ -148,12 +187,13 @@ Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 M
 
 ## Rules, Subagents, and Skills
 
-### Core Rules (Always Active)
+### Core Rule (Always Active)
 
-| Rule | Purpose |
-|------|---------|
-| `minimax-m2-core.mdc` | Opus 4.6 Max reasoning, adaptive effort, adversarial self-review, self-correction, compaction |
-| `cursor-agent-orchestration.mdc` | Cursor 2.4 subagents, skills, parallel workflows, EPIC todos, hooks |
+| Rule | Purpose | Lines |
+|------|---------|-------|
+| `minimax-m2-core.mdc` | Action-first protocol, StrReplace safety, model compatibility, adaptive effort, adversarial self-review | ~250 |
+
+> Only **one** rule is `alwaysApply: true` — keeping context overhead minimal for all models.
 
 ### Custom Subagents (`.cursor/agents/`)
 
@@ -168,16 +208,18 @@ These rules are **not always loaded** — the agent requests them when relevant:
 
 | Rule | Purpose | Triggered By |
 |------|---------|--------------|
-| `minimax-m2-verification.mdc` | Pre/post verification protocols | Code generation tasks |
-| `minimax-mcp-tools.mdc` | MiniMax MCP + version checking | Web search, image analysis |
+| `cursor-agent-orchestration.mdc` | Subagents, skills, parallel workflows, EPIC todos, hooks | Complex multi-step tasks |
+| `minimax-m2-verification.mdc` | StrReplace safety, pre/post verification protocols | Code generation tasks |
+| `minimax-mcp-tools.mdc` | MCP integration + version checking | Web search, image analysis |
 | `cursor-tools-mastery.mdc` | Cursor 2.4 tools reference | Complex tool usage |
 | `clarify-first-prompting.mdc` | Check first, then ask questions | Ambiguous requests |
+| `model-compatibility.mdc` | Non-Claude model guidance, prompt architecture | Non-native model issues |
 
-### Language-Specific (Auto-Activate)
+### Language-Specific (Auto-Activate by Glob)
 
 | Rule | Files | Key Features |
 |------|-------|--------------|
-| `web-development.mdc` | `*.js`, `*.ts`, `*.tsx`, `*.vue` | Next.js CLI, shadcn CLI, Chart.js containers |
+| `web-development.mdc` | `*.js`, `*.ts`, `*.tsx`, `*.vue` | CLI-first setup, Chart.js containers |
 | `python-development.mdc` | `*.py`, `requirements.txt` | venv requirement, uv/pip, common traps |
 | `rust-development.mdc` | `*.rs`, `Cargo.toml` | cargo new/add, ownership traps |
 | `go-development.mdc` | `*.go`, `go.mod` | go mod init, error handling patterns |
@@ -185,43 +227,67 @@ These rules are **not always loaded** — the agent requests them when relevant:
 | `flutter-development.mdc` | `*.dart`, `pubspec.yaml` | flutter create/pub add, dispose patterns |
 | `mobile-cross-platform.mdc` | Cross-platform projects | Framework CLIs, platform differences |
 | `devops-infrastructure.mdc` | `Dockerfile`, `*.tf`, `*.yaml` | Dry-run validation, version pinning |
+| `3d-graphics.mdc` | 3D/WebGL projects | Three.js, React Three Fiber, performance |
+| `design-systems.mdc` | UI/design projects | Design tokens, shadcn/ui, Tailwind |
 
 ---
 
-## Cursor 2.4 + Opus 4.6 Enhancements
+## Key Design Decisions
 
-### Adaptive Thinking (NEW)
-The core behavioral upgrade. AI now calibrates effort to task complexity:
+### Why Only 1 Always-Apply Rule?
+
+Previous versions had 2 `alwaysApply` rules totaling ~1500 lines. Non-native models (MiniMax, GPT) struggled with this context overhead — they spent capacity parsing instructions instead of executing tasks.
+
+Now: **1 rule, ~250 lines**, containing only the most critical behaviors. Everything else loads on-demand.
+
+### Why No Hardcoded Versions?
+
+M2.5's previous rules hardcoded "Next.js 16.1.6, React 19.2.4, Tailwind 4.1.18." These go stale in weeks. The new approach:
+
+```
+BEFORE (stale in weeks):
+  "Current: Next.js 16.1.6"
+
+AFTER (always accurate):
+  WebSearch(search_term="Next.js latest stable [current month] [current year]")
+```
+
+### Why the StrReplace Safety Protocol?
+
+The #1 editing failure for non-native models is calling `StrReplace` without reading the file first, causing `old_string` mismatches. The protocol is simple:
+
+```
+1. Read(path="file.ts")           ← always read first
+2. Copy exact text from output    ← don't guess
+3. StrReplace(old_string=...)     ← exact match guaranteed
+4. ReadLints(paths=["file.ts"])   ← verify
+```
+
+### Why the First Action Rule?
+
+Non-native models default to generating text instead of using tools. The First Action Rule at the top of the core rule file addresses this:
+
+> "When you receive a user message, ACT FIRST. Tool calls before text output. NEVER write a paragraph explaining what you'll do — just do it."
+
+---
+
+## Cursor 2.4 Features
+
+> **Version note**: These rules target Cursor 2.4+. If using a newer Cursor version, verify feature availability (subagents, skills, hooks) via Cursor docs — APIs may evolve.
+
+### Adaptive Thinking
+AI calibrates effort to task complexity:
 - **Instant**: Fix a typo — just do it, lint, done
 - **Light**: Add a function — brief scan, implement, verify
 - **Deep**: Build a feature — investigate, plan, implement, self-review, verify
 - **Exhaustive**: Redesign architecture — full investigation, EPIC todos, incremental implementation
 
-### Adversarial Self-Review (NEW)
+### Adversarial Self-Review
 Before presenting solutions, the AI attacks its own work:
 - What would break this?
 - What edge case am I missing?
 - Is there a simpler way?
 - Am I solving the right problem?
-
-### Intellectual Honesty (NEW)
-Three-tier certainty replaces fake confidence scores:
-- **Certain**: Verified knowledge — proceed confidently
-- **Likely**: Best understanding — proceed and verify
-- **Uncertain**: Possibly stale — search first or flag to user
-
-### Strategic Laziness (NEW)
-Prevents over-engineering:
-- Make the minimum correct change
-- Don't create EPIC todos for a typo fix
-- Don't web search versions for existing dependencies
-- Don't read 20 files to fix a one-line bug
-
-### Context Compaction (NEW)
-For long tasks, the AI compresses its context to stay productive:
-- Build codebase "spine" (entry points, data flow, conventions)
-- Track essential state between phases
-- Release detailed contents no longer needed
 
 ### Native Subagents
 Cursor 2.4 native subagents with isolated context windows:
@@ -234,71 +300,8 @@ Portable knowledge packages:
 - Supports scripts, references, and assets
 - Invoke with `/skill-name` or auto-discovery
 
-### Self-Correction Loop
-Replaces the rigid RALPH template with genuine reasoning:
-- Form hypothesis about error cause
-- Test the smallest thing that distinguishes hypotheses
-- Update beliefs based on evidence
-- After 3-4 failures: auto-escalate to web search
-
 ### Cursor Hooks Integration
 `.cursor/hooks.json` with `stop` hook for iterative improvement loops. Agent keeps working until verification goals are met.
-
----
-
-## Key Improvements in v2.1
-
-### 1. CLI-First Development
-
-Every language rule now includes:
-- **Pre-development checks**: Verify CLI availability
-- **Project creation commands**: Never manually create generated files
-- **Dependency management**: Use CLI to add packages
-
-### 2. Version Verification Protocol
-
-```
-Before using any NEW package:
-1. web_search("[package] latest version [current month year]")
-2. If unclear, use Context7: get-library-docs
-3. Verify compatibility with project stack
-```
-
-### 3. Syntax Trap Prevention
-
-Each language rule documents common mistakes:
-
-**Go:**
-```go
-// WRONG: Range loop variable capture
-for _, item := range items {
-    go func() { process(item) }()  // Bug!
-}
-```
-
-**Python:**
-```python
-# WRONG: Mutable default argument
-def append_to(item, target=[]):  # Bug!
-```
-
-**Rust:**
-```rust
-// WRONG: Using unwrap in production
-let value = some_option.unwrap();  // Panics!
-```
-
-### 4. Post-Edit Verification
-
-Every language rule includes verification commands:
-```bash
-# After changes, ALWAYS run:
-npm run build        # Web
-flutter analyze      # Flutter
-cargo check          # Rust
-go build ./...       # Go
-python -m py_compile # Python
-```
 
 ---
 
@@ -358,16 +361,16 @@ go build ./... && go test ./...
 1. Star this repo
 2. Fork & create a branch
 3. Follow existing rule format
-4. Test with real projects
+4. Test with real projects — ideally with multiple models (Claude + one non-Claude)
 5. Submit a PR
 
 ---
 
 ## References
 
-- [Claude Opus 4.6 Announcement](https://anthropic.com/news/claude-opus-4-6)
-- [MiniMax M2.1 Docs](https://platform.minimax.io/docs/guides/text-ai-coding-tools)
+- [MiniMax Platform](https://platform.minimax.io)
 - [MiniMax Coding Plan MCP](https://github.com/MiniMax-AI/MiniMax-Coding-Plan-MCP)
+- [Claude Opus 4.6 Announcement](https://anthropic.com/news/claude-opus-4-6)
 - [Cursor Rules Docs](https://cursor.com/docs/context/rules)
 - [Context7 MCP](https://github.com/upstash/context7-mcp)
 
@@ -375,8 +378,8 @@ go build ./... && go test ./...
 
 <div align="center">
 
-**Made with care by [Aris Setiawan](https://github.com/madebyaris)**
+**Made with care by [Aris Setiawan](https://github.com/madebyaris) at [MiniMax](https://minimax.io)**
 
-*Rules optimized for production-quality code generation with Opus 4.6 Max behavioral patterns*
+*MiniMax M2.5 rules for production-quality code generation with Opus 4.6 behavioral patterns*
 
 </div>

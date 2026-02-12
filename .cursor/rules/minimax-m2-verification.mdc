@@ -1,9 +1,9 @@
 ---
-description: "MiniMax M2.1 verification protocols with Opus 4.6 Max: proportional verification, adversarial self-review, code compilation, UI testing, syntax correctness, and production-readiness checks"
+description: "Verification protocols: StrReplace safety, proportional verification, adversarial self-review, code compilation, UI testing, syntax correctness, and production-readiness checks"
 alwaysApply: false
 ---
 
-# MiniMax M2.1 Verification Protocols
+# Verification Protocols
 
 Code generation is NOT complete until verification passes. This rule defines mandatory verification steps, scaled to effort level.
 
@@ -12,6 +12,42 @@ Code generation is NOT complete until verification passes. This rule defines man
 > **Code that isn't verified is code that doesn't work.**
 
 Every piece of generated code must be verified before considering the task complete.
+
+---
+
+## StrReplace Safety Protocol (CRITICAL for all models)
+
+`StrReplace` is the primary editing tool in Cursor. It requires EXACT string matching. This is the #1 source of editing failures for non-native models.
+
+### Mandatory Workflow
+
+```
+1. Read(path="target-file.ts")           ← ALWAYS read first
+2. Identify the exact text to change      ← copy from Read output
+3. StrReplace(
+     path="target-file.ts",
+     old_string="exact text copied from step 2",
+     new_string="your modified version"
+   )
+4. ReadLints(paths=["target-file.ts"])    ← verify no errors introduced
+```
+
+### Common StrReplace Failures and Fixes
+
+| Failure | Cause | Fix |
+|---------|-------|-----|
+| "old_string not found" | Guessed at file contents | Read the file first, copy exact text |
+| "old_string not unique" | Too little context | Include more surrounding lines |
+| Whitespace mismatch | Wrong indentation | Copy exact whitespace from Read output |
+| Edit applied to wrong location | Ambiguous match | Include 3-5 lines of unique context |
+
+### Rules
+
+1. **NEVER call StrReplace without reading the file first** in the current session
+2. **Copy old_string exactly** — including whitespace, indentation, newlines
+3. **If the file was modified since you last read it, read it again**
+4. **For large replacements**, use `Write` to rewrite the entire file instead
+5. **After every StrReplace**, run `ReadLints` on that file
 
 ---
 
@@ -568,22 +604,26 @@ After generating UI code at Deep/Exhaustive effort level:
 → Shell(command="npm run dev", is_background=true, description="Start dev server")
 
 // 2. Wait for server to start
-→ cursor-ide-browser-browser_wait_for(time=3)
+→ browser_wait_for(time=3)
 
-// 3. Navigate to page
-→ cursor-ide-browser-browser_navigate(url="http://localhost:3000")
+// 3. Navigate to page, then lock
+→ browser_navigate(url="http://localhost:3000")
+→ browser_lock
 
 // 4. Get page snapshot
-→ cursor-ide-browser-browser_snapshot()
+→ browser_snapshot()
 
 // 5. Check console for errors
-→ cursor-ide-browser-browser_console_messages()
+→ browser_console_messages()
 
 // 6. Test interactive elements
-→ cursor-ide-browser-browser_click(element="Submit button", ref="button-submit")
+→ browser_click(element="Submit button", ref="button-submit")
 
 // 7. Verify result
-→ cursor-ide-browser-browser_snapshot()
+→ browser_snapshot()
+
+// 8. Unlock when done
+→ browser_unlock
 ```
 
 ---

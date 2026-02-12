@@ -414,8 +414,8 @@ I see you're using Next.js 14 with Prisma/PostgreSQL. For authentication:
 Before implementing framework-specific features:
 
 ```
-1. WebSearch(search_term="Next.js 14 App Router authentication December 2024")
-2. WebSearch(search_term="shadcn ui latest installation method 2024")
+1. WebSearch(search_term="Next.js 14 App Router authentication [current month] [current year]")
+2. WebSearch(search_term="shadcn ui latest installation method [current year]")
 3. Context7 for detailed API docs (if available)
 ```
 
