@@ -25,7 +25,7 @@ Before ANY significant action:
 BEFORE CREATING PROJECT:
 1. Check if CLI tool exists: Shell(command="which flutter")
 2. Check CLI version: Shell(command="flutter --version")
-3. Web search for current version: WebSearch(search_term="Flutter stable [current month] [current year]")
+3. Web search for current version: WebSearch(search_term="Flutter stable February 2026") — use actual date from context
 4. Check if project already exists: LS(target_directory="./")
 
 BEFORE INSTALLING PACKAGES:
@@ -48,13 +48,13 @@ BEFORE EDITING CODE:
 - API documentation verification
 - Current best practices
 
-**Search Pattern:**
+**Search Pattern:** Replace placeholders with actual values from context (e.g., user_info date). Use concrete dates like "February 2026", not literal `[current month] [current year]`.
 ```
-WebSearch(search_term="[package/framework] [specific feature] [current year/month]")
+WebSearch(search_term="[package/framework] [specific feature] [actual month/year]")
 ```
 
 Examples:
-- `WebSearch(search_term="Next.js App Router server actions [current month] [current year]")`
+- `WebSearch(search_term="Next.js App Router server actions February 2026")` — use concrete date
 - `WebSearch(search_term="React 19 useFormStatus hook syntax")`
 - `WebSearch(search_term="shadcn ui button component installation")`
 
@@ -213,12 +213,35 @@ Find configuration files
 
 ---
 
+## MCP Tools Invocation
+
+Cursor exposes MCP (Model Context Protocol) tools via `call_mcp_tool(server, toolName, arguments)`. **Always check the tool schema/descriptor before calling** — schemas live in the project's `mcps/<server>/tools/` folder.
+
+**Invocation pattern:**
+```
+→ call_mcp_tool(
+    server="cursor-ide-browser",
+    toolName="browser_navigate",
+    arguments={ "url": "http://localhost:3000" }
+  )
+```
+
+**Critical**: List and read the tool's JSON descriptor in `mcps/<server>/tools/` to get exact parameter names and types before calling.
+
+---
+
 ## Browser Tools
 
-Cursor provides built-in browser tools for testing and interacting with web applications.
-All browser tools use the `cursor-ide-browser-` prefix.
+Cursor provides browser tools via the `cursor-ide-browser` MCP server for testing and interacting with web applications. Tools may appear as native tools or require `call_mcp_tool(server="cursor-ide-browser", toolName="...", arguments={...})`.
 
-### `cursor-ide-browser-browser_navigate`
+### CRITICAL: Browser Lock/Unlock Workflow
+
+1. **browser_lock requires an existing browser tab** — you CANNOT lock before browser_navigate
+2. **Correct order**: `browser_navigate` → `browser_lock` → (interactions) → `browser_unlock`
+3. **If a tab already exists**: Check with `browser_tabs` (action: "list"), then call `browser_lock` FIRST before any interactions
+4. **browser_unlock**: Only call when completely done with ALL browser operations for this turn
+
+### `browser_navigate`
 **Purpose**: Navigate to a URL
 
 **When to Use**:
@@ -226,7 +249,7 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - Verifying UI implementations
 - Checking deployed changes
 
-### `cursor-ide-browser-browser_snapshot`
+### `browser_snapshot`
 **Purpose**: Capture accessibility snapshot of current page
 
 **When to Use**:
@@ -238,7 +261,7 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - Call snapshot BEFORE clicking/typing to get element refs
 - Use returned refs for subsequent interactions
 
-### `cursor-ide-browser-browser_click`
+### `browser_click`
 **Purpose**: Click on web page elements
 
 **Parameters**:
@@ -247,7 +270,7 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - `button`: Button to click (defaults to left)
 - `doubleClick`: Whether to double-click
 
-### `cursor-ide-browser-browser_type`
+### `browser_type`
 **Purpose**: Type text into editable elements
 
 **Parameters**:
@@ -257,16 +280,16 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - `submit`: Whether to press Enter after typing
 - `slowly`: Type one character at a time (for key handlers)
 
-### `cursor-ide-browser-browser_hover`
+### `browser_hover`
 **Purpose**: Hover over elements (for tooltips, dropdowns)
 
-### `cursor-ide-browser-browser_select_option`
+### `browser_select_option`
 **Purpose**: Select options in dropdowns
 
-### `cursor-ide-browser-browser_press_key`
+### `browser_press_key`
 **Purpose**: Press keyboard keys (e.g., ArrowLeft, Enter, Escape)
 
-### `cursor-ide-browser-browser_wait_for`
+### `browser_wait_for`
 **Purpose**: Wait for conditions
 
 **Parameters**:
@@ -274,13 +297,13 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - `textGone`: Wait for text to disappear
 - `time`: Wait for specified seconds
 
-### `cursor-ide-browser-browser_navigate_back`
+### `browser_navigate_back`
 **Purpose**: Go back to previous page
 
-### `cursor-ide-browser-browser_resize`
+### `browser_resize`
 **Purpose**: Resize browser window for responsive testing
 
-### `cursor-ide-browser-browser_console_messages`
+### `browser_console_messages`
 **Purpose**: Get all console messages (errors, warnings, logs)
 
 **When to Use**:
@@ -288,7 +311,7 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - Checking for runtime issues
 - Verifying console output
 
-### `cursor-ide-browser-browser_network_requests`
+### `browser_network_requests`
 **Purpose**: Get all network requests since page load
 
 **When to Use**:
@@ -296,28 +319,38 @@ All browser tools use the `cursor-ide-browser-` prefix.
 - Verifying request/response data
 - Checking for failed requests
 
+### `browser_tabs`
+**Purpose**: List open tabs (action: "list") — use before lock to check if a tab exists
+
+### `browser_fill`
+**Purpose**: Clear and replace text in editable elements (unlike `browser_type` which appends)
+
+### `browser_scroll`
+**Purpose**: Scroll elements into view — use `scrollIntoView: true` for nested scroll containers before clicking obscured elements
+
+### `browser_handle_dialog`
+**Purpose**: Handle native dialogs (alert/confirm/prompt) — call BEFORE the triggering action. Use `accept: false` for Cancel, `promptText` for custom prompt input
+
+### `browser_profile_start` / `browser_profile_stop`
+**Purpose**: CPU profiling — profile data in `~/.cursor/browser-logs/` (cpu-profile-*.json, cpu-profile-*-summary.md). Read raw JSON to verify summary findings
+
+**Limitation**: Iframe content is not accessible — only elements outside iframes can be interacted with
+
 ### Browser Testing Workflow
 
 ```
-1. Navigate to the page
-   → cursor-ide-browser-browser_navigate(url="http://localhost:3000")
-
-2. Snapshot to get elements
-   → cursor-ide-browser-browser_snapshot()
-
-3. Interact using refs from snapshot
-   → cursor-ide-browser-browser_click(element="Submit button", ref="btn-submit")
-
-4. Wait for changes if needed
-   → cursor-ide-browser-browser_wait_for(text="Success")
-
-5. Snapshot again to verify
-   → cursor-ide-browser-browser_snapshot()
-
-6. Check console/network for issues
-   → cursor-ide-browser-browser_console_messages()
-   → cursor-ide-browser-browser_network_requests()
+1. Check existing tabs (if any): browser_tabs(action="list")
+2. Navigate to the page: browser_navigate(url="http://localhost:3000")
+3. Lock the tab: browser_lock (required before interactions)
+4. Snapshot to get elements: browser_snapshot()
+5. Interact using refs from snapshot: browser_click(element="Submit button", ref="btn-submit")
+6. Wait for changes if needed: browser_wait_for(text="Success") or short waits (1-3s) with snapshot checks
+7. Snapshot again to verify: browser_snapshot()
+8. Check console/network: browser_console_messages(), browser_network_requests()
+9. Unlock when done: browser_unlock
 ```
+
+**Waiting strategy**: Prefer short incremental waits (1-3 seconds) with browser_snapshot checks in between rather than one long wait.
 
 ### Proactive Browser Usage
 
@@ -427,9 +460,14 @@ Update a function implementation
 
 **Best Practices**:
 - Use `is_background: true` for long-running processes
-- Check existing terminals before starting servers
+- Check existing terminals before starting servers (see Terminals Folder Pattern below)
 - Use non-interactive flags (`--yes`, `-y`, etc.)
 - Always provide a clear `description`
+
+**Terminals Folder Pattern** — Before starting dev servers, avoid duplicate processes:
+1. List the terminals folder (project-specific path, e.g. under `.cursor` or Cursor project metadata)
+2. Read terminal files to see `current command`, `cwd`, and `last_command`
+3. Only start `npm run dev` / `flutter run` / etc. if no matching process is already running
 
 **Example Usage**:
 ```
@@ -463,16 +501,35 @@ Start dev server in background
 ```
 Check lints after editing
 → ReadLints(paths=["src/components/Button.tsx"])
-
----
-
 ```
 
 ---
 
 ## MCP Tools
 
-MCP (Model Context Protocol) tools extend Cursor's capabilities with external services.
+MCP (Model Context Protocol) tools extend Cursor's capabilities with external services. Use `call_mcp_tool(server, toolName, arguments)` for MCP invocation. **Always check the tool schema in `mcps/<server>/tools/` before calling.**
+
+### mcp_web_fetch
+
+**Purpose**: Fetch URL content and return it as readable markdown. Use for docs, API references.
+
+**When to Use**:
+- Official documentation (e.g., https://nextjs.org/docs)
+- API references
+- Verifying deployment URLs
+
+**Parameters**: `url` — the fully-formed URL to fetch
+
+**Limitations**: No authentication support; localhost and private IPs will not work (fetch runs from isolated server).
+
+**Example**:
+```
+→ mcp_web_fetch(url="https://nextjs.org/docs/app/building-your-application/routing")
+```
+
+### fetch_mcp_resource / list_mcp_resources
+
+**Purpose**: Fetch or list resources from MCP servers (e.g., documentation, assets). Use `list_mcp_resources` to discover available resources, then `fetch_mcp_resource(server, uri)` to retrieve content. Optional `downloadPath` saves to workspace.
 
 ### MiniMax MCP Tools
 If configured, provides:
@@ -605,9 +662,9 @@ Need external info?
 Need to test web UI?
 ├─ Navigate/interact → Native browser subagent (automatic)
 ├─ Or manually:
-│   ├─ Navigate → cursor-ide-browser-browser_navigate
-│   ├─ Snapshot → cursor-ide-browser-browser_snapshot
-│   └─ Interact → cursor-ide-browser-browser_click / browser_type
+│   ├─ Navigate → browser_navigate
+│   ├─ Snapshot → browser_snapshot
+│   └─ Interact → browser_click / browser_type
 
 Need specialized work?
 ├─ Validate completed work → /verifier custom subagent

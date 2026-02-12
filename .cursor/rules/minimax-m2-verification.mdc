@@ -604,22 +604,26 @@ After generating UI code at Deep/Exhaustive effort level:
 → Shell(command="npm run dev", is_background=true, description="Start dev server")
 
 // 2. Wait for server to start
-→ cursor-ide-browser-browser_wait_for(time=3)
+→ browser_wait_for(time=3)
 
-// 3. Navigate to page
-→ cursor-ide-browser-browser_navigate(url="http://localhost:3000")
+// 3. Navigate to page, then lock
+→ browser_navigate(url="http://localhost:3000")
+→ browser_lock
 
 // 4. Get page snapshot
-→ cursor-ide-browser-browser_snapshot()
+→ browser_snapshot()
 
 // 5. Check console for errors
-→ cursor-ide-browser-browser_console_messages()
+→ browser_console_messages()
 
 // 6. Test interactive elements
-→ cursor-ide-browser-browser_click(element="Submit button", ref="button-submit")
+→ browser_click(element="Submit button", ref="button-submit")
 
 // 7. Verify result
-→ cursor-ide-browser-browser_snapshot()
+→ browser_snapshot()
+
+// 8. Unlock when done
+→ browser_unlock
 ```
 
 ---

@@ -177,14 +177,15 @@ This MUST be used in all searches. No templates. No placeholders.
 
 #### 1.5. NEVER Use Template Placeholders (Issue #5)
 ```
-❌ FORBIDDEN:
+❌ FORBIDDEN (literal in search - will not work):
    "Next.js {version} {date_year}"
    "React ${version} hooks"
    "[package] latest version [year]"
    "{framework} installation {month} {year}"
+   "... [current month] [current year]"  ← if left as literal text
 
-✅ CORRECT:
-   "Next.js 15 stable January 2026"
+✅ CORRECT (use actual values from context, e.g., user_info date):
+   "Next.js 15 stable February 2026"
    "React 19 hooks documentation"
    "shadcn-ui installation guide 2026"
 ```
@@ -451,8 +452,8 @@ Step 2: If unclear, use Context7 for official docs
 → Shell(command="npx shadcn-ui@latest add table", description="Add shadcn table")
 
 // 3. Test in browser
-→ cursor-ide-browser-browser_navigate(url="http://localhost:3000")
-→ cursor-ide-browser-browser_snapshot()
+→ browser_navigate(url="http://localhost:3000")
+→ browser_snapshot()
 ```
 
 ### Pattern 4: New Library → Version + Compatibility Check

@@ -610,15 +610,15 @@ Use Cursor browser tools to verify 3D implementations:
 
 ```javascript
 // Navigate to page with 3D canvas
-→ cursor-ide-browser-browser_navigate(url="http://localhost:3000")
+→ browser_navigate(url="http://localhost:3000")
 
 // Check if canvas exists
-→ cursor-ide-browser-browser_snapshot()
+→ browser_snapshot()
 
 // Verify WebGL context
 // Check console for WebGL errors
-→ cursor-ide-browser-browser_console_messages()
+→ browser_console_messages()
 
 // Check network for model loading
-→ cursor-ide-browser-browser_network_requests()
+→ browser_network_requests()
 ```

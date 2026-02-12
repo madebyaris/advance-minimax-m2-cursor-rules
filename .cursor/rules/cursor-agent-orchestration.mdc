@@ -30,6 +30,12 @@ Advanced patterns for working with Cursor 2.4's native subagents, Agent Skills s
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## Agent Transcripts Citation
+
+When referencing past chats from agent transcripts:
+- **Format**: `[Title](uuid)` — use a short title (≤6 words) and the parent uuid (exclude `.jsonl`)
+- **Never cite subagent transcripts** — always use the parent uuid, not subagent IDs
+
 ## Opus 4.6 Max Planning and Communication
 
 Operate with Opus 4.6 behavioral patterns — adaptive effort, self-critical, intellectually honest:

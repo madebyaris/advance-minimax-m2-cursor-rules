@@ -273,6 +273,8 @@ Non-native models default to generating text instead of using tools. The First A
 
 ## Cursor 2.4 Features
 
+> **Version note**: These rules target Cursor 2.4+. If using a newer Cursor version, verify feature availability (subagents, skills, hooks) via Cursor docs — APIs may evolve.
+
 ### Adaptive Thinking
 AI calibrates effort to task complexity:
 - **Instant**: Fix a typo — just do it, lint, done
