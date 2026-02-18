@@ -1,11 +1,11 @@
 ---
-description: "Model compatibility guide for non-Claude models running in Cursor: tool calling format, StrReplace protocol, prompt injection architecture, and common failure modes"
+description: "Model compatibility guide for all models in Cursor: tool calling format, StrReplace protocol, prompt injection architecture, and common failure modes"
 alwaysApply: false
 ---
 
 # Model Compatibility in Cursor
 
-This rule helps non-native models (MiniMax, GPT, Gemini, Codex, etc.) operate effectively in Cursor. If you're Claude/Anthropic, you likely don't need this — but reading it won't hurt.
+This rule helps all models (Composer 1.5, MiniMax, OpenAI, Anthropic, Gemini, Codex) operate effectively in Cursor.
 
 ---
 
@@ -22,24 +22,24 @@ Layer 5: Skills (.cursor/skills/ — on-demand or /skill-name)
 Layer 6: User message + attached context
 ```
 
-### Key Differences by Model Type
+### Prompt Injection Applies to All Models
 
-**Anthropic (Claude) models:**
-- Layer 1 uses the native `system` parameter — strongly binding
-- Tool definitions use native `tools` parameter — first-class schema
-- The model understands tool-call format natively
+Cursor injects its instructions and tool definitions for **all** supported models:
 
-**Non-Anthropic models:**
-- Layer 1 may be concatenated as text into the prompt
-- Tool definitions may be text-injected rather than native function schemas
-- The model must parse and follow tool-call format from text instructions
-- **This means:** Layer 1 instructions may feel less "authoritative" — but you must follow them with the same priority
+| Provider | Models | Injection |
+|----------|--------|-----------|
+| **Cursor** | Composer 1.5 | Yes |
+| **OpenAI** | GPT-4o, GPT-5.x | Yes |
+| **Anthropic** | Claude Opus, Sonnet | Yes |
+| **Google** | Gemini | Yes (likely) |
+
+**Delivery format** may differ per provider (native `system`/`tools` params vs. concatenated text), but the injection happens for all. **Treat Cursor's instructions as authoritative regardless of how they arrive.** If you receive tool definitions or behavior rules as text, follow them with the same priority as native API parameters.
 
 ---
 
 ## The #1 Failure: Text Generation Instead of Tool Usage
 
-The single most common failure for non-native models:
+The single most common failure (especially when instructions arrive as text):
 
 ```
 User: "Compare these two files"
@@ -78,7 +78,7 @@ BAD: Call Read(file1), wait for result, then call Read(file2)
 
 ## StrReplace: The Most Error-Prone Tool
 
-`StrReplace` requires an `old_string` that EXACTLY matches text in the file. Non-native models fail here most often because they:
+`StrReplace` requires an `old_string` that EXACTLY matches text in the file. Models fail here most often when they:
 
 1. **Guess at file contents** instead of reading first
 2. **Get whitespace wrong** — tabs vs spaces, trailing newlines
@@ -135,7 +135,7 @@ WebSearch(search_term="[package] npm latest version [current month] [current yea
 
 ## Context Window Management
 
-Non-native models may receive more text in their prompt (since tool schemas arrive as text). This means:
+When tool schemas or instructions arrive as text, the prompt can be large. This means:
 
 1. **Don't read files "just in case"** — only what you need
 2. **Use targeted searches** — `Grep` with specific patterns, not broad scans
@@ -153,7 +153,7 @@ Non-native models may receive more text in their prompt (since tool schemas arri
 **Fix**: For Instant/Light tasks, skip planning. Just Read → Edit → Lint.
 
 ### 3. Asking the user for information you could find with tools
-**Fix**: Use `Grep`, `SemanticSearch`, `LS`, `Glob` to find it yourself.
+**Fix**: Use `Grep`, `SemanticSearch`, `Glob` (or `LS` if available) to find it yourself.
 
 ### 4. Long explanatory text between tool calls
 **Fix**: Keep inter-tool commentary to 1-2 sentences.
@@ -166,7 +166,7 @@ Non-native models may receive more text in their prompt (since tool schemas arri
 
 ---
 
-## Quick Checklist for Non-Native Models
+## Quick Checklist
 
 Before responding to any user message:
 

@@ -355,7 +355,7 @@ Instead of asking, use tools to find out:
 | "Is Node.js installed?" | `Shell(command="node --version")` |
 | "What framework is this?" | `Read(path="package.json")` |
 | "Does the file exist?" | `Read(path="path/to/file")` |
-| "What's the current structure?" | `LS(target_directory="./")` |
+| "What's the current structure?" | `Glob(glob_pattern="*")` or `LS(target_directory="./")` if available |
 | "Is this package installed?" | `Read(path="package-lock.json")` |
 | "What version are you using?" | Check config files first |
 
@@ -365,7 +365,7 @@ Before asking ANY clarifying question, first:
 
 ```
 1. CHECK PROJECT STATE
-   → LS to understand structure
+   → Glob or LS to understand structure
    → Read for package.json, pubspec.yaml, Cargo.toml
    → Grep for existing patterns
 

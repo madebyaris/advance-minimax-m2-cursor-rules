@@ -1,11 +1,11 @@
 ---
-description: "Complete Cursor 2.4 native tools reference: search, edit, run, subagents, skills, and advanced features for agentic workflows"
+description: "Complete Cursor 2.5 native tools reference: search, edit, run, subagents, skills, plugins, sandbox, and advanced features for agentic workflows"
 alwaysApply: false
 ---
 
-# Cursor 2.4 Tools Mastery
+# Cursor 2.5 Tools Mastery
 
-Complete reference for all Cursor 2.4 tools including native subagents, Agent Skills, and advanced features.
+Complete reference for all Cursor 2.5 tools including native subagents, Agent Skills, plugins, sandbox configuration, and advanced features.
 
 ## CRITICAL: Agentic-First Tool Usage
 
@@ -26,7 +26,7 @@ BEFORE CREATING PROJECT:
 1. Check if CLI tool exists: Shell(command="which flutter")
 2. Check CLI version: Shell(command="flutter --version")
 3. Web search for current version: WebSearch(search_term="Flutter stable February 2026") — use actual date from context
-4. Check if project already exists: LS(target_directory="./")
+4. Check if project already exists: Glob(glob_pattern="*") or LS(target_directory="./") if available
 
 BEFORE INSTALLING PACKAGES:
 1. Check package.json/pubspec.yaml exists: Read(path="package.json")
@@ -85,8 +85,9 @@ Read the main entry point to understand the application structure
 
 ---
 
-### `LS`
-**Purpose**: List directory contents
+### `LS` / `Glob` (Directory Exploration)
+
+**Purpose**: List directory contents or find files by pattern
 
 **When to Use**:
 - Exploring project structure
@@ -94,15 +95,19 @@ Read the main entry point to understand the application structure
 - Understanding folder organization
 - Discovering available modules
 
+**Tool Availability**: `LS` may be unavailable in some environments. Use `Glob` as fallback for directory exploration.
+
 **Best Practices**:
+- Prefer `LS(target_directory=".", ignore_globs=["node_modules", ".git"])` when available
+- Fallback: `Glob(glob_pattern="*")` or `Glob(glob_pattern="src/*")` for directory listing
 - Start at project root for orientation
-- Use `ignore_globs` to filter noise (node_modules, etc.)
 - Navigate progressively deeper
 
 **Example Usage**:
 ```
 Explore the project structure
-→ LS(target_directory=".", ignore_globs=["node_modules", ".git"])
+→ LS(target_directory=".", ignore_globs=["node_modules", ".git"])  // if available
+→ Glob(glob_pattern="*")  // fallback when LS unavailable
 ```
 
 ---
@@ -505,6 +510,56 @@ Check lints after editing
 
 ---
 
+## Special Tools
+
+### `TodoWrite`
+**Purpose**: EPIC task tracking for complex multi-step work
+
+**When to Use**: Deep/Exhaustive tasks; 3+ steps; user provides multiple tasks; after receiving new instructions
+
+**Parameters**: `todos` (array of `{id, content, status}`), `merge` (true = update only specified; false = replace all)
+
+**Example**:
+```
+→ TodoWrite(todos=[{ id: "EPIC0", content: "Setup: Install dependencies", status: "in_progress" }, { id: "EPIC1", content: "Feature: Auth", status: "pending" }], merge=false)
+→ TodoWrite(todos=[{ id: "EPIC0", status: "completed" }], merge=true)
+```
+
+**When NOT to Use**: Instant/Light tasks; single straightforward tasks; < 3 steps
+
+---
+
+### `CreatePlan`
+**Purpose**: Plan mode with Mermaid diagrams; structured planning for user approval
+
+**When to Use**: Large/ambiguous tasks; multiple valid approaches; architectural decisions needed
+
+**Parameters**: `name`, `overview`, `plan` (markdown), `todos` (optional)
+
+---
+
+### `AskQuestion`
+**Purpose**: Structured multiple-choice questions for hard forks
+
+**When to Use**: Security/auth flows; data deletion/migration; major architectural changes; irreversible choices
+
+**When NOT to Use**: Reversible choices — use safe default and proceed
+
+---
+
+### `GenerateImage`
+**Purpose**: Generate images from text description
+
+**When to Use**: Mockups, diagrams, UI assets; when user explicitly asks for an image
+
+**Parameters**: `description` (required), `filename` (optional), `reference_image_paths` (optional)
+
+**Output**: Saved to `assets/` folder by default
+
+**When NOT to Use**: Data visualizations (charts, plots) — use code instead
+
+---
+
 ## MCP Tools
 
 MCP (Model Context Protocol) tools extend Cursor's capabilities with external services. Use `call_mcp_tool(server, toolName, arguments)` for MCP invocation. **Always check the tool schema in `mcps/<server>/tools/` before calling.**
@@ -545,9 +600,54 @@ If configured, provides:
 
 ---
 
-## Native Subagents (Cursor 2.4)
+## Plugins (Cursor 2.5)
 
-Cursor 2.4 introduces native subagents - independent agents with isolated context windows.
+The [Cursor Marketplace](https://cursor.com/marketplace) lets you install plugins that package skills, subagents, MCP servers, hooks, and rules. Install via `/add-plugin` in chat or browse at cursor.com/marketplace.
+
+**When to use plugins vs local skills:**
+- **Plugins**: Pre-built capabilities from partners (Amplitude, AWS, Figma, Linear, Stripe); team-wide or cross-project use
+- **Local skills** (`.cursor/skills/`): Project-specific knowledge, version-controlled in repo
+
+---
+
+## Sandbox Configuration (Cursor 2.5+)
+
+The sandbox supports granular network and filesystem controls. Configure via `sandbox.json`.
+
+**File locations** (per-repo overrides per-user):
+- `~/.cursor/sandbox.json` — all workspaces
+- `./.cursor/sandbox.json` — current project (higher priority)
+
+**Key options** (see [Cursor Terminal docs](https://cursor.com/docs/agent/terminal)):
+- `networkPolicy.default`: `"deny"` or `"allow"`
+- `networkPolicy.allow`: Domain allowlist (e.g., `registry.npmjs.org`, `*.githubusercontent.com`)
+- `networkPolicy.deny`: Domain denylist
+- `additionalReadwritePaths`, `additionalReadonlyPaths`: Extra filesystem access
+
+**Example** (allow npm/pypi only):
+```json
+{
+  "networkPolicy": {
+    "default": "deny",
+    "allow": ["registry.npmjs.org", "pypi.org", "*.githubusercontent.com"]
+  }
+}
+```
+
+---
+
+## Native Subagents (Cursor 2.5)
+
+Cursor 2.5 introduces **async subagents** — subagents can run in the background while the parent continues, and subagents can spawn their own subagents (tree hierarchy).
+
+### Foreground vs Background
+
+| Mode | Behavior | Best for |
+|------|----------|----------|
+| **Foreground** | Blocks until subagent completes | Sequential tasks where you need output immediately |
+| **Background** | Returns immediately; subagent runs independently | Long-running or parallel workstreams |
+
+Set `is_background: true` in custom subagent frontmatter for non-blocking execution. Launch multiple subagents in one turn for maximum throughput.
 
 ### Built-in Subagents
 
@@ -559,11 +659,11 @@ These activate automatically when appropriate:
 | **bash** | Shell command sequences | Running multiple commands |
 | **browser** | Web automation via MCP | Testing UI, browser interactions |
 
-**You don't invoke these directly** - the agent delegates automatically.
+**You don't invoke these directly** — the agent delegates automatically.
 
 ### Custom Subagents
 
-Define in `.cursor/agents/` (project) or `~/.cursor/agents/` (user):
+Define in `.cursor/agents/` (project) or `~/.cursor/agents/` (user). Also: `.claude/agents/`, `.codex/agents/` for compatibility.
 
 ```markdown
 ---
@@ -592,7 +692,7 @@ For explicit subagent delegation:
 
 ---
 
-## Agent Skills (Cursor 2.4)
+## Agent Skills (Cursor 2.5)
 
 Skills are portable packages of domain knowledge.
 
@@ -601,7 +701,11 @@ Skills are portable packages of domain knowledge.
 | Location | Scope |
 |----------|-------|
 | `.cursor/skills/` | Project-level |
+| `.claude/skills/` | Project-level (Claude compatibility) |
+| `.codex/skills/` | Project-level (Codex compatibility) |
 | `~/.cursor/skills/` | User-level (global) |
+| `~/.claude/skills/` | User-level (Claude compatibility) |
+| `~/.codex/skills/` | User-level (Codex compatibility) |
 
 ### Skill Structure
 
@@ -625,7 +729,7 @@ Skills are portable packages of domain knowledge.
 
 ### Built-in Migration Skill
 
-Cursor 2.4 includes `/migrate-to-skills` to convert dynamic rules to skills.
+Cursor 2.5 includes `/migrate-to-skills` to convert dynamic rules to skills.
 
 ---
 
@@ -640,7 +744,7 @@ Need to find code?
 
 Need to read?
 ├─ File contents → Read
-├─ Directory structure → LS
+├─ Directory structure → LS or Glob (use Glob when LS unavailable)
 └─ Linter errors → ReadLints
 
 Need to edit?
@@ -665,6 +769,16 @@ Need to test web UI?
 │   ├─ Navigate → browser_navigate
 │   ├─ Snapshot → browser_snapshot
 │   └─ Interact → browser_click / browser_type
+
+Need task tracking?
+├─ EPIC todos (3+ steps) → TodoWrite
+└─ Structured plan for approval → CreatePlan
+
+Need user input on hard fork?
+└─ Security/data/architecture → AskQuestion
+
+Need image?
+└─ Mockups, diagrams → GenerateImage
 
 Need specialized work?
 ├─ Validate completed work → /verifier custom subagent
@@ -707,16 +821,25 @@ Reading multiple files simultaneously:
 [All called in single batch]
 ```
 
-## Cursor 2.4 Advanced Features
+## Cursor 2.5 Advanced Features
 
-### Native Subagents
+### Plugins
+- Marketplace at cursor.com/marketplace; `/add-plugin` to install
+- Packages skills, subagents, MCP servers, hooks, rules
+
+### Sandbox
+- `sandbox.json` for network allowlists/denylists and filesystem paths
+- See [Cursor Terminal docs](https://cursor.com/docs/agent/terminal)
+
+### Native Subagents (Async in 2.5)
 - **explore**: Codebase search with isolated context
 - **bash**: Shell command execution with output filtering
 - **browser**: Web automation via MCP with DOM filtering
-- Custom subagents in `.cursor/agents/`
+- **Async**: Subagents run in background; parent continues; subagents can spawn subagents (tree)
+- Custom subagents in `.cursor/agents/`; use `is_background: true` for parallel throughput
 
 ### Agent Skills
-- Portable knowledge packages in `.cursor/skills/`
+- Portable knowledge packages in `.cursor/skills/`, `.claude/skills/`, `.codex/skills/`
 - Auto-discovery or `/skill-name` invocation
 - Progressive loading (scripts, references, assets)
 - Migration: `/migrate-to-skills`
@@ -737,6 +860,7 @@ Reading multiple files simultaneously:
 - Structured task management
 
 ### Multi-Agent Features
+- **Async subagents** (2.5): Parent continues while subagents run in background; subagent trees
 - Parallel subagents with isolated context
 - Background subagents (`is_background: true`)
 - Multi-agent judging for comparing solutions

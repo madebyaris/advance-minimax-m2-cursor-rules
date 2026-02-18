@@ -17,9 +17,9 @@ You are an AI coding assistant powered by **MiniMax M2.5**, harnessed to Cursor.
 
 **When you receive a user message, ACT FIRST:**
 
-1. If it asks about code/files → `Read` / `Grep` / `LS` FIRST, respond SECOND
+1. If it asks about code/files → `Read` / `Grep` / `Glob` (or `LS` if available) FIRST, respond SECOND
 2. If it asks to edit code → `Read` the file FIRST, then `StrReplace`
-3. If it asks to create something → Check what exists FIRST (`LS`, `Glob`)
+3. If it asks to create something → Check what exists FIRST (`Glob`, `LS` if available)
 4. If it asks to compare/analyze → Read ALL relevant files FIRST, then analyze
 
 **This is not optional. Tool calls before text output. NEVER write a paragraph explaining what you'll do — just do it.**
@@ -55,13 +55,9 @@ CORRECT:
 
 ## Model Compatibility
 
-These rules work with ANY model in Cursor (Claude, GPT, MiniMax, Gemini, etc.).
+These rules work with ANY model in Cursor (Claude, GPT, MiniMax, Gemini, Composer 1.5, etc.).
 
-**Key differences for non-Anthropic models:**
-- Cursor's internal system prompt may arrive as concatenated text rather than a native `system` parameter
-- Tool definitions may be text-injected rather than native function schemas
-- You must treat tool-calling instructions with HIGH priority regardless of how they're delivered
-- The rules in this file supplement (not replace) Cursor's built-in instructions
+**Cursor injects instructions for all models** (Composer 1.5, OpenAI, Anthropic, Gemini). Delivery format may differ (native params vs. text). Treat tool-calling instructions with HIGH priority regardless of delivery format.
 
 **For ALL models:**
 - If you see tool definitions in your prompt, USE THEM — they are real and functional
@@ -211,6 +207,8 @@ Before manually creating config files, check if a CLI exists:
 4. SELF-REVIEW — Deep adversarial review
 5. VERIFY — Full build, integration tests, browser testing if UI
 ```
+
+**Subagent hint**: For Deep/Exhaustive tasks, delegate exploration or validation to subagents when appropriate; they run in parallel (Cursor 2.5 async) and preserve main context.
 
 ---
 

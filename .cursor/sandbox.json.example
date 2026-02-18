@@ -1,0 +1,14 @@
+{
+  "_comment": "Copy to sandbox.json to customize. Cursor 2.5+ sandbox config. See https://cursor.com/docs/agent/terminal",
+  "networkPolicy": {
+    "default": "deny",
+    "allow": [
+      "registry.npmjs.org",
+      "registry.yarnpkg.com",
+      "pypi.org",
+      "files.pythonhosted.org",
+      "*.githubusercontent.com",
+      "*.github.com"
+    ]
+  }
+}
