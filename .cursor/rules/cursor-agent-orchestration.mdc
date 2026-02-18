@@ -1,17 +1,17 @@
 ---
-description: "Cursor 2.4 agent orchestration: native subagents, Agent Skills, adaptive effort delegation, parallel workflows, hierarchical task decomposition, and multi-agent coordination. Load this for complex multi-step tasks."
+description: "Cursor 2.5 agent orchestration: native subagents, Agent Skills, async subagents, adaptive effort delegation, parallel workflows, hierarchical task decomposition, and multi-agent coordination. Load this for complex multi-step tasks."
 alwaysApply: false
 ---
 
-# Cursor 2.4 Agent Orchestration
+# Cursor 2.5 Agent Orchestration
 
-Advanced patterns for working with Cursor 2.4's native subagents, Agent Skills system, and multi-agent coordination.
+Advanced patterns for working with Cursor 2.5's native subagents, Agent Skills system, async subagents, and multi-agent coordination.
 
-## Cursor 2.4 Architecture Overview
+## Cursor 2.5 Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    CURSOR 2.4 AGENT                         │
+│                    CURSOR 2.5 AGENT                         │
 ├─────────────────────────────────────────────────────────────┤
 │  Main Agent                                                 │
 │    ├── Built-in Subagents (automatic)                       │
@@ -19,7 +19,7 @@ Advanced patterns for working with Cursor 2.4's native subagents, Agent Skills s
 │    │     ├── bash      → shell commands (isolated output)   │
 │    │     └── browser   → web automation (MCP-based)         │
 │    │                                                        │
-│    ├── Custom Subagents (.cursor/agents/)                   │
+│    ├── Custom Subagents (.cursor/agents/, .claude/agents/, .codex/agents/) │
 │    │     ├── verifier  → validate completed work            │
 │    │     └── debugger  → error analysis                     │
 │    │                                                        │
@@ -196,9 +196,18 @@ Otherwise:
 
 ---
 
-## Cursor 2.4 Native Subagents
+## Cursor 2.5 Native Subagents
 
-Cursor 2.4 introduces **native subagents** - independent agents that handle discrete parts of tasks with their own context windows.
+Cursor 2.5 introduces **async subagents** — subagents can run in the background while the parent continues, and subagents can spawn their own subagents (tree hierarchy).
+
+### Foreground vs Background (Async in 2.5)
+
+| Mode | Behavior | Best for |
+|------|----------|----------|
+| **Foreground** | Blocks until subagent completes | Sequential tasks where you need output immediately |
+| **Background** | Returns immediately; subagent runs independently | Long-running or parallel workstreams |
+
+**Pattern**: Launch parallel subagents for independent features; parent continues while they run. Use `is_background: true` in custom subagent frontmatter for non-blocking execution.
 
 ### Built-in Subagents (Automatic)
 
@@ -214,7 +223,7 @@ These subagents are used automatically by the agent when appropriate:
 
 ### Custom Subagents
 
-Define custom subagents in `.cursor/agents/` (project) or `~/.cursor/agents/` (user).
+Define custom subagents in `.cursor/agents/` (project) or `~/.cursor/agents/` (user). Also: `.claude/agents/`, `.codex/agents/` for compatibility. Project-level takes precedence when names conflict.
 
 **File Format** (markdown with YAML frontmatter):
 
@@ -244,7 +253,7 @@ Report findings by severity: Critical, High, Medium.
 | `description` | No | When to use this subagent. Agent reads this to decide delegation. |
 | `model` | No | `fast`, `inherit`, or specific model ID. Default: `inherit`. |
 | `readonly` | No | If `true`, restricted write permissions. |
-| `is_background` | No | If `true`, runs in background without blocking. |
+| `is_background` | No | If `true`, runs in background without blocking (Cursor 2.5 async). |
 
 ### Invoking Custom Subagents
 
@@ -285,13 +294,15 @@ The `Task` tool still exists but operates differently - it's for launching sub-a
 |-------------------|---------------------|
 | Instant / Light | Do it yourself — no subagent overhead |
 | Deep | Use `model="fast"` subagents for investigation, do implementation yourself |
-| Exhaustive | Parallel subagents for independent features, full model for complex work |
+| Exhaustive | Launch parallel subagents for independent features; parent continues while they run (async 2.5) |
 
 **Task Tool Best Practices:**
 - Subagents start fresh — include ALL necessary context in prompt
 - Use `model="fast"` for exploration and simple research (Instant/Light effort)
-- Launch multiple Tasks in parallel for independent features
+- Launch multiple Tasks in parallel for independent features (max throughput)
 - Results are not visible to user — summarize in your response
+
+**Resuming subagents**: Each subagent execution returns an agent ID. Pass it to resume: "Resume agent abc123 and analyze the remaining test failures." Useful for long-running tasks spanning multiple invocations.
 
 ---
 
@@ -358,15 +369,19 @@ Use `CreatePlan` in Plan Mode for structured planning:
 
 ---
 
-## Parallel Agent Patterns (Cursor 2.4)
+## Parallel Agent Patterns (Cursor 2.5)
 
-### Cursor 2.4 Parallel Capabilities
+### Cursor 2.5 Parallel Capabilities
 
+- **Async subagents**: Parent continues while subagents run in background; subagents can spawn subagents (tree)
 - **Native Subagents**: Built-in explore, bash, browser run in parallel automatically
 - **Custom Subagents**: Define specialized agents that run independently
 - **Background Subagents**: Set `is_background: true` for non-blocking execution
+- **Plugins**: Marketplace plugins (cursor.com/marketplace) for pre-built skills/subagents; use project-level skills for repo-specific knowledge
 - **Multi-Agent Worktrees**: Multiple agents in git worktrees for large features
 - **Cloud Agents**: Long-running tasks in cloud environments
+
+**Launch multiple subagents in one turn** for maximum throughput. Example: "Review the API changes and update the documentation in parallel."
 
 ### When to Use Each Pattern
 
@@ -377,7 +392,7 @@ Use `CreatePlan` in Plan Mode for structured planning:
 | Browser testing | Native `browser` subagent (automatic) |
 | Validate completed work | Custom `verifier` subagent |
 | Debug errors | Custom `debugger` subagent |
-| Independent features | Parallel custom subagents or worktrees |
+| Independent features | Parallel custom subagents or worktrees; use `is_background: true` for async |
 | Compare approaches | Multi-agent judging |
 
 ### Orchestrator Pattern with Custom Subagents
@@ -656,9 +671,9 @@ For exhaustive tasks, use subagents to isolate context-heavy work:
 
 ---
 
-## Cursor 2.4 Agent Skills
+## Cursor 2.5 Agent Skills
 
-Agent Skills are portable, version-controlled packages that teach agents domain-specific tasks. Skills are the preferred way to package specialized knowledge in Cursor 2.4.
+Agent Skills are portable, version-controlled packages that teach agents domain-specific tasks. Skills are the preferred way to package specialized knowledge in Cursor 2.5.
 
 ### Skills vs Rules
 
@@ -727,7 +742,7 @@ Before deploying, run: `python scripts/validate.py`
 
 ### Migration: Rules to Skills
 
-Cursor 2.4 includes `/migrate-to-skills` to convert dynamic rules:
+Cursor 2.5 includes `/migrate-to-skills` to convert dynamic rules:
 
 ```
 > /migrate-to-skills
@@ -778,7 +793,7 @@ description: "Helps with general deployment tasks"
 
 ---
 
-## Summary: Opus 4.6 Max + Cursor 2.4 Workflow
+## Summary: Opus 4.6 Max + Cursor 2.5 Workflow
 
 ### Before Starting Any Task
 

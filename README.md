@@ -4,7 +4,7 @@
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Cursor 2.4+](https://img.shields.io/badge/Cursor-2.4%2B-blue?style=flat-square)](https://cursor.com)
+[![Cursor 2.5+](https://img.shields.io/badge/Cursor-2.5%2B-blue?style=flat-square)](https://cursor.com)
 [![MiniMax M2.5](https://img.shields.io/badge/MiniMax-M2.5-purple?style=flat-square)](https://platform.minimax.io)
 [![Any Model](https://img.shields.io/badge/Compatible-Any%20Model-green?style=flat-square)](#model-compatibility)
 
@@ -26,13 +26,13 @@
 - **Adaptive Thinking** — Scales reasoning depth to problem complexity (Instant / Light / Deep / Exhaustive)
 - **StrReplace Safety** — Detailed protocol preventing the #1 editing failure for non-native models
 - **No Hardcoded Versions** — Always verified via WebSearch at query time, never stale
-- **Native Subagents (2.4)** — Custom subagents for validation, debugging, and specialized work
-- **Agent Skills (2.4)** — Portable knowledge packages with scripts and progressive loading
+- **Async Subagents (2.5)** — Subagents run in background; parent continues; subagent trees
+- **Agent Skills (2.5)** — Portable knowledge packages with scripts and progressive loading
 - **CLI-First Development** — Always use framework CLIs, never create config files manually
 - **Intellectual Honesty** — Three-tier certainty (Certain / Likely / Uncertain) instead of hallucinated confidence
 - **Strategic Laziness** — Minimum correct change, no over-engineering
 - **Compaction** — Context compression for sustained productivity over long sessions
-- **Full Cursor 2.4 Support** — Subagents, skills, hooks, and all tools documented
+- **Full Cursor 2.5 Support** — Async subagents, plugins, sandbox controls, skills, hooks, and all tools documented
 - **Multi-Language** — Web, Python, Rust, Go, Swift, Flutter, DevOps
 - **Syntax Trap Prevention** — Common mistakes documented per language
 - **AGENTS.md** — Portable version for other IDEs and CLI tools
@@ -41,11 +41,22 @@
 
 ## Model Compatibility
 
-These rules are built for **MiniMax M2.5** harnessed to Cursor, but designed to work with **any model** — Claude, GPT, Gemini, Codex.
+These rules are built for **MiniMax M2.5** harnessed to Cursor, but designed to work with **any model** — Claude, GPT, Gemini, Codex, Composer 1.5.
+
+### Cursor's Prompt Injection
+
+Cursor injects its instructions, tool definitions, and context into the prompt for **all** supported models:
+
+- **Composer 1.5** (Cursor's frontier model)
+- **OpenAI** (GPT-4o, GPT-5.x, etc.)
+- **Anthropic** (Claude Opus, Sonnet, etc.)
+- **Gemini** (Google)
+
+The delivery format may differ per provider (native API params vs. concatenated text), but the injection happens for all. Treat Cursor's instructions as authoritative regardless of how they arrive.
 
 ### The Problem
 
-When Cursor uses non-Anthropic models (MiniMax M2.5, GPT, Gemini, etc.), the system prompt and tool definitions are delivered differently — as concatenated text rather than native API parameters. This causes non-native models to:
+Models that receive instructions via concatenated text (rather than native system/tool parameters) tend to:
 
 1. **Generate text instead of using tools** — the #1 failure mode
 2. **Fail StrReplace** — by guessing at file contents instead of reading first
@@ -68,9 +79,10 @@ When Cursor uses non-Anthropic models (MiniMax M2.5, GPT, Gemini, etc.), the sys
 |-------|--------|-------|
 | **MiniMax M2.5** | **Primary** | Built and optimized for this model |
 | MiniMax M2.1 | Tested | Full compatibility |
-| Claude (Opus, Sonnet) | Native | Best tool integration — Cursor's native model |
-| GPT-4o / GPT-5.x | Compatible | Follow model-compatibility rules |
-| Gemini | Compatible | Follow model-compatibility rules |
+| **Composer 1.5** | Compatible | Cursor's frontier model; receives injection |
+| Claude (Opus, Sonnet) | Compatible | Receives injection; strong tool integration |
+| GPT-4o / GPT-5.x | Compatible | Receives injection; follow model-compatibility rules |
+| Gemini | Compatible | Receives injection; follow model-compatibility rules |
 | Codex | Compatible | Follow model-compatibility rules |
 
 ---
@@ -159,7 +171,7 @@ Add to Cursor Settings > MCP for web search and image analysis:
 
 ## AGENTS.md (For Other IDEs & CLIs)
 
-Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 Max patterns in a portable, IDE-agnostic, model-agnostic format.
+Not using Cursor? The [`AGENTS.md`](AGENTS.md) file contains the same Opus 4.6 Max patterns in a portable, IDE-agnostic, model-agnostic format. Use AGENTS.md to give **MiniMax M2.5** and other models Opus 4.6 behavioral patterns — action-first, adaptive effort, adversarial self-review — in any environment.
 
 ### Use With
 
@@ -211,9 +223,9 @@ These rules are **not always loaded** — the agent requests them when relevant:
 | `cursor-agent-orchestration.mdc` | Subagents, skills, parallel workflows, EPIC todos, hooks | Complex multi-step tasks |
 | `minimax-m2-verification.mdc` | StrReplace safety, pre/post verification protocols | Code generation tasks |
 | `minimax-mcp-tools.mdc` | MCP integration + version checking | Web search, image analysis |
-| `cursor-tools-mastery.mdc` | Cursor 2.4 tools reference | Complex tool usage |
+| `cursor-tools-mastery.mdc` | Cursor 2.5 tools reference | Complex tool usage |
 | `clarify-first-prompting.mdc` | Check first, then ask questions | Ambiguous requests |
-| `model-compatibility.mdc` | Non-Claude model guidance, prompt architecture | Non-native model issues |
+| `model-compatibility.mdc` | All-model guidance, prompt injection, prompt architecture | Tool/format issues |
 
 ### Language-Specific (Auto-Activate by Glob)
 
@@ -236,7 +248,7 @@ These rules are **not always loaded** — the agent requests them when relevant:
 
 ### Why Only 1 Always-Apply Rule?
 
-Previous versions had 2 `alwaysApply` rules totaling ~1500 lines. Non-native models (MiniMax, GPT) struggled with this context overhead — they spent capacity parsing instructions instead of executing tasks.
+Previous versions had 2 `alwaysApply` rules totaling ~1500 lines. Models with large injected context (Composer 1.5, MiniMax, GPT, etc.) can struggle with this overhead — they spend capacity parsing instructions instead of executing tasks.
 
 Now: **1 rule, ~250 lines**, containing only the most critical behaviors. Everything else loads on-demand.
 
@@ -271,9 +283,9 @@ Non-native models default to generating text instead of using tools. The First A
 
 ---
 
-## Cursor 2.4 Features
+## Cursor 2.5 Features
 
-> **Version note**: These rules target Cursor 2.4+. If using a newer Cursor version, verify feature availability (subagents, skills, hooks) via Cursor docs — APIs may evolve.
+> **Version note**: These rules target Cursor 2.5+. If using a newer Cursor version, verify feature availability (async subagents, plugins, sandbox, skills, hooks) via Cursor docs — APIs may evolve.
 
 ### Adaptive Thinking
 AI calibrates effort to task complexity:
@@ -290,7 +302,7 @@ Before presenting solutions, the AI attacks its own work:
 - Am I solving the right problem?
 
 ### Native Subagents
-Cursor 2.4 native subagents with isolated context windows:
+Cursor 2.5 async subagents with isolated context windows:
 - **Built-in**: `explore` (codebase search), `bash` (shell commands), `browser` (web automation)
 - **Custom**: `verifier` and `debugger` in `.cursor/agents/`
 
