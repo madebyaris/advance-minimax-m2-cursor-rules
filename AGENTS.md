@@ -540,3 +540,15 @@ Keep to 1-2 sentences:
 [ ] Tests pass
 [ ] Honest about any uncertainty
 ```
+
+## Learned User Preferences
+- Design generation must avoid generic "AI slop" patterns and incorporate a high-quality "Taste Layer"
+- UI constraints should be framework-agnostic (not limited to Tailwind), prioritize responsive layouts across desktop and mobile, and emphasize creativity to avoid rigid templates
+- Use real SVG icons (Lucide, Heroicons, Phosphor) instead of emoji for all UI elements
+- Use real imagery (Unsplash, Pexels, product screenshots) instead of blank placeholders in hero sections and feature areas
+- Hero sections should never feel visually empty; add decorative SVG elements or animated shapes when photography is unavailable
+- All page sections must share the same max-width container and padding so content edges align consistently from hero to footer
+- Hero sections must be truly viewport-centered using symmetric padding and height: 100svh, not biased by asymmetric padding
+- Every design must commit to a bold aesthetic direction before coding; never default to a single "safe" style across all projects
+- Overused fonts (Inter, Roboto, Arial, Space Grotesk) are banned; use distinctive, context-appropriate font pairings
+- Motion and animation are first-class design pillars: orchestrated page loads, scroll-triggered reveals, and surprising hover states
