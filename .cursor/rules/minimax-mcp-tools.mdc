@@ -93,6 +93,10 @@ Examples of direct-tool categories you may see:
 - design tools
 - provider-specific plugin tools
 
+### When MCP tools are not direct
+
+When MCP tools are not exposed as direct tools and the environment provides `call_mcp_tool`, use it with the correct server name and tool name from the schema. Tool schemas live in `mcps/<server>/tools/` — always check the descriptor before calling.
+
 ---
 
 ## MCP Resources
