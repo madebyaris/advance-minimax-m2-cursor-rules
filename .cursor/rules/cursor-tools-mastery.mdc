@@ -1,935 +1,359 @@
 ---
-description: "Complete Cursor 2.5 native tools reference: search, edit, run, subagents, skills, plugins, sandbox, and advanced features for agentic workflows"
+description: "Cursor 2.6 runtime guide: current tool categories, direct browser and MCP usage, subagents, plugins, hooks, and practical workflows for agentic work."
 alwaysApply: false
 ---
 
-# Cursor 2.5 Tools Mastery
+# Cursor 2.6 Tools Mastery
 
-Complete reference for all Cursor 2.5 tools including native subagents, Agent Skills, plugins, sandbox configuration, and advanced features.
-
-## CRITICAL: Agentic-First Tool Usage
-
-### The Golden Rule: Verify Before You Act
-
-Every action follows this pattern:
-1. **CHECK** - What exists? What's the current state?
-2. **VERIFY** - What versions? What's available?
-3. **ACT** - Make the change using proper tools
-4. **VALIDATE** - Did it work? Any errors?
-
-### Pre-Action Verification Protocol
-
-Before ANY significant action:
-
-```
-BEFORE CREATING PROJECT:
-1. Check if CLI tool exists: Shell(command="which flutter")
-2. Check CLI version: Shell(command="flutter --version")
-3. Web search for current version: WebSearch(search_term="Flutter stable February 2026") — use actual date from context
-4. Check if project already exists: Glob(glob_pattern="*") or LS(target_directory="./") if available
-
-BEFORE INSTALLING PACKAGES:
-1. Check package.json/pubspec.yaml exists: Read(path="package.json")
-2. Check if already installed: Read(path="package-lock.json")
-3. Verify package name/version: WebSearch(search_term="lodash npm latest version")
-
-BEFORE EDITING CODE:
-1. Read the file first: Read(path="src/component.tsx")
-2. Understand context and dependencies
-3. Check for related files that might need updating
-```
-
-### Proactive Web Search Usage
-
-**ALWAYS use WebSearch for:**
-- Package versions before installing
-- Framework syntax when unsure
-- Error messages you encounter
-- API documentation verification
-- Current best practices
-
-**Search Pattern:** Replace placeholders with actual values from context (e.g., user_info date). Use concrete dates like "February 2026", not literal `[current month] [current year]`.
-```
-WebSearch(search_term="[package/framework] [specific feature] [actual month/year]")
-```
-
-Examples:
-- `WebSearch(search_term="Next.js App Router server actions February 2026")` — use concrete date
-- `WebSearch(search_term="React 19 useFormStatus hook syntax")`
-- `WebSearch(search_term="shadcn ui button component installation")`
+This file is the runtime-facing companion to the core MiniMax rule. Keep durable behavior in the core rule; keep fast-moving Cursor tooling details here.
 
 ---
 
-## Search Tools
+## Golden Rule
 
-### `Read`
-**Purpose**: Read file contents with line numbers
+Every significant action follows this pattern:
 
-**When to Use**:
-- Examining specific files
-- Understanding code structure
-- Reviewing implementations
-- Checking configurations
+1. **Check** what exists.
+2. **Verify** versions, APIs, and assumptions.
+3. **Act** using the smallest correct tool.
+4. **Validate** with the lightest useful verification step.
 
-**Best Practices**:
-- Read whole files unless very large (>1000 lines)
-- Use `offset` and `limit` for large files
-- Batch multiple file reads in parallel
-- Check imports and dependencies
-
-**Example Usage**:
-```
-Read the main entry point to understand the application structure
-→ Read(path="src/index.ts")
-```
+When the current environment exposes direct tools, use those direct tools. Do not invent wrapper APIs.
 
 ---
 
-### `LS` / `Glob` (Directory Exploration)
+## Current Tool Surface
 
-**Purpose**: List directory contents or find files by pattern
+The exact tool catalog can vary by environment, but modern Cursor setups usually expose direct tools rather than abstract wrappers.
 
-**When to Use**:
-- Exploring project structure
-- Finding files in a directory
-- Understanding folder organization
-- Discovering available modules
+### Common current categories
 
-**Tool Availability**: `LS` may be unavailable in some environments. Use `Glob` as fallback for directory exploration.
+- File reading: `ReadFile`
+- File discovery: `Glob`
+- Text search: `rg`
+- Semantic exploration: `SemanticSearch`
+- Editing: `ApplyPatch`, `Delete`, `EditNotebook`
+- Command execution: `Shell`
+- Task tracking and plans: `TodoWrite`, `CreatePlan`
+- Structured questions: `AskQuestion`
+- Subagents: `Subagent`
+- Web research: `WebSearch`, `WebFetch`
+- Browser automation: direct browser tools such as `browser_navigate`, `browser_snapshot`, `browser_click`
+- MCP resource access: `ListMcpResources`, `FetchMcpResource`
 
-**Best Practices**:
-- Prefer `LS(target_directory=".", ignore_globs=["node_modules", ".git"])` when available
-- Fallback: `Glob(glob_pattern="*")` or `Glob(glob_pattern="src/*")` for directory listing
-- Start at project root for orientation
-- Navigate progressively deeper
+### Legacy-to-current alias table
 
-**Example Usage**:
-```
-Explore the project structure
-→ LS(target_directory=".", ignore_globs=["node_modules", ".git"])  // if available
-→ Glob(glob_pattern="*")  // fallback when LS unavailable
-```
-
----
-
-### `SemanticSearch`
-**Purpose**: Semantic search - finds code by meaning, not exact text
-
-**When to Use**:
-- Finding implementations by concept
-- Locating where behavior is defined
-- Understanding how features work
-- Exploring unfamiliar codebases
-
-**When NOT to Use**:
-- Exact text matches (use `Grep`)
-- Simple symbol lookups (use `Grep`)
-- Finding files by name (use `Glob`)
-
-**Best Practices**:
-- Ask complete questions: "Where is user authentication handled?"
-- One question per search (don't combine multiple queries)
-- Start broad, then narrow to specific directories
-- Use for "how/where/what" questions
-
-**Example Usage**:
-```
-Find where API routes are defined
-→ SemanticSearch(query="Where are the API routes defined?", target_directories=["src/"])
-```
+| Older name in this repo | Current guidance |
+|-------------------------|------------------|
+| `Read` | `ReadFile` |
+| `Grep` | `rg` |
+| `LS` | `Glob` or another direct directory tool if present |
+| `StrReplace` / `Write` | Prefer `ApplyPatch` for focused edits; otherwise use the current edit tool from the prompt |
+| `ReadLints` | Use `Shell` for lint, typecheck, build, and test commands |
+| `Task(...)` | `Subagent(...)` |
+| `call_mcp_tool(...)` | Use the direct MCP, browser, or plugin tools exposed in the prompt |
 
 ---
 
-### `Grep`
-**Purpose**: Regex-based text search (powered by ripgrep)
+## Read and Search Tools
 
-**When to Use**:
-- Exact symbol/string searches
-- Finding function calls
-- Locating imports/exports
-- Counting occurrences
+### `ReadFile`
 
-**Parameters**:
-- `pattern`: Regex pattern to search
-- `path`: Directory or file to search
-- `type`: File type filter (js, py, rs, go, etc.)
-- `glob`: Custom glob pattern
-- `-C`, `-A`, `-B`: Context lines
-- `output_mode`: "content", "files_with_matches", or "count"
+Use for known file paths and targeted file inspection.
 
-**Best Practices**:
-- Escape special regex characters: `functionCall\(`
-- Use `output_mode: "files_with_matches"` to find all relevant files
-- Add context with `-C 3` to understand surrounding code
-
-**Example Usage**:
-```
-Find all uses of a specific function
-→ Grep(pattern="useAuth\\(", path="src/", type="ts")
-
-Find files containing a pattern
-→ Grep(pattern="TODO:", output_mode="files_with_matches")
-```
-
----
+Best practices:
+- Read the whole file when it is reasonably sized.
+- Use `offset` and `limit` only for large files.
+- Batch independent reads in parallel.
 
 ### `Glob`
-**Purpose**: Find files by name pattern
 
-**When to Use**:
-- Locating files by extension
-- Finding configuration files
-- Discovering test files
-- Matching naming conventions
+Use for file discovery by name or pattern.
 
-**Best Practices**:
-- Patterns auto-prepend `**/` for recursive search
-- Use for file discovery, not content search
+Best practices:
+- Use it to find files, not to search inside file contents.
+- Start broad, then narrow.
 
-**Example Usage**:
-```
-Find all test files
-→ Glob(glob_pattern="*.test.ts")
+### `rg`
 
-Find configuration files
-→ Glob(glob_pattern="*.config.*")
-```
+Use for exact or regex-based content search.
 
----
+Best practices:
+- Prefer `rg` over shell `grep`.
+- Use `output_mode: "files_with_matches"` when you only need matching files.
+- Add context only when you need surrounding lines.
 
-### `WebSearch`
-**Purpose**: Search the internet for real-time information
+### `SemanticSearch`
 
-**When to Use**:
-- Current documentation
-- Recent solutions
-- Security advisories
-- Version-specific information
+Use when the question is conceptual rather than textual.
 
-**Best Practices**:
-- Include version numbers if relevant
-- Add dates for time-sensitive queries
-- Use specific keywords
-
-**Proactive Usage**: Don't wait for "Ask" mode - use `WebSearch` proactively in Agent mode when:
-- You need current information about libraries or APIs
-- Error messages suggest version-specific issues
-- User asks about recent features or changes
+Best practices:
+- Ask one natural-language question at a time.
+- Start broad, then constrain to a directory if needed.
 
 ---
 
-## MCP Tools Invocation
+## Editing Tools
 
-Cursor exposes MCP (Model Context Protocol) tools via `call_mcp_tool(server, toolName, arguments)`. **Always check the tool schema/descriptor before calling** — schemas live in the project's `mcps/<server>/tools/` folder.
+### `ApplyPatch`
 
-**Invocation pattern:**
+Prefer this for surgical single-file edits.
+
+Best practices:
+- Always read the file first.
+- Keep patches focused.
+- Use enough context to make the patch unambiguous.
+- Re-read or verify after editing.
+
+### `Delete`
+
+Use when removing files is part of the requested change.
+
+### `EditNotebook`
+
+Use only for notebook cell edits.
+
+### Editing protocol
+
+```text
+1. Read the file first
+2. Decide whether the change is surgical or broad
+3. Use ApplyPatch for surgical changes
+4. Verify with the right command or follow-up read
 ```
-→ call_mcp_tool(
-    server="cursor-ide-browser",
-    toolName="browser_navigate",
-    arguments={ "url": "http://localhost:3000" }
-  )
+
+If the environment exposes a different edit primitive, follow the same behavioral protocol.
+
+---
+
+## Command Execution
+
+### `Shell`
+
+Use for builds, tests, package installs, git inspection, and verification commands.
+
+Best practices:
+- Provide a clear `description`.
+- Use `working_directory` instead of inline `cd` chains when possible.
+- Use `block_until_ms` thoughtfully for long-running commands.
+- Before starting a dev server, check whether it is already running.
+
+### Typical verification flow
+
+```text
+1. Run the smallest relevant lint, typecheck, build, or test command
+2. Inspect the output
+3. Fix issues before moving on
 ```
 
-**Critical**: List and read the tool's JSON descriptor in `mcps/<server>/tools/` to get exact parameter names and types before calling.
+Do not rely on a dedicated lint-reading tool unless the environment actually exposes one.
+
+---
+
+## Parallel Tool Usage
+
+Use `multi_tool_use.parallel` when calls are independent.
+
+Good candidates:
+- Reading multiple unrelated files
+- Running several searches that do not depend on each other
+- Gathering docs from multiple sources
+
+Do not parallelize:
+- Dependent edit sequences
+- Commands where later steps rely on earlier outputs
+- Multiple edits to the same file at once
 
 ---
 
 ## Browser Tools
 
-Cursor provides browser tools via the `cursor-ide-browser` MCP server for testing and interacting with web applications. Tools may appear as native tools or require `call_mcp_tool(server="cursor-ide-browser", toolName="...", arguments={...})`.
+Current Cursor environments usually expose browser tools directly rather than through an MCP wrapper.
 
-### CRITICAL: Browser Lock/Unlock Workflow
+### Core browser workflow
 
-1. **browser_lock requires an existing browser tab** — you CANNOT lock before browser_navigate
-2. **Correct order**: `browser_navigate` → `browser_lock` → (interactions) → `browser_unlock`
-3. **If a tab already exists**: Check with `browser_tabs` (action: "list"), then call `browser_lock` FIRST before any interactions
-4. **browser_unlock**: Only call when completely done with ALL browser operations for this turn
+1. Check tabs with `browser_tabs`.
+2. Navigate with `browser_navigate`.
+3. Lock with `browser_lock` before interactive automation when appropriate.
+4. Snapshot with `browser_snapshot` before clicking or typing.
+5. Interact using refs from the snapshot.
+6. Use short waits and re-snapshot.
+7. Check console and network when debugging.
+8. Unlock with `browser_unlock` when finished.
 
-### `browser_navigate`
-**Purpose**: Navigate to a URL
+### Common browser tools
 
-**When to Use**:
-- Testing web application features
-- Verifying UI implementations
-- Checking deployed changes
+- Navigation: `browser_navigate`, `browser_navigate_back`, `browser_reload`
+- Inspection: `browser_snapshot`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`
+- Interaction: `browser_click`, `browser_type`, `browser_fill`, `browser_select_option`, `browser_press_key`, `browser_scroll`
+- Debugging: `browser_highlight`, `browser_get_attribute`, `browser_get_input_value`, `browser_is_visible`, `browser_is_enabled`
+- Profiling: `browser_profile_start`, `browser_profile_stop`
 
-### `browser_snapshot`
-**Purpose**: Capture accessibility snapshot of current page
+### Browser rules
 
-**When to Use**:
-- Understanding page structure
-- Finding elements to interact with
-- Better than screenshots for element identification
-
-**Best Practices**:
-- Call snapshot BEFORE clicking/typing to get element refs
-- Use returned refs for subsequent interactions
-
-### `browser_click`
-**Purpose**: Click on web page elements
-
-**Parameters**:
-- `element`: Human-readable element description
-- `ref`: Exact target element reference from snapshot
-- `button`: Button to click (defaults to left)
-- `doubleClick`: Whether to double-click
-
-### `browser_type`
-**Purpose**: Type text into editable elements
-
-**Parameters**:
-- `element`: Human-readable element description
-- `ref`: Exact target element reference from snapshot
-- `text`: Text to type
-- `submit`: Whether to press Enter after typing
-- `slowly`: Type one character at a time (for key handlers)
-
-### `browser_hover`
-**Purpose**: Hover over elements (for tooltips, dropdowns)
-
-### `browser_select_option`
-**Purpose**: Select options in dropdowns
-
-### `browser_press_key`
-**Purpose**: Press keyboard keys (e.g., ArrowLeft, Enter, Escape)
-
-### `browser_wait_for`
-**Purpose**: Wait for conditions
-
-**Parameters**:
-- `text`: Wait for text to appear
-- `textGone`: Wait for text to disappear
-- `time`: Wait for specified seconds
-
-### `browser_navigate_back`
-**Purpose**: Go back to previous page
-
-### `browser_resize`
-**Purpose**: Resize browser window for responsive testing
-
-### `browser_console_messages`
-**Purpose**: Get all console messages (errors, warnings, logs)
-
-**When to Use**:
-- Debugging JavaScript errors
-- Checking for runtime issues
-- Verifying console output
-
-### `browser_network_requests`
-**Purpose**: Get all network requests since page load
-
-**When to Use**:
-- Debugging API calls
-- Verifying request/response data
-- Checking for failed requests
-
-### `browser_tabs`
-**Purpose**: List open tabs (action: "list") — use before lock to check if a tab exists
-
-### `browser_fill`
-**Purpose**: Clear and replace text in editable elements (unlike `browser_type` which appends)
-
-### `browser_scroll`
-**Purpose**: Scroll elements into view — use `scrollIntoView: true` for nested scroll containers before clicking obscured elements
-
-### `browser_handle_dialog`
-**Purpose**: Handle native dialogs (alert/confirm/prompt) — call BEFORE the triggering action. Use `accept: false` for Cancel, `promptText` for custom prompt input
-
-### `browser_profile_start` / `browser_profile_stop`
-**Purpose**: CPU profiling — profile data in `~/.cursor/browser-logs/` (cpu-profile-*.json, cpu-profile-*-summary.md). Read raw JSON to verify summary findings
-
-**Limitation**: Iframe content is not accessible — only elements outside iframes can be interacted with
-
-### Browser Testing Workflow
-
-```
-1. Check existing tabs (if any): browser_tabs(action="list")
-2. Navigate to the page: browser_navigate(url="http://localhost:3000")
-3. Lock the tab: browser_lock (required before interactions)
-4. Snapshot to get elements: browser_snapshot()
-5. Interact using refs from snapshot: browser_click(element="Submit button", ref="btn-submit")
-6. Wait for changes if needed: browser_wait_for(text="Success") or short waits (1-3s) with snapshot checks
-7. Snapshot again to verify: browser_snapshot()
-8. Check console/network: browser_console_messages(), browser_network_requests()
-9. Unlock when done: browser_unlock
-```
-
-**Waiting strategy**: Prefer short incremental waits (1-3 seconds) with browser_snapshot checks in between rather than one long wait.
-
-### Proactive Browser Usage
-
-Don't wait for explicit requests - use browser tools proactively when:
-- You've implemented a UI feature → test it immediately
-- User reports a visual bug → navigate and inspect
-- You need to verify API integrations → check network requests
-- You're debugging frontend issues → check console messages
+- Snapshot before interacting.
+- Prefer short incremental waits.
+- Use console and network tools when behavior is unclear.
+- Lock and unlock cleanly.
+- Remember that iframe content is usually inaccessible.
 
 ---
 
-## Edit Tools
+## MCP and External Integrations
 
-### `StrReplace`
-**Purpose**: Exact string replacement in files
+Current Cursor setups typically expose MCP-backed capabilities as direct tools, direct plugin tools, or MCP resource functions.
 
-**When to Use**:
-- Modifying existing code
-- Updating function implementations
-- Fixing bugs in specific locations
-- Renaming with `replace_all: true`
+### Prefer this order
 
-**CRITICAL Rules**:
-- `old_string` must be UNIQUE in the file
-- Include enough context (3-5 lines before/after)
-- Match exact whitespace and indentation
-- Preserve original indentation style
+1. Native direct tools already exposed in the prompt
+2. Direct plugin tools exposed in the prompt
+3. `ListMcpResources` and `FetchMcpResource` when you need discoverable resources
+4. `WebSearch` or `WebFetch` for public docs and live web information
 
-**Best Practices**:
-- Read the file first to ensure accurate matching
-- Include surrounding context for uniqueness
-- Use `replace_all: true` for renaming operations
-- Make atomic, focused changes
+### MCP guidance
 
-**Example Usage**:
-```
-Update a function implementation
-→ StrReplace(
-    path="src/utils.ts",
-    old_string="function oldImpl() {\n  return 1;\n}",
-    new_string="function oldImpl() {\n  return 2;\n}"
-  )
+- Do not assume an old wrapper like `call_mcp_tool(...)` exists.
+- Follow the actual tool schema shown in the prompt.
+- If a plugin or MCP server exposes a direct tool, call that tool directly.
+- Use resource listing and fetching when the environment offers MCP resources instead of action tools.
+
+### Web research
+
+Use `WebSearch` for:
+- Current package versions
+- Breaking changes
+- Recent API docs
+- Error messages after repeated failures
+
+Use `WebFetch` for:
+- Official documentation pages
+- Reference pages you want to read in full
+
+Always include the actual current month and year for version-sensitive searches.
+
+---
+
+## Subagents
+
+Use `Subagent` when work is large, parallelizable, or context-heavy.
+
+### Good uses
+
+- Broad codebase exploration
+- Parallel research tracks
+- Independent verification
+- Focused debugging
+
+### Current guidance
+
+- Prefer the `explore` subagent for broad repo investigation.
+- Prefer specialist subagents such as `verifier` or `debugger` where they exist.
+- Use `run_in_background` only when the environment supports it and the task benefits from asynchronous execution.
+- Do not assume nested subagent trees are supported unless the current environment explicitly documents that behavior.
+
+### Example delegation pattern
+
+```text
+Subagent(
+  subagent_type="explore",
+  model="fast",
+  readonly=true,
+  description="Find auth flow",
+  prompt="Find the main authentication flow and return key files plus a concise summary."
+)
 ```
 
 ---
 
-### `Write`
-**Purpose**: Create or overwrite entire files
-
-**When to Use**:
-- Creating new files
-- Complete file rewrites
-- Generating new modules
-- Writing configuration files
-
-**Best Practices**:
-- ALWAYS read existing files before overwriting
-- Prefer `StrReplace` for modifications
-- Include all necessary imports
-- Follow project conventions
-
----
-
-### `Delete`
-**Purpose**: Remove files from the project
-
-**When to Use**:
-- Cleanup during refactoring
-- Removing deprecated code
-- Deleting generated files
-
----
-
-### `EditNotebook`
-**Purpose**: Edit Jupyter notebook cells
-
-**When to Use**:
-- Data science notebooks
-- Interactive Python development
-- Documentation notebooks
-
-**Best Practices**:
-- Set `is_new_cell` correctly
-- Use 0-based cell indices
-- Provide unique `old_string` for edits
-
----
-
-## Run Tools
-
-### `Shell`
-**Purpose**: Execute shell commands
-
-**When to Use**:
-- Building projects
-- Running tests
-- Installing dependencies
-- Executing scripts
-- Git operations
-
-**Parameters**:
-- `command`: The command to execute
-- `description`: Brief description of what the command does
-- `is_background`: For long-running processes
-- `timeout`: Timeout in milliseconds
-- `working_directory`: Directory to run command in
-
-**Best Practices**:
-- Use `is_background: true` for long-running processes
-- Check existing terminals before starting servers (see Terminals Folder Pattern below)
-- Use non-interactive flags (`--yes`, `-y`, etc.)
-- Always provide a clear `description`
-
-**Terminals Folder Pattern** — Before starting dev servers, avoid duplicate processes:
-1. List the terminals folder (project-specific path, e.g. under `.cursor` or Cursor project metadata)
-2. Read terminal files to see `current command`, `cwd`, and `last_command`
-3. Only start `npm run dev` / `flutter run` / etc. if no matching process is already running
-
-**Example Usage**:
-```
-Install dependencies
-→ Shell(command="npm install", description="Install dependencies")
-
-Run tests
-→ Shell(command="npm test", description="Run tests")
-
-Start dev server in background
-→ Shell(command="npm run dev", is_background=true, description="Start dev server")
-```
-
----
-
-### `ReadLints`
-**Purpose**: Read linter errors from workspace
-
-**When to Use**:
-- After making edits
-- Before committing changes
-- Debugging type errors
-- Checking code quality
-
-**Best Practices**:
-- Only call on files you've edited
-- Fix errors before proceeding
-- Don't call with wide scope
-
-**Example Usage**:
-```
-Check lints after editing
-→ ReadLints(paths=["src/components/Button.tsx"])
-```
-
----
-
-## Special Tools
+## Plans and Task Tracking
 
 ### `TodoWrite`
-**Purpose**: EPIC task tracking for complex multi-step work
 
-**When to Use**: Deep/Exhaustive tasks; 3+ steps; user provides multiple tasks; after receiving new instructions
-
-**Parameters**: `todos` (array of `{id, content, status}`), `merge` (true = update only specified; false = replace all)
-
-**Example**:
-```
-→ TodoWrite(todos=[{ id: "EPIC0", content: "Setup: Install dependencies", status: "in_progress" }, { id: "EPIC1", content: "Feature: Auth", status: "pending" }], merge=false)
-→ TodoWrite(todos=[{ id: "EPIC0", status: "completed" }], merge=true)
-```
-
-**When NOT to Use**: Instant/Light tasks; single straightforward tasks; < 3 steps
-
----
+Use for multi-step work that should be tracked explicitly.
 
 ### `CreatePlan`
-**Purpose**: Plan mode with Mermaid diagrams; structured planning for user approval
 
-**When to Use**: Large/ambiguous tasks; multiple valid approaches; architectural decisions needed
+Use when the task needs a user-approved plan, significant tradeoff discussion, or a staged implementation approach.
 
-**Parameters**: `name`, `overview`, `plan` (markdown), `todos` (optional)
+Keep plans concise and actionable. Use Mermaid only when it materially clarifies structure.
 
 ---
+
+## Structured Questions
 
 ### `AskQuestion`
-**Purpose**: Structured multiple-choice questions for hard forks
 
-**When to Use**: Security/auth flows; data deletion/migration; major architectural changes; irreversible choices
+Use for hard forks only:
+- Security-sensitive choices
+- Destructive data changes
+- Major architecture branches
+- Decisions the user must make explicitly
 
-**When NOT to Use**: Reversible choices — use safe default and proceed
-
----
-
-### `GenerateImage`
-**Purpose**: Generate images from text description
-
-**When to Use**: Mockups, diagrams, UI assets; when user explicitly asks for an image
-
-**Parameters**: `description` (required), `filename` (optional), `reference_image_paths` (optional)
-
-**Output**: Saved to `assets/` folder by default
-
-**When NOT to Use**: Data visualizations (charts, plots) — use code instead
+Do not use it for trivial reversible choices.
 
 ---
 
-## MCP Tools
+## Skills, Plugins, and Rules
 
-MCP (Model Context Protocol) tools extend Cursor's capabilities with external services. Use `call_mcp_tool(server, toolName, arguments)` for MCP invocation. **Always check the tool schema in `mcps/<server>/tools/` before calling.**
+### Rules
 
-### mcp_web_fetch
+Use rules for always-on behavior or file-pattern guidance.
 
-**Purpose**: Fetch URL content and return it as readable markdown. Use for docs, API references.
+### Skills
 
-**When to Use**:
-- Official documentation (e.g., https://nextjs.org/docs)
-- API references
-- Verifying deployment URLs
+Use skills for reusable procedures and domain workflows.
 
-**Parameters**: `url` — the fully-formed URL to fetch
+### Subagents
 
-**Limitations**: No authentication support; localhost and private IPs will not work (fetch runs from isolated server).
-
-**Example**:
-```
-→ mcp_web_fetch(url="https://nextjs.org/docs/app/building-your-application/routing")
-```
-
-### fetch_mcp_resource / list_mcp_resources
-
-**Purpose**: Fetch or list resources from MCP servers (e.g., documentation, assets). Use `list_mcp_resources` to discover available resources, then `fetch_mcp_resource(server, uri)` to retrieve content. Optional `downloadPath` saves to workspace.
-
-### MiniMax MCP Tools
-If configured, provides:
-- `user-MiniMax-web_search`: Web search with current date context
-- `user-MiniMax-understand_image`: Image analysis with VLM
-
-### Context7 MCP Tools
-If configured, provides:
-- `user-context7-resolve-library-id`: Find library IDs
-- `user-context7-query-docs`: Fetch up-to-date documentation
-
-**CRITICAL**: Always check if MCP tools are available before using. Fall back to Cursor's native `WebSearch` if MiniMax MCP is not configured.
-
----
-
-## Plugins (Cursor 2.5)
-
-The [Cursor Marketplace](https://cursor.com/marketplace) lets you install plugins that package skills, subagents, MCP servers, hooks, and rules. Install via `/add-plugin` in chat or browse at cursor.com/marketplace.
-
-**When to use plugins vs local skills:**
-- **Plugins**: Pre-built capabilities from partners (Amplitude, AWS, Figma, Linear, Stripe); team-wide or cross-project use
-- **Local skills** (`.cursor/skills/`): Project-specific knowledge, version-controlled in repo
-
----
-
-## Sandbox Configuration (Cursor 2.5+)
-
-The sandbox supports granular network and filesystem controls. Configure via `sandbox.json`.
-
-**File locations** (per-repo overrides per-user):
-- `~/.cursor/sandbox.json` — all workspaces
-- `./.cursor/sandbox.json` — current project (higher priority)
-
-**Key options** (see [Cursor Terminal docs](https://cursor.com/docs/agent/terminal)):
-- `networkPolicy.default`: `"deny"` or `"allow"`
-- `networkPolicy.allow`: Domain allowlist (e.g., `registry.npmjs.org`, `*.githubusercontent.com`)
-- `networkPolicy.deny`: Domain denylist
-- `additionalReadwritePaths`, `additionalReadonlyPaths`: Extra filesystem access
-
-**Example** (allow npm/pypi only):
-```json
-{
-  "networkPolicy": {
-    "default": "deny",
-    "allow": ["registry.npmjs.org", "pypi.org", "*.githubusercontent.com"]
-  }
-}
-```
-
----
-
-## Native Subagents (Cursor 2.5)
-
-Cursor 2.5 introduces **async subagents** — subagents can run in the background while the parent continues, and subagents can spawn their own subagents (tree hierarchy).
-
-### Foreground vs Background
-
-| Mode | Behavior | Best for |
-|------|----------|----------|
-| **Foreground** | Blocks until subagent completes | Sequential tasks where you need output immediately |
-| **Background** | Returns immediately; subagent runs independently | Long-running or parallel workstreams |
-
-Set `is_background: true` in custom subagent frontmatter for non-blocking execution. Launch multiple subagents in one turn for maximum throughput.
-
-### Built-in Subagents
-
-These activate automatically when appropriate:
-
-| Subagent | Purpose | When Used |
-|----------|---------|-----------|
-| **explore** | Codebase search and analysis | Finding code, understanding structure |
-| **bash** | Shell command sequences | Running multiple commands |
-| **browser** | Web automation via MCP | Testing UI, browser interactions |
-
-**You don't invoke these directly** — the agent delegates automatically.
-
-### Custom Subagents
-
-Define in `.cursor/agents/` (project) or `~/.cursor/agents/` (user). Also: `.claude/agents/`, `.codex/agents/` for compatibility.
-
-```markdown
----
-name: verifier
-description: Validates completed work. Use after tasks marked done.
-model: fast
----
-
-You are a skeptical validator...
-```
-
-**Invoke explicitly**: `/verifier check the auth implementation`
-
-### Task Tool (Programmatic Delegation)
-
-For explicit subagent delegation:
-
-```
-→ Task(
-    subagent_type="explore",  // or "generalPurpose"
-    model="fast",
-    prompt="Find all authentication-related files",
-    description="Find auth files"
-  )
-```
-
----
-
-## Agent Skills (Cursor 2.5)
-
-Skills are portable packages of domain knowledge.
-
-### Skill Locations
-
-| Location | Scope |
-|----------|-------|
-| `.cursor/skills/` | Project-level |
-| `.claude/skills/` | Project-level (Claude compatibility) |
-| `.codex/skills/` | Project-level (Codex compatibility) |
-| `~/.cursor/skills/` | User-level (global) |
-| `~/.claude/skills/` | User-level (Claude compatibility) |
-| `~/.codex/skills/` | User-level (Codex compatibility) |
-
-### Skill Structure
-
-```
-.cursor/skills/
-└── deploy-app/
-    ├── SKILL.md          # Required
-    ├── scripts/          # Optional - executable code
-    └── references/       # Optional - detailed docs
-```
-
-### Invoking Skills
-
-**Automatic**: Agent discovers based on context and description.
-
-**Explicit**: Use `/skill-name` in chat:
-```
-> /deploy-app deploy to staging
-> /migrate-to-skills convert my rules
-```
-
-### Built-in Migration Skill
-
-Cursor 2.5 includes `/migrate-to-skills` to convert dynamic rules to skills.
-
----
-
-## Tool Selection Decision Tree
-
-```
-Need to find code?
-├─ By meaning/concept → SemanticSearch
-├─ Exact text/symbol → Grep
-├─ By filename → Glob
-└─ Complex exploration → Native explore subagent (automatic)
-
-Need to read?
-├─ File contents → Read
-├─ Directory structure → LS or Glob (use Glob when LS unavailable)
-└─ Linter errors → ReadLints
-
-Need to edit?
-├─ Modify existing → StrReplace
-├─ Create new file → Write
-├─ Remove file → Delete
-└─ Jupyter notebook → EditNotebook
-
-Need to execute?
-├─ Single command → Shell
-├─ Command sequence → Native bash subagent (automatic)
-└─ MCP tool → Use MCP tool directly
-
-Need external info?
-├─ Real-time data → WebSearch (Cursor native)
-├─ MiniMax search → user-MiniMax-web_search (if configured)
-└─ Image analysis → user-MiniMax-understand_image (if configured)
-
-Need to test web UI?
-├─ Navigate/interact → Native browser subagent (automatic)
-├─ Or manually:
-│   ├─ Navigate → browser_navigate
-│   ├─ Snapshot → browser_snapshot
-│   └─ Interact → browser_click / browser_type
-
-Need task tracking?
-├─ EPIC todos (3+ steps) → TodoWrite
-└─ Structured plan for approval → CreatePlan
-
-Need user input on hard fork?
-└─ Security/data/architecture → AskQuestion
-
-Need image?
-└─ Mockups, diagrams → GenerateImage
-
-Need specialized work?
-├─ Validate completed work → /verifier custom subagent
-├─ Debug errors → /debugger custom subagent
-├─ Domain knowledge → Invoke skill with /skill-name
-└─ Programmatic delegation → Task tool
-```
-
-### Subagents vs Skills vs Task Tool
-
-| Need | Solution |
-|------|----------|
-| Codebase exploration | Native `explore` (automatic) |
-| Shell command sequences | Native `bash` (automatic) |
-| Browser testing | Native `browser` (automatic) |
-| Validate work | Custom subagent `/verifier` |
-| Domain-specific knowledge | Skill `/skill-name` |
-| Programmatic agent launch | Task tool |
-
-## Parallel vs Sequential Tool Calls
-
-### Use Parallel Calls When:
-- Reading multiple independent files
-- Searching different directories
-- Making independent edits
-- Gathering unrelated information
-
-### Use Sequential Calls When:
-- Results inform next parameters
-- Order matters (create before edit)
-- Dependencies between operations
-- Validation needed before proceeding
-
-### Example Parallel Pattern:
-```
-Reading multiple files simultaneously:
-→ Read(path="src/index.ts")
-→ Read(path="src/config.ts")
-→ Read(path="package.json")
-[All called in single batch]
-```
-
-## Cursor 2.5 Advanced Features
+Use subagents for specialist execution or isolated investigation.
 
 ### Plugins
-- Marketplace at cursor.com/marketplace; `/add-plugin` to install
-- Packages skills, subagents, MCP servers, hooks, rules
 
-### Sandbox
-- `sandbox.json` for network allowlists/denylists and filesystem paths
-- See [Cursor Terminal docs](https://cursor.com/docs/agent/terminal)
+Plugins can package tools, MCP servers, rules, skills, subagents, and hooks. In Cursor 2.6, plugin distribution also includes team-private marketplace workflows.
 
-### Native Subagents (Async in 2.5)
-- **explore**: Codebase search with isolated context
-- **bash**: Shell command execution with output filtering
-- **browser**: Web automation via MCP with DOM filtering
-- **Async**: Subagents run in background; parent continues; subagents can spawn subagents (tree)
-- Custom subagents in `.cursor/agents/`; use `is_background: true` for parallel throughput
+### MCP Apps
 
-### Agent Skills
-- Portable knowledge packages in `.cursor/skills/`, `.claude/skills/`, `.codex/skills/`
-- Auto-discovery or `/skill-name` invocation
-- Progressive loading (scripts, references, assets)
-- Migration: `/migrate-to-skills`
-
-### Debug Mode
-- Instruments apps with runtime logs
-- Helps reproduce complex bugs
-- Works across stacks and languages
-
-### Browser Layout Editor
-- Real-time CSS/layout editing
-- Component tree visualization
-- Integrated with codebase
-
-### Plan Mode + Mermaid
-- Visual planning with diagrams
-- Send to-dos to new agents
-- Structured task management
-
-### Multi-Agent Features
-- **Async subagents** (2.5): Parent continues while subagents run in background; subagent trees
-- Parallel subagents with isolated context
-- Background subagents (`is_background: true`)
-- Multi-agent judging for comparing solutions
-
-### Image Generation
-- Generate images directly from agent
-- Saved to `assets/` folder by default
-- Useful for mockups and diagrams
+Cursor 2.6 can surface interactive UIs from MCP tools directly in chat. When such a tool exists, prefer using it directly instead of describing the interface second-hand.
 
 ---
 
-## CRITICAL: What NEVER To Do
+## Sandbox and Hooks
 
-### Never Manually Create These Files
+### Sandbox
 
-These files are generated by CLIs and should NEVER be created manually:
+Sandbox configuration still belongs in `sandbox.json`, but treat the docs as fast-moving and verify field names against live Cursor docs when editing sandbox guidance.
 
-| File Type | Use CLI Instead |
-|-----------|----------------|
-| `package.json` | `npm init` or `pnpm init` |
-| `package-lock.json` | Generated by `npm install` |
-| `go.mod` | `go mod init` |
-| `Cargo.toml` | `cargo new` or `cargo init` |
-| `pubspec.yaml` | `flutter create` |
-| `*.xcodeproj/*` | Xcode or `swift package init` |
-| `project.pbxproj` | **NEVER TOUCH** - Xcode only |
-| `.csproj` | `dotnet new` |
-| `pom.xml` | `mvn archetype:generate` |
+### Hooks
 
-### Never Skip These Steps
+Hooks remain powerful, but keep hook guidance aligned with current Cursor docs rather than older event lists or assumptions.
 
-```
-❌ DON'T: Create project files manually
-✅ DO: Use framework CLI (npx create-next-app, flutter create, cargo new)
+If this repo claims a hook-driven workflow, make sure the config actually exists in the repo.
 
-❌ DON'T: Assume packages are installed
-✅ DO: Run npm install / flutter pub get / cargo build after setup
+---
 
-❌ DON'T: Guess CLI availability
-✅ DO: Check with --version first
+## Tool Selection Cheat Sheet
 
-❌ DON'T: Write code without reading existing files
-✅ DO: Always Read before editing
-
-❌ DON'T: Skip dependency installation
-✅ DO: npm install, pip install, cargo build after adding deps
-
-❌ DON'T: Forget post-edit verification
-✅ DO: Run linters, tests, builds after changes
+```text
+Need a known file? → ReadFile
+Need files by pattern? → Glob
+Need exact content search? → rg
+Need conceptual discovery? → SemanticSearch
+Need a surgical edit? → ApplyPatch
+Need to run commands? → Shell
+Need current web info? → WebSearch / WebFetch
+Need browser verification? → direct browser tools
+Need a parallel investigator? → Subagent
+Need explicit task tracking? → TodoWrite
+Need a user-approved implementation plan? → CreatePlan
+Need user input on a hard fork? → AskQuestion
 ```
 
-### Always Verify After Actions
+---
 
-```bash
-# After creating web project
-npm install && npm run dev  # Verify it starts
+## Critical Don'ts
 
-# After adding shadcn component
-npx shadcn@latest add button  # Use CLI, don't copy files!
-
-# After Flutter changes
-flutter pub get && flutter analyze
-
-# After Rust changes  
-cargo check && cargo clippy
-
-# After Go changes
-go build ./... && go vet ./...
-
-# After Python changes
-pip install -e . && pytest
-```
+- Do not invent wrapper APIs that are not present in the prompt.
+- Do not teach stale tool names as if they are universal.
+- Do not skip read-before-edit.
+- Do not skip verification after non-trivial changes.
+- Do not hardcode product-version claims unless you plan to maintain them.

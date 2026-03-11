@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to sandbox.json to customize. Cursor 2.5+ sandbox config. See https://cursor.com/docs/agent/terminal",
+  "_comment": "Copy to sandbox.json to customize. Cursor sandbox example config. Verify current fields against live Cursor terminal docs before expanding it.",
   "networkPolicy": {
     "default": "deny",
     "allow": [

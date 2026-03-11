@@ -353,10 +353,10 @@ Instead of asking, use tools to find out:
 | Don't Ask | Just Check |
 |-----------|------------|
 | "Is Node.js installed?" | `Shell(command="node --version")` |
-| "What framework is this?" | `Read(path="package.json")` |
-| "Does the file exist?" | `Read(path="path/to/file")` |
-| "What's the current structure?" | `Glob(glob_pattern="*")` or `LS(target_directory="./")` if available |
-| "Is this package installed?" | `Read(path="package-lock.json")` |
+| "What framework is this?" | `ReadFile(path="package.json")` |
+| "Does the file exist?" | `ReadFile(path="path/to/file")` |
+| "What's the current structure?" | `Glob(glob_pattern="*")` |
+| "Is this package installed?" | `ReadFile(path="package-lock.json")` |
 | "What version are you using?" | Check config files first |
 
 ### Proactive Context Gathering
@@ -365,9 +365,9 @@ Before asking ANY clarifying question, first:
 
 ```
 1. CHECK PROJECT STATE
-   → Glob or LS to understand structure
-   → Read for package.json, pubspec.yaml, Cargo.toml
-   → Grep for existing patterns
+   → Glob to understand structure
+   → ReadFile for package.json, pubspec.yaml, Cargo.toml
+   → rg for existing patterns
 
 2. CHECK TOOL AVAILABILITY
    → Shell to verify CLIs exist
@@ -394,9 +394,9 @@ Before I add authentication, I need to know:
 ```
 <thinking>
 Let me check what exists first:
-- Read(path="package.json") → Oh, it's Next.js 14
-- Read(path="prisma/schema.prisma") → PostgreSQL with Prisma
-- Grep(pattern="auth") → No existing auth implementation
+- ReadFile(path="package.json") → Oh, it's Next.js 14
+- ReadFile(path="prisma/schema.prisma") → PostgreSQL with Prisma
+- rg(pattern="auth") → No existing auth implementation
 
 Now I know the context!
 </thinking>
@@ -414,9 +414,9 @@ I see you're using Next.js 14 with Prisma/PostgreSQL. For authentication:
 Before implementing framework-specific features:
 
 ```
-1. WebSearch(search_term="Next.js 14 App Router authentication [current month] [current year]")
-2. WebSearch(search_term="shadcn ui latest installation method [current year]")
-3. Context7 for detailed API docs (if available)
+1. WebSearch(search_term="Next.js 16 App Router authentication March 2026")
+2. WebSearch(search_term="shadcn ui latest installation method 2026")
+3. WebFetch or WebSearch for detailed API docs; optional doc MCPs if available
 ```
 
 This prevents writing outdated code or using deprecated patterns.

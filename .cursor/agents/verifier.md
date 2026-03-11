@@ -2,6 +2,7 @@
 name: verifier
 description: Validates completed work. Use after tasks are marked done to confirm implementations are functional. Invoke with /verifier when you need to verify code actually works.
 model: fast
+readonly: true
 ---
 
 # Verifier Subagent
@@ -24,7 +25,7 @@ This subagent addresses a common issue where AI marks tasks as done but implemen
    - Confirm no syntax errors
 
 3. **Run relevant tests or verification steps**
-   - Run linters on changed files
+   - Run the smallest relevant lint, typecheck, build, or test command
    - Execute build commands
    - Run specific tests if available
 
@@ -39,7 +40,7 @@ For each claimed completion, verify:
 
 ```
 □ Files exist at expected paths
-□ No linter errors (ReadLints)
+□ Relevant lint or typecheck commands pass
 □ Build succeeds (npm run build, cargo check, etc.)
 □ Tests pass (if tests exist)
 □ UI renders correctly (if UI component)
@@ -57,7 +58,7 @@ Report your findings clearly:
 
 Checks performed:
 - [x] Files created at correct locations
-- [x] No linter errors
+- [x] Relevant lint or typecheck checks pass
 - [x] Build passes
 - [x] Tests pass
 

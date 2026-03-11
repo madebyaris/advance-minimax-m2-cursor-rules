@@ -1,182 +1,151 @@
 ---
-description: "Model compatibility guide for all models in Cursor: tool calling format, StrReplace protocol, prompt injection architecture, and common failure modes"
+description: "Model compatibility guide for all models in Cursor: prompt architecture, direct tool usage, read-before-edit discipline, and common failure modes."
 alwaysApply: false
 ---
 
 # Model Compatibility in Cursor
 
-This rule helps all models (Composer 1.5, MiniMax, OpenAI, Anthropic, Gemini, Codex) operate effectively in Cursor.
+This rule helps any model operate effectively inside Cursor by separating durable behavior from fast-moving runtime details.
 
 ---
 
-## How Cursor's Prompt Architecture Works
+## How Cursor Prompting Works
 
-Cursor constructs the prompt sent to your model in layers:
+Cursor constructs the final prompt from multiple layers:
 
+```text
+Layer 1: Cursor system instructions and tool definitions
+Layer 2: alwaysApply rules
+Layer 3: file-pattern or context-triggered rules
+Layer 4: requestable rules
+Layer 5: skills
+Layer 6: user message and attached context
 ```
-Layer 1: Cursor's internal system prompt (tool definitions, safety, formatting)
-Layer 2: alwaysApply rules (.cursor/rules/ with alwaysApply: true)
-Layer 3: Glob-triggered rules (when matching files are open/edited)
-Layer 4: Agent-requestable rules (loaded on-demand by description)
-Layer 5: Skills (.cursor/skills/ — on-demand or /skill-name)
-Layer 6: User message + attached context
-```
 
-### Prompt Injection Applies to All Models
+The exact transport varies by provider, but the practical rule is stable:
 
-Cursor injects its instructions and tool definitions for **all** supported models:
-
-| Provider | Models | Injection |
-|----------|--------|-----------|
-| **Cursor** | Composer 1.5 | Yes |
-| **OpenAI** | GPT-4o, GPT-5.x | Yes |
-| **Anthropic** | Claude Opus, Sonnet | Yes |
-| **Google** | Gemini | Yes (likely) |
-
-**Delivery format** may differ per provider (native `system`/`tools` params vs. concatenated text), but the injection happens for all. **Treat Cursor's instructions as authoritative regardless of how they arrive.** If you receive tool definitions or behavior rules as text, follow them with the same priority as native API parameters.
+- Treat Cursor's tool definitions and system instructions as authoritative.
+- Follow the actual tool schema shown in the prompt.
+- Do not assume that a tool name from an older ruleset still exists.
 
 ---
 
-## The #1 Failure: Text Generation Instead of Tool Usage
+## The Main Failure Mode
 
-The single most common failure (especially when instructions arrive as text):
+The single most common failure is producing plausible prose instead of using the available tools.
 
-```
+```text
 User: "Compare these two files"
 
-WRONG (what non-native models often do):
-  "These files likely differ in X, Y, Z based on..."
-  → Generated from training data, not actual file contents
+Wrong:
+  Guess what changed and answer from memory
 
-CORRECT:
-  Read(path="file1.ts")
-  Read(path="file2.ts")
-  → Then compare based on actual contents
+Correct:
+  ReadFile(path="file1.ts")
+  ReadFile(path="file2.ts")
+  Compare the actual contents
 ```
 
-**Rule: If you can answer with a tool call, do it. If you can verify with a tool call, do it.**
+**Rule**: If the answer can be grounded with a tool call, ground it with a tool call.
 
 ---
 
-## Tool Call Format
+## Tool Call Discipline
 
-Your system prompt defines the exact tool call format. Follow it precisely.
+Your prompt defines the exact tool names and parameter shapes. Follow those exactly.
 
-**Common mistakes:**
-- Wrapping tool calls in markdown code blocks (don't do this)
-- Adding extra text around tool calls (just call the tool)
-- Using wrong parameter names (check the schema)
-- Calling tools with guessed parameters (verify first)
+Common mistakes:
+- Wrapping tool calls in markdown code fences
+- Adding explanatory prose before a straightforward tool call
+- Guessing parameter names
+- Calling a legacy wrapper API that is not present
 
-**Batch independent calls:**
-```
-GOOD: Call Read(file1) and Read(file2) in the same response
-BAD: Call Read(file1), wait for result, then call Read(file2)
-```
+Batch independent work when the environment supports it. In modern Cursor setups, prefer `multi_tool_use.parallel` for clearly independent calls.
 
 ---
 
-## StrReplace: The Most Error-Prone Tool
+## Read-Before-Edit Across All Models
 
-`StrReplace` requires an `old_string` that EXACTLY matches text in the file. Models fail here most often when they:
+Editing failures usually come from guessing at file contents rather than reading first.
 
-1. **Guess at file contents** instead of reading first
-2. **Get whitespace wrong** — tabs vs spaces, trailing newlines
-3. **Use too little context** — old_string matches multiple locations
-4. **Don't re-read after changes** — file state has changed
+### Mandatory workflow
 
-### Mandatory StrReplace Workflow
-
-```
-Step 1: Read(path="file.ts")              ← always read first
-Step 2: Identify exact text to change      ← copy from Read output
-Step 3: StrReplace(
-          path="file.ts",
-          old_string="<exact text from step 2>",
-          new_string="<your modification>"
-        )
-Step 4: ReadLints(paths=["file.ts"])       ← verify no errors
+```text
+1. ReadFile the target file
+2. Identify the exact change from actual contents
+3. Apply the edit with the current edit primitive
+4. Verify with Shell, follow-up reads, tests, or browser checks
 ```
 
-### If StrReplace Fails
+If the environment provides an exact-match edit tool, copy the old text exactly and include enough context to make the edit unique.
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| "old_string not found" | Text doesn't match file contents | Read the file again, copy exact text |
-| "old_string not unique" | Multiple matches | Include more context lines (3-5+) |
-| Edit in wrong location | Ambiguous context | Include unique surrounding code |
-
-### When to Use Write Instead
-
-If you need to change >30% of a file, use `Write` to rewrite the whole file. StrReplace is for surgical edits.
+If the environment provides `ApplyPatch`, prefer it for focused single-file edits.
 
 ---
 
 ## Version Handling
 
-**NEVER hardcode framework versions.** They go stale within weeks.
+Never hardcode fast-moving framework versions into rules.
 
-```
-WRONG (in rules files):
-  "Current: Next.js 16.1.6, React 19.2.4"
-  → Will be wrong in a month
+Correct pattern:
 
-CORRECT (in rules files):
-  "Always verify current version via WebSearch before using"
-  → Stays accurate forever
+```text
+WebSearch(search_term="[package] latest version March 2026")
 ```
 
-When you need version info:
-```
-WebSearch(search_term="[package] npm latest version [current month] [current year]")
-```
+Use the actual current month and year from context. Do not leave placeholders in the search string.
 
 ---
 
-## Context Window Management
+## Context Management
 
-When tool schemas or instructions arrive as text, the prompt can be large. This means:
+When the prompt is large:
 
-1. **Don't read files "just in case"** — only what you need
-2. **Use targeted searches** — `Grep` with specific patterns, not broad scans
-3. **Batch parallel reads** — multiple `Read` calls in one response
-4. **Track what you've learned** — don't re-read files you've already processed
+1. Do not read files "just in case."
+2. Prefer targeted searches over broad scans.
+3. Batch independent reads.
+4. Keep the durable lesson, not the entire raw output, in active context.
 
 ---
 
 ## Common Failure Modes and Fixes
 
-### 1. "I'll analyze this for you..." (Text instead of action)
-**Fix**: Call the tool immediately. Don't announce what you'll do.
+### 1. Text instead of action
 
-### 2. Creating excessive plans before acting
-**Fix**: For Instant/Light tasks, skip planning. Just Read → Edit → Lint.
+Fix: call the relevant read, search, browser, or shell tool immediately.
 
-### 3. Asking the user for information you could find with tools
-**Fix**: Use `Grep`, `SemanticSearch`, `Glob` (or `LS` if available) to find it yourself.
+### 2. Over-planning simple tasks
 
-### 4. Long explanatory text between tool calls
-**Fix**: Keep inter-tool commentary to 1-2 sentences.
+Fix: for instant and light tasks, read, edit, and verify without ceremony.
 
-### 5. Not using browser tools for UI verification
-**Fix**: After UI changes, use `browser_navigate` + `browser_snapshot` to verify rendering.
+### 3. Asking the user for information available in the repo
 
-### 6. Forgetting to ReadLints after edits
-**Fix**: Every `StrReplace` or `Write` should be followed by `ReadLints` on that file.
+Fix: use `ReadFile`, `Glob`, `rg`, or `SemanticSearch` first.
+
+### 4. Talking between every tool call
+
+Fix: keep commentary short and high-signal.
+
+### 5. Skipping browser verification for UI work
+
+Fix: use the direct browser tools after UI changes.
+
+### 6. Treating verification as optional
+
+Fix: run the smallest useful lint, typecheck, build, or test command with `Shell`.
 
 ---
 
 ## Quick Checklist
 
-Before responding to any user message:
+Before responding:
 
-```
-[ ] Did I READ relevant files before analyzing? (not just training data)
-[ ] Did I use the correct tool call format from my system prompt?
-[ ] Did I batch independent tool calls?
-[ ] Am I DOING the task, or just DESCRIBING what I'll do?
-[ ] If editing: did I Read the file first, then StrReplace?
-[ ] If StrReplace: is old_string an EXACT copy from the file?
-[ ] Did I ReadLints after editing?
-[ ] Did I verify versions via WebSearch (not from memory)?
+```text
+[ ] Did I inspect the relevant files instead of guessing?
+[ ] Did I use the actual tool names exposed in this environment?
+[ ] Did I batch independent work when useful?
+[ ] Am I doing the task rather than narrating it?
+[ ] If editing, did I read the file first?
+[ ] Did I verify the result with the right command or follow-up check?
+[ ] Did I verify versions via WebSearch instead of memory?
 ```

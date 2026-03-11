@@ -14,7 +14,7 @@ Modern web development best practices for JavaScript, TypeScript, and related fr
 
 Before using any NEW framework/package, verify the current version:
 ```
-WebSearch(search_term="[package-name] npm latest version [current month] [current year]")
+WebSearch(search_term="[package-name] npm latest version March 2026")
 ```
 
 For packages already in the project's `package.json`, trust those versions unless errors suggest a mismatch.
@@ -58,8 +58,8 @@ Before creating a project, I MUST:
 3. Check for compatibility issues
 </think>
 
-→ WebSearch(search_term="create-next-app latest version [current month] [current year]")
-→ WebSearch(search_term="shadcn-ui Next.js compatibility [current year]")
+→ WebSearch(search_term="create-next-app latest version March 2026")
+→ WebSearch(search_term="shadcn-ui Next.js compatibility 2026")
 ```
 
 ---
