@@ -8,38 +8,22 @@ alwaysApply: false
 
 Modern Python (3.10+) best practices for web development, data science, and general programming.
 
-## CRITICAL: Agentic-First Python Development
+## Python Workflow
 
-### Pre-Development Verification (MANDATORY)
+Before changing Python code:
 
-Before writing ANY Python code:
-
-```
-1. CHECK PYTHON INSTALLATION
-   → Shell(command="python3 --version", description="Check Python version")
-   → Shell(command="pip --version", description="Check pip version")
-   → Shell(command="uv --version", description="Check uv version")  # Modern package manager
-   
-2. VERIFY CURRENT VERSIONS (use WebSearch)
-   → WebSearch(search_term="Python stable version January 2026")
-   → WebSearch(search_term="FastAPI latest version 2026")
-   → WebSearch(search_term="Django LTS version 2026")
-   
-3. CHECK EXISTING PROJECT
-   → Does pyproject.toml/requirements.txt exist? Read it first!
-   → Is there a virtual environment?
-   → What dependencies are already installed?
-   
-4. VIRTUAL ENVIRONMENT (ALWAYS USE)
-   → Shell(command="python3 -m venv .venv", description="Create virtual environment")
-   → Shell(command="source .venv/bin/activate", description="Activate venv")
+```text
+1. Read the existing project files first (`pyproject.toml`, `requirements.txt`, `setup.py`)
+2. Check whether the repo already uses `uv`, `pip`, `poetry`, or another workflow
+3. For new dependencies or version-sensitive work, verify current versions with the actual current date
+4. Prefer the package manager and project conventions already in use
 ```
 
 ### CLI-First Python Development
 
-**ALWAYS use CLI for package management:**
+Prefer CLI tools and existing repo conventions for package management:
 ```bash
-# Virtual environment (ALWAYS create first)
+# Virtual environment (recommended first step)
 python3 -m venv .venv
 source .venv/bin/activate  # Unix
 .venv\Scripts\activate  # Windows
@@ -71,27 +55,17 @@ poetry install
 
 ### Post-Edit Verification
 
-After ANY Python code changes:
+After meaningful Python changes, run the smallest useful check for the task:
 
 ```bash
-# Type checking
+# Common checks when configured in the repo
 mypy src/
-
-# Linting
 ruff check .
 ruff format --check .
-
-# Or older tools
-flake8 .
-black --check .
-
-# Tests
 pytest
-pytest --cov=src
-
-# Verify imports work
-python -c "import mypackage"
 ```
+
+Scale up only when the change warrants it. Do not force every command after every tiny edit.
 
 ### Common Python Syntax Traps (Avoid These!)
 

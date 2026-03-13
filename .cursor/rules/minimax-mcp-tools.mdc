@@ -1,196 +1,60 @@
 ---
-description: "MCP and web-tool guidance: native WebSearch first, direct MCP/plugin tools when exposed, resource discovery, and current-doc verification workflows."
+description: "MCP and web-tool guidance: current-doc retrieval, direct-tool preference, and version-aware external lookups."
 alwaysApply: false
 ---
 
 # MCP and Web Tools
 
-Use this rule when the task depends on current documentation, external services, plugin tools, or MCP-backed integrations.
+Use this rule when current documentation, external systems, or plugin-backed tools matter.
 
----
+## Preferred Order
 
-## Priority Order
+When multiple paths exist, prefer:
 
-When multiple external-information paths exist, prefer them in this order:
+1. direct native tools exposed in the prompt
+2. direct plugin or MCP-backed tools exposed in the prompt
+3. MCP resource functions when available
+4. `WebSearch` and `WebFetch`
 
-1. **Native direct tools already exposed in the prompt**
-2. **Direct plugin tools exposed in the prompt**
-3. **`ListMcpResources` and `FetchMcpResource`**
-4. **`WebSearch` and `WebFetch`**
+Do not assume old wrapper APIs are present just because they appear in older docs or rules.
 
-Do not assume a legacy wrapper like `call_mcp_tool(...)` exists.
+## Web Search Discipline
 
----
-
-## Web Search First
-
-### Use `WebSearch` for
-
+Use `WebSearch` for:
 - package versions
 - breaking changes
 - compatibility questions
-- current framework behavior
+- recent framework behavior
 - error messages after repeated failures
 
-### Search discipline
-
-- Use the actual current month and year from context.
-- Do not leave placeholders like `[current year]` in the query.
-- Add framework or platform context when relevant.
-
-Examples:
-
-```text
-WebSearch(search_term="Next.js latest stable version March 2026")
-WebSearch(search_term="React useActionState docs 2026")
-WebSearch(search_term="Prisma Next.js app router compatibility 2026")
-```
-
-### Use `WebFetch` for
-
+Use `WebFetch` for:
 - official docs pages
-- changelog pages
-- specific references you want to read in full
+- changelogs
+- reference pages that need close reading
 
----
+When versions matter:
+- use the actual current month and year
+- do not leave placeholders in the search query
 
-## Version Checking Workflow
+## MCP Discipline
 
-When adding a new dependency or suggesting a migration:
+- Follow the exact schema of currently exposed tools.
+- If the environment exposes direct tools, use them directly.
+- If the environment exposes resources instead of actions, use the resource discovery and fetch path.
+- Keep assumptions about server names and tool IDs out of general rules.
 
-```text
-1. Search current version
-2. Search compatibility with the current stack
-3. Search breaking changes if the work is upgrade-related
-4. Only then recommend installation or migration steps
-```
-
-Use concrete searches, for example:
+## Typical Chains
 
 ```text
-WebSearch(search_term="zod latest version March 2026")
-WebSearch(search_term="zod react-hook-form compatibility 2026")
-WebSearch(search_term="React 19 breaking changes 2026")
+Version check -> install or configure -> verify
+Docs lookup -> implement -> behavior check
+Resource discovery -> targeted fetch -> synthesize
 ```
 
----
+## Failure Handling
 
-## Direct MCP and Plugin Tools
-
-Modern Cursor environments often expose MCP-backed capabilities as direct tools rather than abstract transport calls.
-
-### Rules
-
-- If the prompt exposes a direct tool, call that tool directly.
-- Follow the exact schema shown by the environment.
-- Do not hardcode old tool IDs into general rules unless they are still present in the prompt.
-- Keep repo guidance generic enough to survive plugin or server renames.
-
-Examples of direct-tool categories you may see:
-- Figma tools
-- browser tools
-- Cloudflare docs tools
-- design tools
-- provider-specific plugin tools
-
-### When MCP tools are not direct
-
-When MCP tools are not exposed as direct tools and the environment provides `call_mcp_tool`, use it with the correct server name and tool name from the schema. Tool schemas live in `mcps/<server>/tools/` — always check the descriptor before calling.
-
----
-
-## MCP Resources
-
-When the environment exposes MCP resources:
-
-- Use `ListMcpResources` to discover what is available.
-- Use `FetchMcpResource` to read or download a specific resource.
-
-This is useful for:
-- documentation bundles
-- generated assets
-- server-provided references
-- plugin-managed artifacts
-
----
-
-## Optional Documentation Servers
-
-Optional doc-focused MCPs are useful, but the rule should stay robust when they are absent.
-
-### If a documentation tool exists
-
-Use it directly and follow its current schema.
-
-### If it does not exist
-
-Fall back to:
-- `WebSearch`
-- `WebFetch`
-- any official docs tool already exposed in the prompt
-
-Do not assume old names such as `user-context7-query-docs` or `user-MiniMax-web_search` are universally available.
-
----
-
-## Optional Image or Vision Tools
-
-If the environment exposes image-analysis tools, use them for:
-- screenshot debugging
-- reading error text from images
-- comparing implemented UI against a design
-
-If not, use browser snapshots, screenshots, or direct image-reading tools already exposed in the prompt.
-
----
-
-## Tool Chaining Patterns
-
-### Version check → CLI → verify
-
-```text
-1. WebSearch current package versions
-2. Use Shell for the verified CLI workflow
-3. Verify with build, tests, or browser checks
-```
-
-### Docs lookup → implementation → browser check
-
-```text
-1. WebSearch or WebFetch the docs
-2. Implement with the repo's current edit tools
-3. Use browser or shell verification as appropriate
-```
-
-### Resource discovery → targeted fetch → synthesis
-
-```text
-1. ListMcpResources
-2. FetchMcpResource for the relevant URI
-3. Summarize only the parts needed for the task
-```
-
----
-
-## Error Handling
-
-If a direct tool fails:
-
-1. Re-check the schema from the current prompt.
-2. Simplify the arguments.
-3. Remove placeholder text or thought markup from arguments.
-4. Fall back to another available source if the tool is optional.
-
-If repeated errors suggest stale assumptions about an MCP server or plugin, stop relying on repo memory and use the currently exposed tool list instead.
-
----
-
-## Summary
-
-```text
-Use WebSearch first for current facts.
-Use WebFetch for full reference pages.
-Use direct MCP or plugin tools when exposed.
-Use MCP resource discovery when available.
-Do not assume legacy wrapper APIs or old tool IDs.
-```
+If an MCP or plugin call fails:
+- re-check the current schema
+- simplify the arguments
+- remove stale placeholder text
+- fall back to another available source if the integration is optional

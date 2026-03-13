@@ -7,11 +7,11 @@ alwaysApply: false
 
 Universal principles and patterns applicable across all programming languages.
 
-## CRITICAL: Development Workflow
+## Development Workflow
 
 ### CLI-First Principle
 
-Before manually creating ANY file, check if a CLI tool exists:
+Before manually creating project scaffolding or dependency manifests, check if a CLI tool exists:
 
 | Task | Check for CLI | Example |
 |------|---------------|---------|
@@ -22,7 +22,7 @@ Before manually creating ANY file, check if a CLI tool exists:
 
 ### Verification-First Principle
 
-Code is not done until it's verified:
+Code is not done until it is verified at a level proportional to the change:
 
 ```
 1. Write code
@@ -34,17 +34,12 @@ Code is not done until it's verified:
 
 ### Version-Aware Development
 
-Always verify package versions before using:
+When versions matter:
 
-```
-<think>
-Before using package X:
-1. What's the current stable version?
-2. Is it compatible with my other dependencies?
-3. Are there known issues?
-</think>
-
-→ WebSearch(search_term="[package] latest stable version [current month year]")
+```text
+1. Search the current version with the actual month and year
+2. Check compatibility with the current stack
+3. Then recommend installation or migration steps
 ```
 
 ---

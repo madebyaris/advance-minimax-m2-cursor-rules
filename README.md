@@ -8,255 +8,186 @@
 [![MiniMax M2.5](https://img.shields.io/badge/MiniMax-M2.5-purple?style=flat-square)](https://platform.minimax.io)
 [![Any Model](https://img.shields.io/badge/Compatible-Any%20Model-green?style=flat-square)](#model-compatibility)
 
-**MiniMax M2.5 agentic-first Cursor rules for grounded, verified code generation**
+**MiniMax M2.5 rules that borrow strong GPT-5.4/Codex execution patterns**
 
-*Built for **MiniMax M2.5**, refreshed for **Cursor 2.6**, and designed to work with any model Cursor supports.*
+*Built for **MiniMax M2.5**, refreshed for **Cursor 2.6**, and written to stay useful across model changes.*
 
-[Quick Start](#-quick-start) | [Model Compatibility](#-model-compatibility) | [Rules](#-rules-subagents-and-skills) | [AGENTS.md](#-agentsmd-for-other-ides--clis) | [Contributing](#-contributing)
+[Quick Start](#quick-start) | [Architecture](#rule-architecture) | [Solver Loop](#solver-loop) | [AGENTSmd](#agentsmd-for-other-ides-and-clis)
 
 </div>
 
 ---
 
-## Features
+## Why This Repo Exists
 
-- **Action-first protocol**: inspect with tools before writing prose.
-- **Tool-surface aware**: updated for modern Cursor direct tools such as `ReadFile`, `rg`, `ApplyPatch`, `Subagent`, direct browser tools, and direct MCP/plugin tools.
-- **Model-agnostic**: designed for MiniMax, Claude, GPT, Gemini, Codex, and other Cursor-supported models.
-- **Opus 4.6-style behavior**: adaptive effort, adversarial self-review, strategic laziness, and intellectual honesty.
-- **No hardcoded versions**: package and framework versions are verified with current-date web search.
-- **Read-before-edit discipline**: durable workflow even as Cursor changes its exact edit primitives.
-- **Subagents, skills, and rules**: clearer separation between always-on behavior, reusable workflows, and specialist agents.
-- **Portable fallback**: `AGENTS.md` carries the same behavior in non-Cursor environments.
+This repo keeps the identity and branding around **MiniMax M2.5**, but shifts the behavior toward what works well in modern coding agents:
 
----
+- smaller always-on prompts
+- stronger tool use
+- clearer task framing
+- better decomposition on hard problems
+- more proportional verification
+
+Instead of trying to make MiniMax "sound like" another provider, the rules teach it to copy the **visible external behavior** of a strong GPT/Codex-style coding agent.
 
 ## Model Compatibility
 
-These rules are built for **MiniMax M2.5** inside Cursor, but they are intentionally written to survive model changes and runtime changes.
+The rules are designed to survive model changes:
 
-### Core idea
+- the core rule stays short and durable
+- runtime-specific guidance lives in requestable rules
+- tool advice is written around whatever the current environment actually exposes
+- version-sensitive claims are meant to be verified at runtime, not frozen into the rules
 
-Cursor injects instructions, tool definitions, and context for supported models. The exact transport varies, but the important behavior is stable:
+This makes the repo useful for MiniMax first, but still compatible with other Cursor-supported models.
 
-- follow the tool schema shown in the prompt
-- use tools instead of guessing
-- keep runtime-specific details in requestable rules
-- keep always-on guidance short and durable
+## What Changed
 
-### Common failure modes these rules target
+This refactor removes most of the old prompt bloat:
 
-1. Writing explanations instead of using tools.
-2. Guessing file contents instead of reading them.
-3. Hardcoding stale package versions.
-4. Over-planning simple work.
-5. Treating verification as optional.
+- no more Opus-style identity anchoring in the core
+- far less duplicated tool and verification doctrine
+- no hardcoded month/year version examples in workflow rules
+- no fake `<think>` or `<thinking>` scaffolding
+- less "always run everything" language in domain-specific rules
 
----
+## Solver Loop
 
-## Philosophy
+The main thing this repo now tries to transfer into MiniMax M2.5 is a repeatable solver loop:
 
-These rules are built around one simple principle:
+1. Define the outcome in operational terms.
+2. Inspect the repo and runtime before deciding.
+3. Find the spine: entry points, data flow, state boundaries, persistence, and user-visible behavior.
+4. Build the smallest vertical slice that proves the feature works.
+5. Verify at the surface where the user experiences the change.
+6. Expand scope only after the core slice is working.
 
-> **Act first, verify always.**
+For app-building, this means:
 
-That means:
+- do not start with a pile of components
+- resolve key flows and acceptance first
+- prove one end-to-end slice early
+- add polish and secondary features afterward
 
-- read before you edit
-- verify before you claim completion
-- scale effort to task complexity
-- say when you are uncertain
-- prefer the smallest correct change
+Example:
 
----
+- For "build a task app", prioritize `create -> list -> complete -> persist -> reload`
+- Delay filters, collaboration, settings, and animations until the core path works
+
+## MoE Note
+
+These rules do **not** assume you can directly control a model's internal MoE routing through persona text.
+
+The controllable levers are:
+
+- cleaner context
+- better decomposition
+- better tool routing
+- better verification loops
+- clearer definitions of done
+
+If MiniMax performs better after a prompt rewrite, the likely reason is improved external problem structure, not magical direct access to hidden experts.
 
 ## Quick Start
 
-### For Cursor Users
+### For Cursor
 
 ```bash
 git clone https://github.com/madebyaris/advance-minimax-m2-cursor-rules.git
 cp -r advance-minimax-m2-cursor-rules/.cursor your-project/.cursor
 ```
 
-The core rule, `.cursor/rules/minimax-m2-core.mdc`, is `alwaysApply: true`. The rest of the rule set is loaded only when needed.
+The always-on rule is `.cursor/rules/minimax-m2-core.mdc`. The rest of the rules are requestable and narrower by design.
 
 ### For Other IDEs and CLIs
 
-Copy [`AGENTS.md`](AGENTS.md) into your repo root or use it as a system prompt / instructions file.
+Copy `AGENTS.md` into the repo root or use it as your agent instructions file.
 
----
+## Rule Architecture
 
-## Rules, Subagents, and Skills
-
-### Core Rule
+### Always-On Core
 
 | File | Purpose |
 |------|---------|
-| `.cursor/rules/minimax-m2-core.mdc` | Minimal always-on behavior: action-first execution, adaptive effort, read-before-edit, verification-first mindset |
+| `.cursor/rules/minimax-m2-core.mdc` | Minimal always-on behavior: tool-first execution, adaptive effort, solver-loop thinking, and verification-first delivery |
 
-### Requestable Runtime Rules
-
-| File | Purpose |
-|------|---------|
-| `.cursor/rules/cursor-tools-mastery.mdc` | Current Cursor 2.6 tool categories and workflows |
-| `.cursor/rules/cursor-agent-orchestration.mdc` | Subagents, decomposition, plans, and parallel workflows |
-| `.cursor/rules/minimax-m2-verification.mdc` | Shell, browser, and verifier-based validation |
-| `.cursor/rules/minimax-mcp-tools.mdc` | Web search, MCP, plugin tools, and resource-discovery guidance |
-| `.cursor/rules/model-compatibility.mdc` | Prompt architecture and model-safe tool discipline |
-| `.cursor/rules/clarify-first-prompting.mdc` | Ask only when the decision is a real fork |
-
-### Custom Agents
+### Runtime Rules
 
 | File | Purpose |
 |------|---------|
-| `.cursor/agents/verifier.md` | Skeptical validation after implementation |
-| `.cursor/agents/debugger.md` | Root-cause analysis for errors and failures |
+| `.cursor/rules/model-compatibility.mdc` | Prompt hierarchy, tool discipline, and context control |
+| `.cursor/rules/cursor-tools-mastery.mdc` | Current tool-selection patterns inside Cursor |
+| `.cursor/rules/minimax-m2-verification.mdc` | Proportional verification guidance |
+| `.cursor/rules/minimax-mcp-tools.mdc` | Current-doc, web, and MCP/plugin lookup guidance |
+| `.cursor/rules/cursor-agent-orchestration.mdc` | Planning, subagents, and multi-step coordination |
+| `.cursor/rules/clarify-first-prompting.mdc` | Ask only on real forks after inspecting first |
 
-### Skills
+### Domain Rules
 
-Project skills live in `.cursor/skills/` and should be used for reusable procedures, not for always-on behavior.
+Language and platform rules now focus on domain-specific patterns rather than repeating the global workflow in every file.
 
----
+## Design Principles
 
-## Cursor 2.6 Notes
+### Keep The Core Small
 
-This repo has been refreshed against Cursor 2.6-era behavior and tooling.
+Large always-on prompts waste context and often reduce execution quality. The core rule should contain only durable behavior with high leverage.
 
-### What changed in this refresh
+### Prefer Capability Framing Over Persona Framing
 
-- stale 2.5 tool names were removed from the core and runtime docs
-- old wrapper patterns like `call_mcp_tool(...)` were replaced with direct-tool guidance
-- `Task(...)` guidance was replaced with `Subagent(...)`
-- verification guidance now assumes shell, browser, and verifier-based checks rather than a dedicated lint-reader tool
-- README and rule docs now distinguish durable behavior from volatile runtime details
+Rules work better when they say:
 
-### MCP Apps and Plugins
+- inspect first
+- build the smallest proving slice
+- verify before claiming success
 
-Cursor 2.6 added richer MCP App support and stronger plugin distribution patterns, including team/private marketplace workflows. This repo now treats plugin and MCP capabilities as direct tools when they are exposed in the prompt, rather than assuming older transport wrappers.
+They work worse when they spend lots of tokens on identity, status, or stylistic self-description.
 
-### Hooks
+### Trust The Current Environment
 
-This repo includes `.cursor/hooks.json`, but no hooks are enabled by default. There is **not** a configured stop-hook loop out of the box.
+Cursor's tool surface changes. The rules should teach behavior that survives those changes instead of freezing old tool names or wrappers.
 
----
+## AGENTS.md For Other IDEs and CLIs
 
-## Optional MCP Setup
+`AGENTS.md` is the portable version of the core behavior. It is intentionally shorter now and focused on:
 
-### MiniMax MCP
+- action-first execution
+- solver-loop thinking
+- read-before-edit discipline
+- proportional verification
+- concise communication
 
-If you want MiniMax-backed external tools in addition to Cursor-native tooling, configure them in Cursor's MCP settings.
+## Warnings
 
-Example:
+Never manually fabricate:
 
-```json
-{
-  "mcpServers": {
-    "MiniMax": {
-      "command": "uvx",
-      "args": ["minimax-coding-plan-mcp"],
-      "env": {
-        "MINIMAX_API_KEY": "<YOUR_API_KEY>",
-        "MINIMAX_MCP_BASE_PATH": "<OUTPUT_DIR>",
-        "MINIMAX_API_HOST": "https://api.minimax.io"
-      }
-    }
-  }
-}
-```
+- `.xcodeproj`
+- `project.pbxproj`
+- `.xcworkspace`
+- complex `.sln` or similar IDE-managed project metadata
 
-### Context7 MCP
-
-Context7 remains a useful optional docs server when available, but the rules now treat it as optional and fall back cleanly to `WebSearch` and `WebFetch`.
-
----
-
-## AGENTS.md For Other IDEs & CLIs
-
-[`AGENTS.md`](AGENTS.md) is the portability layer for environments that do not understand Cursor rule files.
-
-It carries:
-
-- action-first behavior
-- adaptive effort
-- adversarial self-review
-- version-checking discipline
-- CLI-first setup guidance
-- communication style guidance
-
-Use it with Copilot, Codex, Claude in other IDEs, Cline, Aider, Continue, or any CLI coding assistant.
-
----
-
-## Design Decisions
-
-### Why only one always-apply rule?
-
-Because large always-on rule payloads increase prompt overhead and reduce execution quality. The repo now keeps only the most durable behavior always active and pushes runtime-specific details into requestable rules.
-
-### Why remove hardcoded tool names from the core rule?
-
-Because Cursor's tool surface evolves. Durable guidance should say **read before edit** and **verify after changes**, not freeze a specific edit API forever.
-
-### Why keep version checks dynamic?
-
-Because rules that hardcode framework versions decay quickly. Current-date web verification ages much better.
-
----
-
-## Critical Warnings
-
-### Never manually create these files
-
-| File Type | Use Instead |
-|-----------|-------------|
-| `*.xcodeproj/*` | Xcode |
-| `project.pbxproj` | Xcode only |
-| `*.xcworkspace/*` | Xcode |
-| complex `.sln` / IDE metadata | the relevant IDE |
-
-### Always verify after meaningful actions
-
-Examples:
-
-```bash
-npm run build
-npm test
-flutter analyze
-cargo check
-go build ./...
-pytest
-```
-
-Use the smallest useful verification step first, then expand when the task risk warrants it.
-
----
+Use the relevant CLI or IDE instead, then let the agent work inside the real project.
 
 ## Contributing
 
-1. Fork the repo.
-2. Make focused changes.
-3. Prefer durable behavior in always-on rules and volatile details in requestable rules.
-4. Test with real projects and more than one model when possible.
-5. Submit a PR.
-
----
+1. Keep the always-on core small.
+2. Put runtime details in requestable rules.
+3. Add new rules only when they solve repeated mistakes.
+4. Prefer concrete workflows over abstract philosophy.
+5. Test the rules against real coding tasks, not just style preferences.
 
 ## References
 
 - [Cursor Changelog](https://cursor.com/changelog)
 - [Cursor Rules Docs](https://cursor.com/docs/context/rules)
+- [Cursor Agent Best Practices](https://cursor.com/blog/agent-best-practices)
 - [MiniMax Platform](https://platform.minimax.io)
-- [MiniMax Coding Plan MCP](https://github.com/MiniMax-AI/MiniMax-Coding-Plan-MCP)
-- [Claude Opus 4.6 Announcement](https://anthropic.com/news/claude-opus-4-6)
-- [Context7 MCP](https://github.com/upstash/context7-mcp)
+- [OpenAI Codex Best Practices](https://developers.openai.com/codex/learn/best-practices/)
+- [OpenAI Exec Plans](https://cookbook.openai.com/articles/codex_exec_plans)
 
 ---
 
 <div align="center">
 
 **Made with care by [Aris Setiawan](https://github.com/madebyaris) at [MiniMax](https://minimax.io)**
-
-*MiniMax M2.5 rules for production-quality code generation with durable agentic behavior*
 
 </div>

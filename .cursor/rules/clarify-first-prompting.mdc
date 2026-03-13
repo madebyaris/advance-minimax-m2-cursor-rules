@@ -1,422 +1,58 @@
 ---
-description: "Clarify-first strategy: detect ambiguity, ask targeted questions, expand simple prompts into detailed specifications"
+description: "Clarification guidance: inspect first, ask only on real forks, and keep questions small and consequential."
 alwaysApply: false
 ---
 
-# Clarify-First Prompting Strategy
+# Clarify-First Prompting
 
-When users provide simple or ambiguous prompts, ask targeted clarifying questions before proceeding. This ensures accurate implementation and prevents wasted effort.
+Clarification is for real uncertainty, not for information the repo or runtime already contains.
 
-## Core Principle
+## Inspect Before Asking
 
-**Ask before assuming, but don't over-ask.**
+Before asking a question, first check whether the answer is available through:
+- project files
+- existing code patterns
+- tool output
+- current docs when version-sensitive behavior matters
 
-The goal is to gather essential information that significantly impacts implementation, not to quiz the user on every detail.
+Do not ask the user for information you can inspect directly.
 
----
+## When to Ask
 
-## AskQuestion Tool - Structured Clarification
+Ask only when the answer materially changes the implementation:
+- security or authentication model
+- destructive data or migration strategy
+- major architecture branch
+- user-facing product choice with costly reversal
 
-Use the `AskQuestion` tool for structured, multiple-choice questions:
+## When to Proceed
 
-```
-→ AskQuestion(
-    title="Authentication Setup",
-    questions=[
-      {
-        id: "auth-type",
-        prompt: "Which authentication method do you prefer?",
-        options: [
-          { id: "oauth", label: "OAuth 2.0 (Google, GitHub) - easiest setup" },
-          { id: "jwt", label: "JWT email/password - full control" },
-          { id: "magic-link", label: "Magic link (passwordless) - modern UX" }
-        ]
-      },
-      {
-        id: "session-storage",
-        prompt: "Where should sessions be stored?",
-        options: [
-          { id: "jwt-stateless", label: "Stateless JWT tokens (scalable)" },
-          { id: "database", label: "Database sessions (more control)" }
-        ]
-      }
-    ]
-  )
-```
+Proceed without asking when:
+- project conventions already answer the question
+- the choice is small and reversible
+- a safe default exists
+- the user explicitly asked for a best-effort implementation
 
-**When to Use AskQuestion:**
-- Multiple valid approaches with significant trade-offs
-- User preferences are essential
-- Need structured input for decision-making
+## Question Rules
 
-**Best Practices:**
-- Maximum 1-2 questions at a time
-- Provide clear options with brief explanations
-- First option should be the recommended default
-- Include context for why each option matters
+- Ask at most 1-2 critical questions at a time.
+- Use structured questions only when the choice has real tradeoffs.
+- Put the recommended or safest default first when presenting options.
+- Once the user answers, proceed without re-confirming.
 
----
+## Good Pattern
 
-## When to Clarify vs. Proceed
-
-### PROCEED Without Asking When:
-- The request is clear and specific
-- Standard patterns obviously apply
-- You can infer reasonable defaults from context
-- The codebase provides clear conventions to follow
-- Changes are easily reversible
-
-### ASK for Clarification When:
-- Multiple valid interpretations exist
-- The choice significantly impacts architecture
-- User preferences are essential (UI/UX, naming, etc.)
-- Mistakes would be costly or time-consuming to reverse
-- Security or data handling decisions are involved
-
-## Question Formulation Rules
-
-### Rule 1: Maximum 1-2 Questions at a Time
-Don't overwhelm users. Focus on the most critical unknowns.
-
-**Bad:**
-```
-Before I proceed, I need to know:
-1. What authentication method?
-2. What database?
-3. What ORM?
-4. What session handling?
-5. What password policy?
-6. What MFA approach?
+```text
+1. Inspect repo and runtime
+2. Identify the true unknown
+3. Ask only if that unknown changes the architecture or outcome
+4. Otherwise choose a safe default and continue
 ```
 
-**Good:**
-```
-Before implementing authentication, I need to clarify:
-
-1. **Authentication Method**: Which do you prefer?
-   - a) OAuth 2.0 (Google, GitHub, etc.)
-   - b) Email/password with JWT
-   - c) Magic link (passwordless)
-
-2. **User Storage**: Where should user data be stored?
-   - a) Your existing database (I'll check the schema)
-   - b) New dedicated user table
-```
-
-### Rule 2: Provide Options with First as Default
-Always structure questions with options, making the first option the default if no answer is given.
-
-**Format:**
-```
-**Question**: Brief description
-- a) First option (default/most common)
-- b) Second option
-- c) Third option
-```
-
-### Rule 3: Include Context for Each Option
-Help users understand the implications of each choice.
-
-**Example:**
-```
-**State Management**: How should we handle client state?
-- a) React Context (simpler, good for small-medium apps)
-- b) Redux Toolkit (more boilerplate, better for complex state)
-- c) Zustand (minimal API, good performance)
-```
-
-### Rule 4: Infer from Codebase First
-Before asking, check if the codebase already answers the question.
-
-```
-<think>
-User wants to add a new API endpoint.
-
-Let me check:
-1. Existing API patterns in the codebase
-2. Database/ORM being used
-3. Authentication middleware
-4. Response formatting conventions
-
-If these are clear from the codebase, I don't need to ask.
-</think>
-```
-
-## Ambiguity Detection Patterns
-
-### Vague Action Words
-Triggers: "add", "implement", "create", "build", "make", "fix"
-
-**Example:**
-- "Add authentication" → Need: method, storage, session handling
-- "Fix the bug" → Need: which bug, reproduction steps, expected behavior
-- "Create a dashboard" → Need: what data, user roles, layout preferences
-
-### Missing Scope
-Triggers: No clear boundaries mentioned
-
-**Example:**
-- "Refactor the code" → Need: which files, what aspects, target improvements
-- "Improve performance" → Need: which operations, current metrics, target goals
-- "Update the API" → Need: which endpoints, backward compatibility, versioning
-
-### Technology Choices
-Triggers: Multiple valid solutions exist
-
-**Example:**
-- "Add a database" → Need: SQL vs NoSQL, which provider, local vs cloud
-- "Set up testing" → Need: unit vs integration vs e2e, framework preference
-- "Deploy the app" → Need: platform, infrastructure, CI/CD requirements
-
-### User Experience Decisions
-Triggers: Design/UX choices involved
-
-**Example:**
-- "Add a form" → Need: validation style, error display, submit behavior
-- "Create a modal" → Need: trigger, dismissal, animation preferences
-- "Build navigation" → Need: structure, mobile behavior, active states
-
-## Domain-Specific Templates
-
-### Authentication
-```
-Before implementing authentication:
-
-1. **Authentication Type**: Which method do you prefer?
-   - a) OAuth 2.0 (Google, GitHub, etc.)
-   - b) JWT-based email/password
-   - c) Magic link / passwordless
-   - d) Multi-factor authentication (MFA)
-
-2. **Session Management**: How should sessions be handled?
-   - a) Stateless JWT tokens (scalable, no server storage)
-   - b) Server-side sessions (more control, requires storage)
-```
-
-### API Development
-```
-Before creating the API endpoint:
-
-1. **Response Format**: What structure should responses follow?
-   - a) Follow existing API conventions (I'll check the codebase)
-   - b) REST with standard HTTP status codes
-   - c) GraphQL (if applicable)
-
-2. **Authentication**: Should this endpoint be protected?
-   - a) Yes, require authentication
-   - b) No, public access
-   - c) Mixed (some actions require auth)
-```
-
-### Database Operations
-```
-Before implementing database changes:
-
-1. **Migration Strategy**: How should we handle the schema change?
-   - a) Create migration file (recommended for production)
-   - b) Direct schema modification (development only)
-
-2. **Data Handling**: Any existing data to consider?
-   - a) No existing data (new table/field)
-   - b) Migrate existing data (I'll propose a strategy)
-```
-
-### UI Components
-```
-Before building this component:
-
-1. **Styling Approach**: Which styling method should I use?
-   - a) Follow existing project patterns (I'll check)
-   - b) Tailwind CSS
-   - c) CSS Modules
-   - d) Styled Components
-
-2. **Responsive Behavior**: Mobile considerations?
-   - a) Mobile-first responsive
-   - b) Desktop-only for now
-   - c) Adaptive (different layouts per breakpoint)
-```
-
-### Testing
-```
-Before implementing tests:
-
-1. **Test Type**: What level of testing?
-   - a) Unit tests (isolated function/component testing)
-   - b) Integration tests (multiple components together)
-   - c) End-to-end tests (full user flows)
-   - d) All of the above
-
-2. **Coverage Focus**: What's the priority?
-   - a) Critical paths only
-   - b) Comprehensive coverage
-   - c) Match existing test patterns
-```
-
-## Handling User Responses
-
-### When User Chooses an Option
-Proceed immediately with the selected approach. No need to confirm again.
-
-### When User Says "You Decide" or Similar
-Use the first (default) option and proceed. Mention what you chose:
-
-```
-I'll use OAuth 2.0 with Google as the primary provider, as it's the most common choice. Let me implement that...
-```
-
-### When User Provides Partial Info
-Fill in reasonable defaults for missing information:
-
-```
-You've specified JWT authentication. I'll use:
-- Access tokens (15min expiry)
-- Refresh tokens (7 days)
-- HTTP-only cookies for storage
-
-Let me implement this...
-```
-
-### When User Asks for Recommendation
-Provide a clear recommendation with brief justification:
-
-```
-For your use case, I recommend **Zustand** for state management:
-- Minimal boilerplate
-- Great TypeScript support
-- Easy to test
-- Perfect for your app's complexity level
-
-Shall I proceed with Zustand?
-```
-
-## Progressive Clarification
-
-For complex features, clarify in stages rather than all at once:
-
-### Stage 1: High-Level Direction
-```
-You want to add a payment system. First, let me understand:
-
-**Payment Provider**: Which service should we integrate?
-- a) Stripe (most popular, excellent docs)
-- b) PayPal
-- c) Other (please specify)
-```
-
-### Stage 2: After Initial Answer
-```
-Great, we'll use Stripe. Now:
-
-**Payment Types**: What payment flows do you need?
-- a) One-time payments only
-- b) Subscriptions only
-- c) Both one-time and subscriptions
-```
-
-### Stage 3: Implementation Details
-```
-Perfect. For subscriptions with Stripe, I'll:
-1. Set up Stripe Customer objects
-2. Create subscription checkout flow
-3. Handle webhooks for lifecycle events
-4. Build a customer portal for management
-
-Any specific plans or pricing tiers I should implement?
-```
-
-## Anti-Patterns to Avoid
-
-### Don't Ask Obvious Questions
-**Bad:** "Should I use proper error handling?" (Obviously yes)
-
-### Don't Ask About Implementation Details
-**Bad:** "Should I use `const` or `let`?" (Follow project conventions)
-
-### Don't Ask When Codebase Provides Answers
-**Bad:** "Which CSS framework should I use?" (Check existing code first)
-
-### Don't Repeat Questions
-**Bad:** Asking the same thing after user already answered in conversation
-
-### Don't Ask About Reversible Choices
-**Bad:** "Should I put this file in `/utils` or `/helpers`?" (Just pick one)
-
----
-
-## Agentic Verification (Don't Ask - Just Check!)
-
-### NEVER Ask About Things You Can Verify
-
-Instead of asking, use tools to find out:
-
-| Don't Ask | Just Check |
-|-----------|------------|
-| "Is Node.js installed?" | `Shell(command="node --version")` |
-| "What framework is this?" | `ReadFile(path="package.json")` |
-| "Does the file exist?" | `ReadFile(path="path/to/file")` |
-| "What's the current structure?" | `Glob(glob_pattern="*")` |
-| "Is this package installed?" | `ReadFile(path="package-lock.json")` |
-| "What version are you using?" | Check config files first |
-
-### Proactive Context Gathering
-
-Before asking ANY clarifying question, first:
-
-```
-1. CHECK PROJECT STATE
-   → Glob to understand structure
-   → ReadFile for package.json, pubspec.yaml, Cargo.toml
-   → rg for existing patterns
-
-2. CHECK TOOL AVAILABILITY
-   → Shell to verify CLIs exist
-   → Check versions match requirements
-
-3. CHECK EXISTING CONVENTIONS
-   → How are similar features implemented?
-   → What patterns does the codebase use?
-
-4. ONLY THEN ASK about things you genuinely can't determine
-```
-
-### Example: User Says "Add Authentication"
-
-**❌ Wrong Approach:**
-```
-Before I add authentication, I need to know:
-1. What framework are you using?
-2. Do you want JWT or sessions?
-3. What database do you have?
-```
-
-**✅ Right Approach:**
-```
-<thinking>
-Let me check what exists first:
-- ReadFile(path="package.json") → Oh, it's Next.js 14
-- ReadFile(path="prisma/schema.prisma") → PostgreSQL with Prisma
-- rg(pattern="auth") → No existing auth implementation
-
-Now I know the context!
-</thinking>
-
-I see you're using Next.js 14 with Prisma/PostgreSQL. For authentication:
-
-1. **Auth Library**: Which approach do you prefer?
-   - a) NextAuth.js (most integrated with Next.js)
-   - b) Clerk (managed auth, quick setup)
-   - c) Custom JWT implementation
-```
-
-### When Version Matters - Web Search First
-
-Before implementing framework-specific features:
-
-```
-1. WebSearch(search_term="Next.js 16 App Router authentication March 2026")
-2. WebSearch(search_term="shadcn ui latest installation method 2026")
-3. WebFetch or WebSearch for detailed API docs; optional doc MCPs if available
-```
-
-This prevents writing outdated code or using deprecated patterns.
+## Anti-Patterns
+
+Do not:
+- ask about framework, package, or file structure when the repo can answer it
+- ask about tiny implementation details
+- repeat questions the user already answered
+- use fake `<think>` or `<thinking>` blocks as clarification scaffolding

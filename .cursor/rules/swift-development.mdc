@@ -8,27 +8,15 @@ alwaysApply: false
 
 Modern Swift patterns for iOS, macOS, and Apple platform development.
 
-## CRITICAL: Agentic-First Swift/iOS Development
+## Swift Workflow
 
-### Pre-Development Verification (MANDATORY)
+Before changing Swift or Apple-platform code:
 
-Before writing ANY Swift/iOS code:
-
-```
-1. CHECK XCODE/SWIFT AVAILABILITY
-   → Shell(command="swift --version", description="Check Swift version")
-   → Shell(command="xcodebuild -version", description="Check Xcode version")
-   → Shell(command="xcrun simctl list", description="List simulators")
-   
-2. VERIFY CURRENT VERSIONS (use WebSearch)
-   → WebSearch(search_term="Swift version January 2026")
-   → WebSearch(search_term="iOS SDK version January 2026")
-   → WebSearch(search_term="Xcode latest version January 2026")
-   
-3. CHECK EXISTING PROJECT
-   → Does *.xcodeproj exist? If yes, use Xcode to modify!
-   → Read Package.swift if it's a Swift Package
-   → NEVER manually edit project.pbxproj files!
+```text
+1. Determine whether this is a Swift package or an Xcode-managed app
+2. Read `Package.swift` or inspect the existing project structure first
+3. For version-sensitive work, verify current Swift, SDK, or Xcode details with the actual current date
+4. Never hand-edit IDE-managed project metadata
 ```
 
 ### ⚠️ CRITICAL: Xcode Project Files
@@ -79,22 +67,18 @@ xcodebuild test -project MyApp.xcodeproj -scheme MyApp -destination 'platform=iO
 
 ### Post-Edit Verification
 
-After ANY Swift code changes:
+After meaningful Swift changes, run the smallest useful check for the task:
 
 ```bash
 # Swift Package
 swift build
 swift test
 
-# Xcode Project (must have valid .xcodeproj)
+# Xcode Project
 xcodebuild -project MyApp.xcodeproj -scheme MyApp -sdk iphonesimulator build
-
-# SwiftLint (if available)
-swiftlint lint
-
-# Format
-swift-format format --in-place --recursive Sources/
 ```
+
+Add lint or formatting checks when the repo already uses them or the change is substantial.
 
 ### Common Swift Syntax Traps (Avoid These!)
 
