@@ -27,6 +27,7 @@ This repo keeps the identity and branding around **MiniMax M2.5**, but shifts th
 - clearer task framing
 - better decomposition on hard problems
 - more proportional verification
+- stricter definitions of done for runnable work
 
 Instead of trying to make MiniMax "sound like" another provider, the rules teach it to copy the **visible external behavior** of a strong GPT/Codex-style coding agent.
 
@@ -51,6 +52,15 @@ This refactor removes most of the old prompt bloat:
 - no fake `<think>` or `<thinking>` scaffolding
 - less "always run everything" language in domain-specific rules
 
+## Execution Guarantees
+
+The repo now tries to enforce a few non-negotiable behaviors:
+
+- new packages, frameworks, and toolchains must be checked against current authoritative sources before they are recommended or installed
+- scaffolding should use the framework's official CLI or official `create` or `init` path when one exists
+- runnable work is not done until there is runnable proof, not just static confidence
+- if a required check fails or is skipped, the agent should report `blocked` or `implemented but unverified` instead of claiming completion
+
 ## Solver Loop
 
 The main thing this repo now tries to transfer into MiniMax M2.5 is a repeatable solver loop:
@@ -68,6 +78,14 @@ For app-building, this means:
 - resolve key flows and acceptance first
 - prove one end-to-end slice early
 - add polish and secondary features afterward
+
+The minimum proving loop for a new app should usually be:
+
+1. install or setup succeeds
+2. dev server or health check starts
+3. production build succeeds
+4. one primary happy-path flow works
+5. promised integrations such as styling, routing, persistence, or auth are actually verified
 
 Example:
 
@@ -142,6 +160,10 @@ Rules work better when they say:
 
 They work worse when they spend lots of tokens on identity, status, or stylistic self-description.
 
+### Make Acceptance Explicit
+
+Good rules do not stop at "verify somehow." They define the minimum proof for the kind of claim being made, especially for new app scaffolds and user-facing behavior.
+
 ### Trust The Current Environment
 
 Cursor's tool surface changes. The rules should teach behavior that survives those changes instead of freezing old tool names or wrappers.
@@ -154,6 +176,8 @@ Cursor's tool surface changes. The rules should teach behavior that survives tho
 - solver-loop thinking
 - read-before-edit discipline
 - proportional verification
+- current-source version discipline
+- CLI-first scaffolding
 - concise communication
 
 ## Warnings

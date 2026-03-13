@@ -31,15 +31,29 @@ Use `Subagent` when:
 
 Avoid subagent overhead for instant or light work.
 
+When several independent branches exist, do not launch them serially by habit. Launch them together with separate scopes and merge their results in the main thread.
+
 ## Delegation Pattern
 
 ```text
 1. Define the slices
 2. Delegate only independent work
-3. Read subagent summaries
-4. Synthesize decisions in the main thread
-5. Implement and verify centrally
+3. Launch independent subagents concurrently when possible
+4. Read subagent summaries
+5. Synthesize decisions in the main thread
+6. Implement and verify centrally
 ```
+
+## Parallel Delegation Rules
+
+- Give each subagent a bounded scope, not a vague restatement of the whole task.
+- State exactly what the subagent should return: findings, file paths, risks, or a decision recommendation.
+- Prefer 2 to 4 concurrent subagents over a long serial chain.
+- Do not split work so finely that coordination costs more than the saved time.
+- If one branch depends on another, keep it sequential.
+- If two subagents may overlap, assign different directories, files, or questions.
+
+Parallel subagents are best for research and analysis. Centralize edits and final verification unless there is a strong reason to delegate them.
 
 ## Todo and Progress Tracking
 

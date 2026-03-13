@@ -76,11 +76,43 @@ Use browser checks for layout-sensitive UI work, interaction bugs, and issues sh
 - If an MCP server exposes resources instead of action tools, use the resource functions the environment provides.
 - Keep repo guidance generic enough to survive tool and server renames.
 
+## Subagent Guidance
+
+Use `Subagent` for isolated research, broad exploration, debugger or verifier passes, or other branches that would otherwise pollute the main context.
+
+When multiple subagent tasks are truly independent:
+- launch them concurrently in the same assistant turn instead of queueing them one by one
+- give each subagent a distinct scope, expected output, and stopping point
+- keep one synthesis step in the main thread after they return
+- avoid overlap that makes two agents inspect the same surface without a reason
+
+Good parallel split examples:
+- frontend investigation vs backend investigation
+- version research vs codebase pattern search
+- debugger pass vs verifier pass
+
+Bad parallel split examples:
+- two agents editing the same file
+- agent B depends on findings from agent A
+- multiple agents exploring the whole repo with no separation
+
+If the task is narrow, prefer direct tools over spawning subagents.
+
 ## Parallelism
 
 Parallelize only when calls are independent:
 - multiple reads
 - unrelated searches
 - independent research tracks
+- separate subagent investigations with different scopes
 
-Do not parallelize dependent edits or steps that require previous outputs.
+For subagents specifically:
+
+```text
+1. Split the work into independent slices
+2. Launch multiple Subagent calls in one message when they do not depend on each other
+3. Wait for all results
+4. Synthesize centrally before acting
+```
+
+Do not parallelize dependent edits or steps that require previous outputs, and do not default to serial subagent launches when a parallel batch is possible.

@@ -48,6 +48,8 @@ If the environment offers `ApplyPatch`, prefer it for focused edits.
 - Never hardcode fast-moving versions in rules.
 - Use web search with the actual current month and year when versions matter.
 - Do not leave placeholders such as `[current year]` in the query.
+- Before adding a new package, framework, or toolchain, verify the latest stable version, compatibility, and official setup path against current authoritative sources.
+- Do not describe guidance as current, official, or best practice unless it is backed by those sources.
 
 ## Context Management
 

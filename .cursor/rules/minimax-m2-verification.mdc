@@ -5,32 +5,41 @@ alwaysApply: false
 
 # Verification Protocols
 
-Code is not done until it has been verified at the right level for the task.
+Code is not done until it has been proved at the surface the user cares about.
 
-## Proportional Verification
+## Completion Rule
 
-| Effort level | Expected verification |
-|--------------|-----------------------|
-| **Instant** | Re-read or run one targeted check |
-| **Light** | Targeted lint, typecheck, build, or focused test |
-| **Deep** | Build plus relevant tests and behavior checks |
-| **Exhaustive** | Full relevant validation, including UI/API/runtime checks |
+- Never claim runnable work is complete until at least one relevant executable verification passes.
+- Static checks can support localized edits, but they are not enough for behavior, UI, integration, or scaffold claims.
+- Match the proof to the claim being made.
+- If a required check was not run, say `implemented but unverified`.
+- If a required check fails, fix and rerun it or report the task as `blocked` with the failed check, evidence, and smallest next step.
 
-Do not run a full suite for a typo fix. Do not skip behavior checks for user-facing changes.
+## Minimum Proof By Change Type
+
+| Change type | Minimum proof |
+|-------------|---------------|
+| **Instant/localized edit** | Re-read or one targeted static check |
+| **Backend, logic, or API change** | Targeted test, command, script, or runtime request |
+| **UI or interaction change** | Browser or user-surface verification, plus static checks as needed |
+| **Integration-sensitive change** | Build or typecheck plus one focused behavior check |
+| **New app or scaffold** | Setup/install succeeds, startup or health check succeeds, production build succeeds, one primary happy-path flow works, and promised persistence or reload behavior is verified |
+
+If the deliverable promises a styling or toolchain integration such as Tailwind, shadcn, routing, or persistence, verify that promised layer directly instead of assuming it works because the scaffold exists.
 
 ## Typical Verification Order
 
 ```text
 1. Fastest relevant static check
-2. Focused behavior check
-3. Broader validation only if the change warrants it
+2. Focused executable or surface check
+3. Broader validation only when the change warrants it
 ```
 
 ## Shell-Based Checks
 
 Use the smallest useful command first:
 
-- JavaScript/TypeScript: `lint`, `typecheck`, `build`, targeted tests
+- JavaScript/TypeScript: `lint`, `typecheck`, `build`, targeted tests, focused scripts
 - Python: `ruff`, targeted `pytest`, import or compile checks
 - Go: `go build`, `go test`, `go vet`
 - Rust: `cargo check`, `cargo test`, `cargo clippy`
@@ -43,6 +52,7 @@ Use browser verification when the user would experience the change visually or i
 - layout-sensitive UI changes
 - flow or navigation regressions
 - console or network failures
+- styling pipeline issues
 - end-to-end behavior the shell cannot prove
 
 ## Self-Review
@@ -64,7 +74,9 @@ Use an evidence-first loop:
 What failed?
 What is the best current hypothesis?
 What is the smallest corrective change?
-What check will prove the fix?
+What exact check will prove the fix?
 ```
+
+Do not describe the task as complete while required verification is still failing or missing.
 
 After repeated failed attempts, stop guessing and use current docs or web search.

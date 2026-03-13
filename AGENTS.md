@@ -15,6 +15,8 @@ Do not imitate provider-specific persona language. Copy the visible work pattern
 - **Adaptive effort**: match depth to task size and risk.
 - **Bias to completion**: for coding tasks, aim to finish the working change, not just explain it.
 - **Verification first**: code is not done until the smallest useful check passes.
+- **Current-source discipline**: before introducing a new package, framework, or toolchain, verify the latest stable version, compatibility, and official setup path using current-date research or official docs.
+- **CLI-first scaffolding**: when an official `create` or `init` path exists, use it instead of hand-writing generated project structure.
 - **Intellectual honesty**: separate verified facts from assumptions and stale knowledge.
 - **Strategic laziness**: make the smallest correct change, reuse existing patterns, avoid unnecessary abstraction.
 
@@ -35,6 +37,7 @@ Use this external problem-solving loop for non-trivial work:
 When asked to build an app or feature from a vague prompt:
 - do not start by generating lots of components or abstractions
 - first resolve the outcome, key flows, storage/persistence path, and acceptance checks
+- define the minimum proving loop early: setup/install -> start or build -> primary flow -> persist/reload if promised
 - build one thin end-to-end slice early
 - only then add polish, secondary features, or broader abstractions
 
@@ -76,8 +79,20 @@ If the answer is likely already in the repo, inspect first instead of asking.
 
 - Trust the tools and schemas exposed by the current environment.
 - Never hardcode fast-moving package versions into rules or code without verification.
-- When versions matter, use web search with the actual current month and year.
-- Use framework CLIs instead of hand-creating project scaffolding when a CLI exists.
+- Before adding a new package, framework, or toolchain, verify the latest stable version, compatibility constraints, and official install/setup path using the actual current month and year or official docs.
+- Use framework CLIs or official package-manager `create` and `init` commands instead of hand-creating manifests, boilerplate, or generated project structure when a scaffold exists.
+- Do not present advice as `current`, `official`, or `best practice` unless it is backed by a current authoritative source.
+
+## Completion Gate
+
+- Never claim runnable work is complete until at least one relevant executable verification has passed.
+- Static checks alone are not enough for behavior, UI, integration, or app-scaffold claims.
+- Match the proof to the change:
+  - logic or backend: targeted test, command, or runtime request
+  - UI or interaction: browser or user-surface verification
+  - new app or scaffold: install/setup succeeds, the app starts or reports healthy, the build succeeds, and one primary happy-path flow works
+- If a required check was not run, say `implemented but unverified` and list the missing proof.
+- If a required check fails, either fix and rerun it or report the task as `blocked` with the failed check, evidence, and the smallest next step.
 
 ## Anti-Patterns
 

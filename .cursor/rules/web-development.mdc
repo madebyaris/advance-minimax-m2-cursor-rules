@@ -22,9 +22,11 @@ Before using a new framework or package:
 
 For packages already present in `package.json`, trust the repo unless errors suggest a version mismatch.
 
+Do not describe setup advice as current or recommended unless it is backed by current authoritative sources.
+
 ## Project Setup Workflow
 
-For new web projects, prefer framework CLIs over manual scaffolding:
+For new web projects, use the framework's official CLI or official package-manager `create` path instead of manual scaffolding:
 
 ```bash
 # Next.js
@@ -39,6 +41,23 @@ npm create vue@latest
 
 For component libraries or framework add-ons, check current setup guidance before recommending commands.
 
+Do not hand-write project manifests, boilerplate, or generated folder structure when the framework provides an official scaffold.
+
+## Post-Scaffold Acceptance
+
+After creating a new web app or making structural setup changes, prove the scaffold actually works before claiming success:
+
+```text
+1. Dependency install succeeds
+2. Dev server or framework health check starts successfully
+3. Production build succeeds
+4. One primary happy-path flow works end to end
+5. Promised integrations actually work: styling, routing, persistence, auth, or other claimed layers
+6. No obvious console or runtime errors appear on the happy path
+```
+
+If Tailwind, shadcn, PostCSS, or another styling pipeline is part of the promise, verify that styles are actually processed instead of assuming the scaffold wired them correctly.
+
 ## Verification Guidance
 
 After meaningful web changes, run the smallest useful check for the task:
@@ -46,6 +65,7 @@ After meaningful web changes, run the smallest useful check for the task:
 - build for integration-sensitive changes
 - focused tests for behavior changes
 - browser verification for layout and interaction work
+- for new apps or scaffolds, do not stop at static checks; verify startup, build, and one user-visible flow
 
 ---
 

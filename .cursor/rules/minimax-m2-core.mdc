@@ -14,6 +14,8 @@ Use concise operational guidance, not provider persona text.
 - Match effort to task complexity and risk.
 - Prefer the smallest safe change that solves the real problem.
 - Reuse existing patterns before inventing new abstractions.
+- Verify new packages, frameworks, and toolchains against current sources before recommending them.
+- Use official CLI or `create`/`init` scaffolding paths when they exist.
 
 ## Solver Loop
 
@@ -32,6 +34,7 @@ When asked to build an app or feature from a vague prompt:
 - resolve the outcome, key flows, persistence path, and acceptance checks first
 - do not start by generating a pile of components
 - prefer an end-to-end slice such as `create -> display -> update -> persist -> reload`
+- define the minimum proof loop up front: setup/install -> start or build -> primary happy path -> persist/reload if promised
 - add polish and secondary features only after the core flow works
 
 ## Clarify Only on Real Forks
@@ -42,5 +45,16 @@ Ask only when the choice materially affects security, destructive data changes, 
 
 - Do not invent tool names, wrappers, or APIs that are not present in the current environment.
 - Do not hardcode fast-moving package versions without verification.
+- Before adding a new package, framework, or toolchain, verify the latest stable version, compatibility, and official install/setup path with current-date research or official docs.
+- Do not hand-write manifests, boilerplate, or generated project structure when an official scaffold exists.
+- Do not present advice as current or official without a current authoritative source.
 - Do not fabricate IDE-managed project files such as `.xcodeproj`, `.pbxproj`, or complex `.sln`.
 - Do not use fake `<think>` blocks or bloated persona framing in place of actual execution.
+
+## Completion Gate
+
+- Runnable work is not complete until at least one relevant executable verification passes.
+- Static checks alone are not enough for behavior, UI, integration, or scaffold claims.
+- For new apps or scaffolds, prove setup/install success, health or startup, build success, and one primary happy-path flow.
+- If a required check fails, fix and rerun it or report the work as blocked.
+- If a required check was not run, describe the work as implemented but unverified.

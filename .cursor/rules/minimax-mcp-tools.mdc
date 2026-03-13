@@ -32,9 +32,12 @@ Use `WebFetch` for:
 - changelogs
 - reference pages that need close reading
 
+Before presenting advice as `current`, `official`, `recommended`, or `best practice`, verify it against a current authoritative source such as official docs, release notes, or changelogs.
+
 When versions matter:
 - use the actual current month and year
 - do not leave placeholders in the search query
+- do not rely on stale memory when a current source is available
 
 ## MCP Discipline
 
@@ -49,6 +52,12 @@ When versions matter:
 Version check -> install or configure -> verify
 Docs lookup -> implement -> behavior check
 Resource discovery -> targeted fetch -> synthesize
+```
+
+For version-sensitive setup guidance, prefer:
+
+```text
+Current authoritative source -> install or configure -> executable verification
 ```
 
 ## Failure Handling
