@@ -10,28 +10,24 @@ Modern web development best practices for JavaScript, TypeScript, and related fr
 
 ## Version Policy
 
-**NEVER hardcode framework versions in rules files — they go stale in weeks.**
+Never hardcode fast-moving framework versions in rules files.
 
-Before using any NEW framework/package, verify the current version:
-```
-WebSearch(search_term="[package-name] npm latest version March 2026")
-```
+Before using a new framework or package:
 
-For packages already in the project's `package.json`, trust those versions unless errors suggest a mismatch.
-
-## CRITICAL: Project Setup Workflow
-
-### ALWAYS Use CLI Tools for New Projects
-
-**WRONG approach (creates incomplete/broken projects):**
-```
-1. Create package.json manually
-2. Create files one by one
-3. Copy component code from documentation
-4. Forget to run npm install
+```text
+1. Search the current version with the actual month and year
+2. Check compatibility with the existing stack
+3. Then recommend the install or setup path
 ```
 
-**CORRECT approach:**
+For packages already present in `package.json`, trust the repo unless errors suggest a version mismatch.
+
+Do not describe setup advice as current or recommended unless it is backed by current authoritative sources.
+
+## Project Setup Workflow
+
+For new web projects, use the framework's official CLI or official package-manager `create` path instead of manual scaffolding:
+
 ```bash
 # Next.js
 npx create-next-app@latest my-app --typescript --tailwind --app --eslint
@@ -41,26 +37,35 @@ npm create vite@latest my-app -- --template react-ts
 
 # Vue
 npm create vue@latest
-
-# Then for component libraries:
-cd my-app
-npx shadcn-ui@latest init
-npx shadcn-ui@latest add button card dialog
 ```
 
-### Version Checking Before Setup
+For component libraries or framework add-ons, check current setup guidance before recommending commands.
 
-```
-<think>
-Before creating a project, I MUST:
-1. Check current stable versions
-2. Verify CLI options are up to date
-3. Check for compatibility issues
-</think>
+Do not hand-write project manifests, boilerplate, or generated folder structure when the framework provides an official scaffold.
 
-→ WebSearch(search_term="create-next-app latest version March 2026")
-→ WebSearch(search_term="shadcn-ui Next.js compatibility 2026")
+## Post-Scaffold Acceptance
+
+After creating a new web app or making structural setup changes, prove the scaffold actually works before claiming success:
+
+```text
+1. Dependency install succeeds
+2. Dev server or framework health check starts successfully
+3. Production build succeeds
+4. One primary happy-path flow works end to end
+5. Promised integrations actually work: styling, routing, persistence, auth, or other claimed layers
+6. No obvious console or runtime errors appear on the happy path
 ```
+
+If Tailwind, shadcn, PostCSS, or another styling pipeline is part of the promise, verify that styles are actually processed instead of assuming the scaffold wired them correctly.
+
+## Verification Guidance
+
+After meaningful web changes, run the smallest useful check for the task:
+- lint or typecheck for localized edits
+- build for integration-sensitive changes
+- focused tests for behavior changes
+- browser verification for layout and interaction work
+- for new apps or scaffolds, do not stop at static checks; verify startup, build, and one user-visible flow
 
 ---
 

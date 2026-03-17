@@ -1,359 +1,118 @@
 ---
-description: "Cursor 2.6 runtime guide: current tool categories, direct browser and MCP usage, subagents, plugins, hooks, and practical workflows for agentic work."
+description: "Cursor runtime guide: choose the right tool, prefer direct tools, and keep execution parallel where safe."
 alwaysApply: false
 ---
 
-# Cursor 2.6 Tools Mastery
+# Cursor Tools Mastery
 
-This file is the runtime-facing companion to the core MiniMax rule. Keep durable behavior in the core rule; keep fast-moving Cursor tooling details here.
-
----
+Keep durable behavior in the core rule. Use this file for current Cursor tool-selection patterns.
 
 ## Golden Rule
 
-Every significant action follows this pattern:
+For significant actions:
 
-1. **Check** what exists.
-2. **Verify** versions, APIs, and assumptions.
-3. **Act** using the smallest correct tool.
-4. **Validate** with the lightest useful verification step.
+```text
+Check what exists
+Choose the smallest correct tool
+Act
+Validate with the lightest useful verification
+```
 
-When the current environment exposes direct tools, use those direct tools. Do not invent wrapper APIs.
+## Default Tool Map
 
----
-
-## Current Tool Surface
-
-The exact tool catalog can vary by environment, but modern Cursor setups usually expose direct tools rather than abstract wrappers.
-
-### Common current categories
-
-- File reading: `ReadFile`
+- Known file: `ReadFile`
 - File discovery: `Glob`
-- Text search: `rg`
-- Semantic exploration: `SemanticSearch`
-- Editing: `ApplyPatch`, `Delete`, `EditNotebook`
-- Command execution: `Shell`
-- Task tracking and plans: `TodoWrite`, `CreatePlan`
-- Structured questions: `AskQuestion`
-- Subagents: `Subagent`
+- Exact text search: `rg`
+- Conceptual discovery: `SemanticSearch`
+- Surgical edit: `ApplyPatch`
+- File removal: `Delete`
+- Commands, tests, git, installs: `Shell`
 - Web research: `WebSearch`, `WebFetch`
-- Browser automation: direct browser tools such as `browser_navigate`, `browser_snapshot`, `browser_click`
-- MCP resource access: `ListMcpResources`, `FetchMcpResource`
+- Structured questions: `AskQuestion`
+- Task tracking: `TodoWrite`
+- Planning: `CreatePlan`
+- Isolated investigation: `Subagent`
 
-### Legacy-to-current alias table
+## Read and Search Guidance
 
-| Older name in this repo | Current guidance |
-|-------------------------|------------------|
-| `Read` | `ReadFile` |
-| `Grep` | `rg` |
-| `LS` | `Glob` or another direct directory tool if present |
-| `StrReplace` / `Write` | Prefer `ApplyPatch` for focused edits; otherwise use the current edit tool from the prompt |
-| `ReadLints` | Use `Shell` for lint, typecheck, build, and test commands |
-| `Task(...)` | `Subagent(...)` |
-| `call_mcp_tool(...)` | Use the direct MCP, browser, or plugin tools exposed in the prompt |
+- Prefer direct read/search tools over shell equivalents.
+- Batch independent reads and searches with `multi_tool_use.parallel`.
+- Use `SemanticSearch` for "how/where/what handles this?" questions, not exact symbol lookups.
 
----
+## Editing Guidance
 
-## Read and Search Tools
-
-### `ReadFile`
-
-Use for known file paths and targeted file inspection.
-
-Best practices:
-- Read the whole file when it is reasonably sized.
-- Use `offset` and `limit` only for large files.
-- Batch independent reads in parallel.
-
-### `Glob`
-
-Use for file discovery by name or pattern.
-
-Best practices:
-- Use it to find files, not to search inside file contents.
-- Start broad, then narrow.
-
-### `rg`
-
-Use for exact or regex-based content search.
-
-Best practices:
-- Prefer `rg` over shell `grep`.
-- Use `output_mode: "files_with_matches"` when you only need matching files.
-- Add context only when you need surrounding lines.
-
-### `SemanticSearch`
-
-Use when the question is conceptual rather than textual.
-
-Best practices:
-- Ask one natural-language question at a time.
-- Start broad, then constrain to a directory if needed.
-
----
-
-## Editing Tools
-
-### `ApplyPatch`
-
-Prefer this for surgical single-file edits.
-
-Best practices:
-- Always read the file first.
-- Keep patches focused.
-- Use enough context to make the patch unambiguous.
+- Read the file first.
+- Use `ApplyPatch` for focused edits.
+- Keep edits coherent; avoid thrashing the same file with many tiny changes.
 - Re-read or verify after editing.
 
-### `Delete`
+## Shell Guidance
 
-Use when removing files is part of the requested change.
+Use `Shell` for:
+- builds, tests, typechecks, and linting
+- package-manager or framework CLI commands
+- git inspection
+- long-running verification commands when no dedicated tool exists
 
-### `EditNotebook`
+Before starting dev servers or watchers, check whether one is already running.
 
-Use only for notebook cell edits.
+## Browser Guidance
 
-### Editing protocol
-
-```text
-1. Read the file first
-2. Decide whether the change is surgical or broad
-3. Use ApplyPatch for surgical changes
-4. Verify with the right command or follow-up read
-```
-
-If the environment exposes a different edit primitive, follow the same behavioral protocol.
-
----
-
-## Command Execution
-
-### `Shell`
-
-Use for builds, tests, package installs, git inspection, and verification commands.
-
-Best practices:
-- Provide a clear `description`.
-- Use `working_directory` instead of inline `cd` chains when possible.
-- Use `block_until_ms` thoughtfully for long-running commands.
-- Before starting a dev server, check whether it is already running.
-
-### Typical verification flow
+When browser tools exist:
 
 ```text
-1. Run the smallest relevant lint, typecheck, build, or test command
-2. Inspect the output
-3. Fix issues before moving on
+1. Check tabs
+2. Navigate
+3. Snapshot before interaction
+4. Interact using snapshot refs
+5. Re-snapshot and inspect console/network when behavior is unclear
 ```
 
-Do not rely on a dedicated lint-reading tool unless the environment actually exposes one.
+Use browser checks for layout-sensitive UI work, interaction bugs, and issues shell commands cannot prove.
 
----
+## MCP and Plugin Guidance
 
-## Parallel Tool Usage
+- Prefer direct tools exposed in the prompt over wrapper APIs.
+- If an MCP server exposes resources instead of action tools, use the resource functions the environment provides.
+- Keep repo guidance generic enough to survive tool and server renames.
 
-Use `multi_tool_use.parallel` when calls are independent.
+## Subagent Guidance
 
-Good candidates:
-- Reading multiple unrelated files
-- Running several searches that do not depend on each other
-- Gathering docs from multiple sources
+Use `Subagent` for isolated research, broad exploration, debugger or verifier passes, or other branches that would otherwise pollute the main context.
 
-Do not parallelize:
-- Dependent edit sequences
-- Commands where later steps rely on earlier outputs
-- Multiple edits to the same file at once
+When multiple subagent tasks are truly independent:
+- launch them concurrently in the same assistant turn instead of queueing them one by one
+- give each subagent a distinct scope, expected output, and stopping point
+- keep one synthesis step in the main thread after they return
+- avoid overlap that makes two agents inspect the same surface without a reason
 
----
+Good parallel split examples:
+- frontend investigation vs backend investigation
+- version research vs codebase pattern search
+- debugger pass vs verifier pass
 
-## Browser Tools
+Bad parallel split examples:
+- two agents editing the same file
+- agent B depends on findings from agent A
+- multiple agents exploring the whole repo with no separation
 
-Current Cursor environments usually expose browser tools directly rather than through an MCP wrapper.
+If the task is narrow, prefer direct tools over spawning subagents.
 
-### Core browser workflow
+## Parallelism
 
-1. Check tabs with `browser_tabs`.
-2. Navigate with `browser_navigate`.
-3. Lock with `browser_lock` before interactive automation when appropriate.
-4. Snapshot with `browser_snapshot` before clicking or typing.
-5. Interact using refs from the snapshot.
-6. Use short waits and re-snapshot.
-7. Check console and network when debugging.
-8. Unlock with `browser_unlock` when finished.
+Parallelize only when calls are independent:
+- multiple reads
+- unrelated searches
+- independent research tracks
+- separate subagent investigations with different scopes
 
-### Common browser tools
-
-- Navigation: `browser_navigate`, `browser_navigate_back`, `browser_reload`
-- Inspection: `browser_snapshot`, `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`
-- Interaction: `browser_click`, `browser_type`, `browser_fill`, `browser_select_option`, `browser_press_key`, `browser_scroll`
-- Debugging: `browser_highlight`, `browser_get_attribute`, `browser_get_input_value`, `browser_is_visible`, `browser_is_enabled`
-- Profiling: `browser_profile_start`, `browser_profile_stop`
-
-### Browser rules
-
-- Snapshot before interacting.
-- Prefer short incremental waits.
-- Use console and network tools when behavior is unclear.
-- Lock and unlock cleanly.
-- Remember that iframe content is usually inaccessible.
-
----
-
-## MCP and External Integrations
-
-Current Cursor setups typically expose MCP-backed capabilities as direct tools, direct plugin tools, or MCP resource functions.
-
-### Prefer this order
-
-1. Native direct tools already exposed in the prompt
-2. Direct plugin tools exposed in the prompt
-3. `ListMcpResources` and `FetchMcpResource` when you need discoverable resources
-4. `WebSearch` or `WebFetch` for public docs and live web information
-
-### MCP guidance
-
-- Do not assume an old wrapper like `call_mcp_tool(...)` exists.
-- Follow the actual tool schema shown in the prompt.
-- If a plugin or MCP server exposes a direct tool, call that tool directly.
-- Use resource listing and fetching when the environment offers MCP resources instead of action tools.
-
-### Web research
-
-Use `WebSearch` for:
-- Current package versions
-- Breaking changes
-- Recent API docs
-- Error messages after repeated failures
-
-Use `WebFetch` for:
-- Official documentation pages
-- Reference pages you want to read in full
-
-Always include the actual current month and year for version-sensitive searches.
-
----
-
-## Subagents
-
-Use `Subagent` when work is large, parallelizable, or context-heavy.
-
-### Good uses
-
-- Broad codebase exploration
-- Parallel research tracks
-- Independent verification
-- Focused debugging
-
-### Current guidance
-
-- Prefer the `explore` subagent for broad repo investigation.
-- Prefer specialist subagents such as `verifier` or `debugger` where they exist.
-- Use `run_in_background` only when the environment supports it and the task benefits from asynchronous execution.
-- Do not assume nested subagent trees are supported unless the current environment explicitly documents that behavior.
-
-### Example delegation pattern
+For subagents specifically:
 
 ```text
-Subagent(
-  subagent_type="explore",
-  model="fast",
-  readonly=true,
-  description="Find auth flow",
-  prompt="Find the main authentication flow and return key files plus a concise summary."
-)
+1. Split the work into independent slices
+2. Launch multiple Subagent calls in one message when they do not depend on each other
+3. Wait for all results
+4. Synthesize centrally before acting
 ```
 
----
-
-## Plans and Task Tracking
-
-### `TodoWrite`
-
-Use for multi-step work that should be tracked explicitly.
-
-### `CreatePlan`
-
-Use when the task needs a user-approved plan, significant tradeoff discussion, or a staged implementation approach.
-
-Keep plans concise and actionable. Use Mermaid only when it materially clarifies structure.
-
----
-
-## Structured Questions
-
-### `AskQuestion`
-
-Use for hard forks only:
-- Security-sensitive choices
-- Destructive data changes
-- Major architecture branches
-- Decisions the user must make explicitly
-
-Do not use it for trivial reversible choices.
-
----
-
-## Skills, Plugins, and Rules
-
-### Rules
-
-Use rules for always-on behavior or file-pattern guidance.
-
-### Skills
-
-Use skills for reusable procedures and domain workflows.
-
-### Subagents
-
-Use subagents for specialist execution or isolated investigation.
-
-### Plugins
-
-Plugins can package tools, MCP servers, rules, skills, subagents, and hooks. In Cursor 2.6, plugin distribution also includes team-private marketplace workflows.
-
-### MCP Apps
-
-Cursor 2.6 can surface interactive UIs from MCP tools directly in chat. When such a tool exists, prefer using it directly instead of describing the interface second-hand.
-
----
-
-## Sandbox and Hooks
-
-### Sandbox
-
-Sandbox configuration still belongs in `sandbox.json`, but treat the docs as fast-moving and verify field names against live Cursor docs when editing sandbox guidance.
-
-### Hooks
-
-Hooks remain powerful, but keep hook guidance aligned with current Cursor docs rather than older event lists or assumptions.
-
-If this repo claims a hook-driven workflow, make sure the config actually exists in the repo.
-
----
-
-## Tool Selection Cheat Sheet
-
-```text
-Need a known file? → ReadFile
-Need files by pattern? → Glob
-Need exact content search? → rg
-Need conceptual discovery? → SemanticSearch
-Need a surgical edit? → ApplyPatch
-Need to run commands? → Shell
-Need current web info? → WebSearch / WebFetch
-Need browser verification? → direct browser tools
-Need a parallel investigator? → Subagent
-Need explicit task tracking? → TodoWrite
-Need a user-approved implementation plan? → CreatePlan
-Need user input on a hard fork? → AskQuestion
-```
-
----
-
-## Critical Don'ts
-
-- Do not invent wrapper APIs that are not present in the prompt.
-- Do not teach stale tool names as if they are universal.
-- Do not skip read-before-edit.
-- Do not skip verification after non-trivial changes.
-- Do not hardcode product-version claims unless you plan to maintain them.
+Do not parallelize dependent edits or steps that require previous outputs, and do not default to serial subagent launches when a parallel batch is possible.

@@ -1,228 +1,82 @@
 ---
-description: "Verification protocols: read-before-edit safety, proportional verification, shell-based validation, browser testing, and production-readiness checks."
+description: "Verification protocols: proportional checks, shell validation, browser verification, and blocker handling."
 alwaysApply: false
 ---
 
 # Verification Protocols
 
-Code generation is not complete until verification passes. Verification depth should scale with the size and risk of the change.
+Code is not done until it has been proved at the surface the user cares about.
 
----
+## Completion Rule
 
-## Golden Rule
+- Never claim runnable work is complete until at least one relevant executable verification passes.
+- Static checks can support localized edits, but they are not enough for behavior, UI, integration, or scaffold claims.
+- Match the proof to the claim being made.
+- If a required check was not run, say `implemented but unverified`.
+- If a required check fails, fix and rerun it or report the task as `blocked` with the failed check, evidence, and smallest next step.
 
-> **Code that is not verified is not done.**
+## Minimum Proof By Change Type
 
-Every meaningful change should end with the lightest verification step that can still catch likely failures.
+| Change type | Minimum proof |
+|-------------|---------------|
+| **Instant/localized edit** | Re-read or one targeted static check |
+| **Backend, logic, or API change** | Targeted test, command, script, or runtime request |
+| **UI or interaction change** | Browser or user-surface verification, plus static checks as needed |
+| **Integration-sensitive change** | Build or typecheck plus one focused behavior check |
+| **New app or scaffold** | Setup/install succeeds, startup or health check succeeds, production build succeeds, one primary happy-path flow works, and promised persistence or reload behavior is verified |
 
----
+If the deliverable promises a styling or toolchain integration such as Tailwind, shadcn, routing, or persistence, verify that promised layer directly instead of assuming it works because the scaffold exists.
 
-## Read-Before-Edit Safety
-
-The specific edit primitive may change over time, but this workflow should not:
-
-```text
-1. Read the file in the current session
-2. Base the edit on actual contents, not memory
-3. Apply the smallest correct edit
-4. Re-read or verify after editing
-```
-
-If the environment exposes `ApplyPatch`, prefer it for focused single-file changes.
-
----
-
-## Proportional Verification
-
-| Effort level | Verification expectation |
-|--------------|--------------------------|
-| **Instant** | Minimal targeted verification |
-| **Light** | Lint or build check plus quick self-review |
-| **Deep** | Build, tests, and targeted behavioral verification |
-| **Exhaustive** | Full build, relevant tests, UI or API validation, and verifier review |
-
-Do not run an entire system test suite for a typo fix. Do not skip build or behavior checks for a complex feature.
-
----
-
-## Adversarial Self-Review
-
-Before presenting non-trivial work, ask:
+## Typical Verification Order
 
 ```text
-1. What would break this?
-2. What assumptions might be wrong?
-3. Is there a simpler approach?
-4. Am I solving the actual user request?
-5. What would a skeptical reviewer flag?
+1. Fastest relevant static check
+2. Focused executable or surface check
+3. Broader validation only when the change warrants it
 ```
 
-Skip this for trivial instant-level changes.
+## Shell-Based Checks
 
----
+Use the smallest useful command first:
 
-## Pre-Generation Checks
+- JavaScript/TypeScript: `lint`, `typecheck`, `build`, targeted tests, focused scripts
+- Python: `ruff`, targeted `pytest`, import or compile checks
+- Go: `go build`, `go test`, `go vet`
+- Rust: `cargo check`, `cargo test`, `cargo clippy`
+- Flutter: `flutter analyze`, `flutter test`
+- Swift: `swift build`, `swift test`, `xcodebuild` when applicable
 
-For deep and exhaustive tasks, verify these before implementation:
+## Browser and Surface Checks
+
+Use browser verification when the user would experience the change visually or interactively:
+- layout-sensitive UI changes
+- flow or navigation regressions
+- console or network failures
+- styling pipeline issues
+- end-to-end behavior the shell cannot prove
+
+## Self-Review
+
+For non-trivial work, ask:
 
 ```text
-□ Existing patterns understood
-□ Versions checked for any new dependencies
-□ CLI tools considered before manual setup
-□ IDE-generated project files avoided
+What would break this?
+What assumptions might be wrong?
+Is there a simpler way?
+Did I solve the actual request?
 ```
 
----
+## When Verification Fails
 
-## Shell-Based Verification
-
-If the environment does not expose a dedicated lint reader, use `Shell` for verification.
-
-### Typical commands
-
-**JavaScript / TypeScript**
-```text
-npm run lint
-npm run typecheck
-npm run build
-npm test
-```
-
-**Python**
-```text
-python -m py_compile <file-or-entrypoint>
-pytest
-ruff check .
-```
-
-**Go**
-```text
-go build ./...
-go test ./...
-go vet ./...
-```
-
-**Rust**
-```text
-cargo check
-cargo test
-cargo clippy
-```
-
-Choose the smallest useful command first. Expand only when the change warrants it.
-
----
-
-## Browser Verification
-
-For UI work, use browser tools when the risk justifies it.
-
-### Typical browser flow
+Use an evidence-first loop:
 
 ```text
-1. Start the dev server if needed
-2. browser_navigate to the relevant page
-3. browser_snapshot before interacting
-4. Interact with the page using refs
-5. Re-snapshot and inspect console or network if needed
+What failed?
+What is the best current hypothesis?
+What is the smallest corrective change?
+What exact check will prove the fix?
 ```
 
-Use browser verification for:
-- layout-sensitive UI work
-- interactive flows
-- regressions the shell cannot catch
-- console or network debugging
+Do not describe the task as complete while required verification is still failing or missing.
 
----
-
-## API and Backend Verification
-
-Use the smallest realistic behavior check available:
-
-- run a targeted test file
-- hit the endpoint with an existing test harness or CLI request
-- verify logs or command output
-- confirm the affected path builds and executes
-
-Do not stop at static inspection if the user asked for working behavior.
-
----
-
-## IDE Project Files
-
-Never manually generate complex IDE-managed files such as:
-- `.xcodeproj`
-- `.xcworkspace`
-- `project.pbxproj`
-- complex `.sln` or IDE project metadata
-
-When asked, explain that the project must be created in the relevant IDE first, then offer to help with the code inside it.
-
----
-
-## Error Recovery
-
-When verification fails:
-
-```text
-What happened: [actual error]
-Why I think it happened: [best hypothesis]
-Confidence: [certain / likely / uncertain]
-Fix: [specific change]
-Verify again
-```
-
-After 3-4 failed attempts at the same issue, stop iterating blindly and use current web or documentation tools.
-
----
-
-## Verifier Agent
-
-For deep and exhaustive tasks, invoke the verifier agent after implementation when possible.
-
-The verifier should confirm:
-- the implementation exists
-- the relevant commands pass
-- the intended behavior is actually present
-- obvious edge cases were not missed
-
----
-
-## Verification Checklist
-
-### Instant
-
-```text
-□ The edit is correct on re-read or targeted check
-```
-
-### Light
-
-```text
-□ Targeted lint, typecheck, or build step passes
-□ Quick self-review completed
-```
-
-### Deep
-
-```text
-□ New dependency versions verified if applicable
-□ Relevant build or typecheck passes
-□ Relevant tests pass
-□ Self-review completed
-□ Behavior checked at the affected surface
-```
-
-### Exhaustive
-
-```text
-□ New dependency versions verified if applicable
-□ No IDE-managed project files were fabricated
-□ Full relevant build passes
-□ Relevant tests pass
-□ UI or API behavior verified
-□ Console or runtime signals checked where useful
-□ Verifier agent confirms completion
-```
-
-If the required checks for the task's effort level have not been run, the task is not complete.
+After repeated failed attempts, stop guessing and use current docs or web search.

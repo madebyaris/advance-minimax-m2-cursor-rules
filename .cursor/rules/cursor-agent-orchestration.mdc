@@ -1,278 +1,87 @@
 ---
-description: "Cursor 2.6 orchestration guide: subagents, task decomposition, plan mode, skills, custom agents, and parallel workflows for complex multi-step tasks."
+description: "Cursor orchestration guide: when to plan, when to delegate, and how to keep multi-step work coherent."
 alwaysApply: false
 ---
 
-# Cursor 2.6 Agent Orchestration
+# Cursor Agent Orchestration
 
-Use this rule for deep and exhaustive tasks where coordination matters more than raw implementation speed.
+Use this rule for deep or exhaustive tasks where coordination matters more than raw implementation speed.
 
----
+## Core Idea
 
-## Architecture Overview
+The main agent should own synthesis. Plans, subagents, and task tracking exist to reduce context load and make large work safer.
 
-```text
-Main agent
-├── Rules: always-on and requestable guidance
-├── Skills: reusable domain workflows
-├── Subagents: isolated specialists for exploration, debugging, and verification
-└── Tools: direct file, shell, browser, web, and MCP/plugin tools
-```
+## When to Plan
 
-The goal is not to delegate everything. The goal is to isolate context-heavy or parallelizable work while keeping the main thread coherent.
+Plan when:
+- the task is ambiguous
+- multiple valid approaches exist
+- many files or systems will change
+- the user needs approval before implementation
 
----
-
-## Agent Transcripts Citation
-
-When referencing past chats from agent transcripts:
-- Format citations as `[Short title](uuid)` using the parent transcript UUID.
-- Keep titles short, six words or fewer.
-- Never cite subagent transcript IDs directly.
-
----
-
-## Orchestration Principles
-
-- **Adaptive effort**: use orchestration only when the task is large enough to benefit from it.
-- **Default-first**: choose safe reversible defaults unless the user must decide.
-- **Parallel where independent**: delegate independent exploration or verification in parallel.
-- **Main agent owns synthesis**: subagents gather, test, or validate; the main agent integrates.
-- **Do not assume unsupported runtime behavior**: only rely on subagent features the current environment actually exposes.
-
----
-
-## Date-Aware Search Protocol
-
-Before version-sensitive web searches:
-
-```text
-1. Extract the actual current month and year from context
-2. Use those concrete values in the query
-3. Avoid placeholders such as [current year] or ${version}
-```
-
-Examples:
-- `WebSearch(search_term="Next.js latest stable version March 2026")`
-- `WebSearch(search_term="React useActionState docs 2026")`
-
----
+Do not over-plan one-file fixes or straightforward edits.
 
 ## When to Use Subagents
 
-Use `Subagent` when one of these is true:
+Use `Subagent` when:
+- repo exploration is broad and would pollute main context
+- independent investigations can run in parallel
+- a verifier or debugger pass would help
+- the task has a long-running research branch
 
-- The repo is unfamiliar and broad exploration would pollute main context.
-- You want two or more independent investigations in parallel.
-- You need a focused verifier or debugger persona.
-- The task has a long-running research or inspection branch.
+Avoid subagent overhead for instant or light work.
 
-Avoid subagent overhead for instant and light tasks.
+When several independent branches exist, do not launch them serially by habit. Launch them together with separate scopes and merge their results in the main thread.
 
----
-
-## Current Subagent Guidance
-
-### Preferred built-in types
-
-| Type | Best use |
-|------|----------|
-| `explore` | Broad codebase discovery |
-| `debugger` | Root-cause analysis for errors |
-| `verifier` | Skeptical validation after implementation |
-| `generalPurpose` | Miscellaneous focused investigations |
-| `shell` | Command-heavy delegated work |
-| `browser-use` | Longer browser workflows with isolated context |
-
-### Direct `Subagent` pattern
+## Delegation Pattern
 
 ```text
-Subagent(
-  subagent_type="explore",
-  model="fast",
-  readonly=true,
-  description="Find auth flow",
-  prompt="Find the main authentication flow and return key files plus a concise summary."
-)
+1. Define the slices
+2. Delegate only independent work
+3. Launch independent subagents concurrently when possible
+4. Read subagent summaries
+5. Synthesize decisions in the main thread
+6. Implement and verify centrally
 ```
 
-### Key rules
+## Parallel Delegation Rules
 
-- Include all required context in the prompt; subagents start fresh.
-- Prefer `readonly: true` for exploration and review.
-- Use `run_in_background` only when the task benefits from asynchronous execution.
-- Do not assume nested subagent trees or unsupported resume patterns beyond what the current prompt explicitly allows.
+- Give each subagent a bounded scope, not a vague restatement of the whole task.
+- State exactly what the subagent should return: findings, file paths, risks, or a decision recommendation.
+- Prefer 2 to 4 concurrent subagents over a long serial chain.
+- Do not split work so finely that coordination costs more than the saved time.
+- If one branch depends on another, keep it sequential.
+- If two subagents may overlap, assign different directories, files, or questions.
 
----
+Parallel subagents are best for research and analysis. Centralize edits and final verification unless there is a strong reason to delegate them.
 
-## Effort-Based Delegation
+## Todo and Progress Tracking
 
-| Effort level | Delegation strategy |
-|--------------|---------------------|
-| **Instant** | Do it yourself |
-| **Light** | Usually do it yourself |
-| **Deep** | Delegate exploration or verification, implement in the main thread |
-| **Exhaustive** | Use parallel subagents for independent tracks, then synthesize centrally |
+Use `TodoWrite` for real multi-step execution:
+- large refactors
+- multi-file features
+- research plus implementation plus validation
 
----
+Keep the list current. Do not let stale in-progress items pile up.
 
-## Hierarchical Task Decomposition
+## Solver Loop for Complex Tasks
 
-For exhaustive work, use staged EPIC-style decomposition. Do not use this structure for trivial tasks.
+For deep work:
 
 ```text
-EPIC0: Prerequisites
-EPIC1: Primary feature area
-EPIC2: Secondary feature area
-EPIC3: Integration and verification
+Orient
+Find the spine
+Choose the smallest proving slice
+Implement
+Verify
+Broaden carefully
 ```
 
-Rules:
-- Put setup and dependency work first.
-- Keep sub-tasks independently verifiable.
-- Mark progress as work actually advances.
-- Avoid todo bloat for simple tasks.
-
----
-
-## `TodoWrite`
-
-Use `TodoWrite` for real multi-step execution.
-
-Good candidates:
-- Large refactors
-- Multi-file features
-- Work with distinct phases
-- Research plus implementation plus validation
-
-Avoid it for:
-- One-file fixes
-- Single-command tasks
-- Pure conversation
-
----
-
-## `CreatePlan` and Plan Mode
-
-Use `CreatePlan` when the user needs a concrete implementation plan before coding.
-
-Best practices:
-- Keep plans concise and actionable.
-- Include tradeoffs only when they matter.
-- Use Mermaid only when it clarifies architecture or flow.
-- Do not over-plan simple work.
-
----
-
-## Parallel Work Patterns
-
-### Good pattern
-
-```text
-Main agent:
-1. Define the task slices
-2. Launch independent subagents
-3. Read their summaries
-4. Synthesize a single implementation or recommendation
-```
-
-### Typical parallel splits
-
-- Explore frontend and backend separately
-- Audit code and docs separately
-- Investigate implementation and test strategy separately
-- Run verifier alongside non-blocking documentation work
-
-### Anti-patterns
-
-- Delegating tiny tasks that are faster in the main thread
-- Splitting tightly coupled edits across subagents without coordination
-- Treating subagents as a replacement for synthesis
-
----
-
-## Custom Agents
-
-Custom agents live in `.cursor/agents/` and should be narrow, opinionated, and useful.
-
-### Recommended frontmatter
-
-```yaml
----
-name: verifier
-description: Validates completed work. Use after implementation to confirm it actually works.
-model: fast
-readonly: true
-background: false
----
-```
-
-Notes:
-- Prefer clear descriptions over vague ones.
-- Use `background: true` only for genuinely long-running agents.
-- Keep custom agents specialized; use skills for reusable procedures.
-
----
-
-## Skills vs Rules vs Agents
-
-| Need | Best fit |
-|------|----------|
-| Always-on behavior | Rule |
-| Reusable workflow | Skill |
-| Specialist execution or review | Custom agent |
-
-Good examples:
-- Rule: read-before-edit behavior
-- Skill: deep research procedure
-- Agent: verifier or debugger
-
----
+For exhaustive work, break the task into independently verifiable milestones rather than broad abstract epics.
 
 ## Verification During Orchestration
 
-Per-file or per-phase verification should happen as work advances, not only at the end.
-
-Examples:
-- After a code change, run the smallest relevant lint, typecheck, build, or test command.
-- After a UI phase, use browser tools to inspect and interact.
-- After a major feature phase, invoke the verifier agent.
-
----
-
-## Hooks and Long-Running Loops
-
-Hooks can support advanced orchestration, but hook APIs evolve. Keep hook guidance aligned with live Cursor docs rather than freezing old event names or workflows into this rule.
-
-If the repo claims a hook-based loop, verify that the actual hook config in the repo matches the claim.
-
----
-
-## Compaction
-
-For long tasks, periodically compress state:
-
-```text
-Essential context to carry forward:
-- stack and conventions
-- completed work
-- current phase
-- key decisions
-- known risks
-```
-
-Use subagents to naturally isolate context-heavy exploration when possible.
-
----
-
-## Summary Workflow
-
-```text
-1. Calibrate effort
-2. Decide whether orchestration is justified
-3. If yes, decompose the task
-4. Launch targeted subagents or create a plan as needed
-5. Implement and verify incrementally
-6. Synthesize results in the main thread
-7. Finish with explicit verification
-```
+Do not postpone all checks to the end. Verify per phase:
+- after code changes, run the smallest relevant command
+- after UI changes, use browser checks when needed
+- after a major feature phase, run broader validation

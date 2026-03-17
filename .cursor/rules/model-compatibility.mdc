@@ -1,151 +1,59 @@
 ---
-description: "Model compatibility guide for all models in Cursor: prompt architecture, direct tool usage, read-before-edit discipline, and common failure modes."
+description: "Model compatibility guide: prompt hierarchy, tool discipline, read-before-edit safety, and context control across models."
 alwaysApply: false
 ---
 
-# Model Compatibility in Cursor
+# Transferable Agent Behavior
 
-This rule helps any model operate effectively inside Cursor by separating durable behavior from fast-moving runtime details.
+This repo is written for MiniMax M2.5. The purpose of this file is to define the transferable execution behavior MiniMax should copy: tool-first work, read-before-edit discipline, short prompts, and context-aware problem solving that also maps well to strong GPT/Codex-style coding agents.
 
----
+## Prompt Hierarchy
 
-## How Cursor Prompting Works
+Treat the current environment as the source of truth:
+- system instructions and exposed tools win
+- always-on rules should stay short and durable
+- requestable rules should carry runtime-specific guidance
+- user instructions still define the task
 
-Cursor constructs the final prompt from multiple layers:
+Do not assume an older rule or prompt shape is still valid just because it appears in this repo.
 
-```text
-Layer 1: Cursor system instructions and tool definitions
-Layer 2: alwaysApply rules
-Layer 3: file-pattern or context-triggered rules
-Layer 4: requestable rules
-Layer 5: skills
-Layer 6: user message and attached context
-```
+## Main Failure Modes
 
-The exact transport varies by provider, but the practical rule is stable:
+The most common failures are:
+- writing plausible prose instead of using tools
+- guessing file contents instead of reading them
+- teaching stale tool names as if they were universal
+- overloading the prompt with duplicate process text
 
-- Treat Cursor's tool definitions and system instructions as authoritative.
-- Follow the actual tool schema shown in the prompt.
-- Do not assume that a tool name from an older ruleset still exists.
+## Tool Discipline
 
----
+- If the prompt exposes a tool for the action, prefer that tool over shell.
+- Follow the exact tool schema shown by the environment.
+- Batch independent reads and searches when helpful.
+- Keep commentary short; spend prompt budget on execution, not narration.
 
-## The Main Failure Mode
-
-The single most common failure is producing plausible prose instead of using the available tools.
-
-```text
-User: "Compare these two files"
-
-Wrong:
-  Guess what changed and answer from memory
-
-Correct:
-  ReadFile(path="file1.ts")
-  ReadFile(path="file2.ts")
-  Compare the actual contents
-```
-
-**Rule**: If the answer can be grounded with a tool call, ground it with a tool call.
-
----
-
-## Tool Call Discipline
-
-Your prompt defines the exact tool names and parameter shapes. Follow those exactly.
-
-Common mistakes:
-- Wrapping tool calls in markdown code fences
-- Adding explanatory prose before a straightforward tool call
-- Guessing parameter names
-- Calling a legacy wrapper API that is not present
-
-Batch independent work when the environment supports it. In modern Cursor setups, prefer `multi_tool_use.parallel` for clearly independent calls.
-
----
-
-## Read-Before-Edit Across All Models
-
-Editing failures usually come from guessing at file contents rather than reading first.
-
-### Mandatory workflow
+## Read-Before-Edit
 
 ```text
-1. ReadFile the target file
-2. Identify the exact change from actual contents
-3. Apply the edit with the current edit primitive
-4. Verify with Shell, follow-up reads, tests, or browser checks
+1. Read the target file in the current session
+2. Base the change on exact contents
+3. Use the current edit primitive
+4. Verify with follow-up reads, build, tests, browser checks, or shell output
 ```
 
-If the environment provides an exact-match edit tool, copy the old text exactly and include enough context to make the edit unique.
-
-If the environment provides `ApplyPatch`, prefer it for focused single-file edits.
-
----
+If the environment offers `ApplyPatch`, prefer it for focused edits.
 
 ## Version Handling
 
-Never hardcode fast-moving framework versions into rules.
-
-Correct pattern:
-
-```text
-WebSearch(search_term="[package] latest version March 2026")
-```
-
-Use the actual current month and year from context. Do not leave placeholders in the search string.
-
----
+- Never hardcode fast-moving versions in rules.
+- Use web search with the actual current month and year when versions matter.
+- Do not leave placeholders such as `[current year]` in the query.
+- Before adding a new package, framework, or toolchain, verify the latest stable version, compatibility, and official setup path against current authoritative sources.
+- Do not describe guidance as current, official, or best practice unless it is backed by those sources.
 
 ## Context Management
 
-When the prompt is large:
-
-1. Do not read files "just in case."
-2. Prefer targeted searches over broad scans.
-3. Batch independent reads.
-4. Keep the durable lesson, not the entire raw output, in active context.
-
----
-
-## Common Failure Modes and Fixes
-
-### 1. Text instead of action
-
-Fix: call the relevant read, search, browser, or shell tool immediately.
-
-### 2. Over-planning simple tasks
-
-Fix: for instant and light tasks, read, edit, and verify without ceremony.
-
-### 3. Asking the user for information available in the repo
-
-Fix: use `ReadFile`, `Glob`, `rg`, or `SemanticSearch` first.
-
-### 4. Talking between every tool call
-
-Fix: keep commentary short and high-signal.
-
-### 5. Skipping browser verification for UI work
-
-Fix: use the direct browser tools after UI changes.
-
-### 6. Treating verification as optional
-
-Fix: run the smallest useful lint, typecheck, build, or test command with `Shell`.
-
----
-
-## Quick Checklist
-
-Before responding:
-
-```text
-[ ] Did I inspect the relevant files instead of guessing?
-[ ] Did I use the actual tool names exposed in this environment?
-[ ] Did I batch independent work when useful?
-[ ] Am I doing the task rather than narrating it?
-[ ] If editing, did I read the file first?
-[ ] Did I verify the result with the right command or follow-up check?
-[ ] Did I verify versions via WebSearch instead of memory?
-```
+- Read only what is needed for the task.
+- Prefer targeted searches over broad scans.
+- Keep durable lessons, not raw output, in active context.
+- For large work, push detailed procedures into requestable rules or skills instead of the always-on core.

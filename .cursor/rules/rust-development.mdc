@@ -8,35 +8,20 @@ alwaysApply: false
 
 Idiomatic Rust patterns focusing on ownership, safety, and performance.
 
-## CRITICAL: Agentic-First Rust Development
+## Rust Workflow
 
-### Pre-Development Verification (MANDATORY)
+Before changing Rust code:
 
-Before writing ANY Rust code:
-
-```
-1. CHECK RUST INSTALLATION
-   → Shell(command="rustc --version", description="Check Rust version")
-   → Shell(command="cargo --version", description="Check Cargo version")
-   
-2. VERIFY CURRENT VERSIONS (use WebSearch)
-   → WebSearch(search_term="Rust stable version January 2026")
-   → WebSearch(search_term="Rust edition 2024 features")
-   
-3. CHECK EXISTING PROJECT
-   → Does Cargo.toml exist? Read it first!
-   → What Rust edition is specified?
-   → What dependencies are already present?
-   
-4. FOR NEW PROJECTS - USE cargo new
-   → NEVER manually create Cargo.toml from scratch
-   → Shell(command="cargo new my_project", description="Create Rust project")
-   → Shell(command="cargo new --lib my_library", description="Create Rust library")
+```text
+1. Read `Cargo.toml` and current crate structure first
+2. Check the edition and existing dependency set before recommending new patterns
+3. For new crates, use `cargo new` or `cargo init`; do not hand-create `Cargo.toml`
+4. For new dependencies or version-sensitive work, verify current versions with the actual current date
 ```
 
 ### CLI-First Rust Development
 
-**ALWAYS use Cargo CLI:**
+Prefer standard Cargo workflows:
 ```bash
 # Project creation (NEVER manually create Cargo.toml)
 cargo new my_project
@@ -66,21 +51,15 @@ cargo test -- --nocapture  # See println output
 
 ### Post-Edit Verification
 
-After ANY Rust code changes, ALWAYS run:
+After meaningful Rust changes, run the smallest useful check for the task:
 
 ```bash
-# Check compilation
 cargo check
-
-# Lint for issues
-cargo clippy -- -D warnings
-
-# Run tests
 cargo test
-
-# Format code
 cargo fmt --check
 ```
+
+Add `cargo clippy` when the change is substantial, safety-sensitive, or lint-heavy.
 
 ### Common Rust Syntax Traps (Avoid These!)
 

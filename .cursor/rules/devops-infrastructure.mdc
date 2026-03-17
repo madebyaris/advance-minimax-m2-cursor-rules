@@ -8,38 +8,20 @@ alwaysApply: false
 
 Containerization, orchestration, infrastructure as code, and CI/CD best practices.
 
-## CRITICAL: Agentic-First DevOps
+## DevOps Workflow
 
-### Pre-Development Verification (MANDATORY)
+Before changing infrastructure or deployment code:
 
-Before writing ANY DevOps configuration:
-
-```
-1. CHECK TOOL AVAILABILITY
-   → Shell(command="docker --version", description="Check Docker")
-   → Shell(command="kubectl version --client", description="Check kubectl")
-   → Shell(command="terraform --version", description="Check Terraform")
-   → Shell(command="helm version", description="Check Helm")
-   
-2. VERIFY CURRENT VERSIONS (use WebSearch)
-   → WebSearch(search_term="Terraform latest version January 2026")
-   → WebSearch(search_term="Kubernetes latest stable version 2026")
-   → WebSearch(search_term="Docker best practices 2026")
-   
-3. CHECK EXISTING INFRASTRUCTURE
-   → Read existing Dockerfile, docker-compose.yml, *.tf files
-   → Understand current state before modifying
-   → Check terraform.tfstate or remote state
-   
-4. VALIDATE CONFIGURATIONS BEFORE APPLYING
-   → terraform validate
-   → docker-compose config
-   → kubectl apply --dry-run=client
+```text
+1. Read the existing Docker, Kubernetes, Terraform, or CI files first
+2. Understand the current state and provider/tool versions in use
+3. For version-sensitive work, verify current versions with the actual current date
+4. Validate configurations before recommending apply or deploy steps
 ```
 
 ### CLI-First DevOps Workflow
 
-**ALWAYS use CLI for validation:**
+Prefer CLI validation and dry-run workflows:
 ```bash
 # Docker
 docker build -t test:latest .
@@ -55,7 +37,7 @@ kubeval manifest.yaml  # Validate against schema
 terraform init
 terraform fmt -recursive
 terraform validate
-terraform plan -out=tfplan  # ALWAYS plan before apply
+terraform plan -out=tfplan  # Prefer planning before apply
 
 # Helm
 helm lint ./my-chart
@@ -65,12 +47,11 @@ helm install --dry-run --debug my-release ./my-chart
 
 ### Post-Edit Verification
 
-After ANY infrastructure code changes:
+After meaningful infrastructure changes, run the smallest useful validation for the files you touched:
 
 ```bash
 # Docker
-docker build --no-cache -t test:latest .
-docker run --rm test:latest echo "Build verified"
+docker build -t test:latest .
 
 # Terraform
 terraform fmt -check -recursive
@@ -78,9 +59,10 @@ terraform validate
 terraform plan
 
 # Kubernetes
-kubectl apply --dry-run=server -f .  # Server-side validation
-kubectl get events --sort-by='.lastTimestamp'  # Check for issues
+kubectl apply --dry-run=client -f manifest.yaml
 ```
+
+Use broader checks only when the change warrants them.
 
 ### Common DevOps Syntax Traps (Avoid These!)
 

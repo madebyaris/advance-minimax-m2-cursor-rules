@@ -8,33 +8,20 @@ alwaysApply: false
 
 Idiomatic Go patterns focusing on simplicity, clarity, and concurrency.
 
-## CRITICAL: Agentic-First Go Development
+## Go Workflow
 
-### Pre-Development Verification (MANDATORY)
+Before changing Go code:
 
-Before writing ANY Go code:
-
-```
-1. CHECK GO INSTALLATION
-   → Shell(command="go version", description="Check Go version")
-   
-2. VERIFY CURRENT GO VERSION (use WebSearch)
-   → WebSearch(search_term="Go golang stable version January 2026")
-   → Ensure go.mod uses correct version
-   
-3. CHECK EXISTING PROJECT
-   → Does go.mod exist? Read it first!
-   → What Go version is specified?
-   → Are dependencies already present?
-   
-4. FOR NEW PROJECTS - USE go mod init
-   → NEVER manually create go.mod
-   → Shell(command="go mod init github.com/org/project", description="Initialize Go module")
+```text
+1. Read `go.mod` and existing package structure first
+2. Check the current Go version in the repo before recommending newer features
+3. For new modules, use `go mod init`; do not hand-create `go.mod`
+4. For new dependencies or version-sensitive work, verify current versions with the actual current date
 ```
 
 ### CLI-First Go Development
 
-**ALWAYS use Go CLI tools:**
+Prefer standard Go CLI workflows:
 ```bash
 # Project initialization (NEVER manually create go.mod)
 go mod init github.com/myorg/myproject
@@ -52,28 +39,22 @@ go build ./...
 go test ./...
 go vet ./...
 
-# Format (ALWAYS before committing)
+# Format before committing
 go fmt ./...
 gofmt -s -w .
 ```
 
 ### Post-Edit Verification
 
-After ANY Go code changes, ALWAYS run:
+After meaningful Go changes, run the smallest useful check for the task:
 
 ```bash
-# Verify compilation
 go build ./...
-
-# Check for issues
-go vet ./...
-
-# Run tests
 go test ./...
-
-# Ensure dependencies are correct
-go mod tidy
+go vet ./...
 ```
+
+Run `go mod tidy` when imports or dependencies changed rather than after every tiny edit.
 
 ### Common Go Syntax Traps (Avoid These!)
 

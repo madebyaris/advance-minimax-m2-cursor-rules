@@ -8,34 +8,20 @@ alwaysApply: false
 
 Modern Flutter patterns for cross-platform mobile, web, and desktop development.
 
-## CRITICAL: Agentic-First Flutter Development
+## Flutter Workflow
 
-### Pre-Development Verification (MANDATORY)
+Before changing Flutter code:
 
-Before writing ANY Flutter code:
-
-```
-1. CHECK FLUTTER INSTALLATION
-   → Shell(command="flutter --version", description="Check Flutter version")
-   → Shell(command="flutter doctor", description="Run Flutter doctor")
-   
-2. VERIFY CURRENT VERSIONS (use WebSearch)
-   → WebSearch(search_term="Flutter stable version January 2026")
-   → WebSearch(search_term="Dart SDK version January 2026")
-   
-3. CHECK EXISTING PROJECT
-   → Does pubspec.yaml exist? Read it first!
-   → What Flutter/Dart SDK is specified?
-   → Are dependencies already installed?
-   
-4. FOR NEW PROJECTS - USE flutter create
-   → NEVER manually create pubspec.yaml from scratch
-   → Shell(command="flutter create my_app", description="Create Flutter project")
+```text
+1. Read `pubspec.yaml` and the current app structure first
+2. Check the repo's Flutter and Dart constraints before using newer language or framework features
+3. For new apps, use `flutter create`; do not hand-create `pubspec.yaml`
+4. For new dependencies or version-sensitive work, verify current versions with the actual current date
 ```
 
 ### CLI-First Flutter Development
 
-**ALWAYS use Flutter CLI:**
+Prefer Flutter CLI workflows:
 ```bash
 # Project creation (NEVER manually create pubspec.yaml)
 flutter create my_app
@@ -50,7 +36,7 @@ flutter pub add dio
 flutter pub add freezed --dev
 flutter pub add build_runner --dev
 
-# Get dependencies (ALWAYS after any pubspec change)
+# Get dependencies after any pubspec change
 flutter pub get
 
 # Code generation (for freezed, json_serializable)
@@ -63,21 +49,15 @@ flutter test
 
 ### Post-Edit Verification
 
-After ANY Flutter code changes, ALWAYS run:
+After meaningful Flutter changes, run the smallest useful check for the task:
 
 ```bash
-# Get dependencies
-flutter pub get
-
-# Analyze for issues
 flutter analyze
-
-# Run tests
 flutter test
-
-# Check formatting
 dart format --set-exit-if-changed .
 ```
+
+Run `flutter pub get` when `pubspec.yaml` changed rather than after every code edit.
 
 ### Common Dart/Flutter Syntax Traps (Avoid These!)
 
