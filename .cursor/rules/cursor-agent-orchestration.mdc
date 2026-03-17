@@ -20,6 +20,7 @@ Plan when:
 - the user needs approval before implementation
 
 Do not over-plan one-file fixes or straightforward edits.
+Use the environment's active planning workflow or mode when it exists instead of assuming a specific planning tool name.
 
 ## When to Use Subagents
 
@@ -85,3 +86,5 @@ Do not postpone all checks to the end. Verify per phase:
 - after code changes, run the smallest relevant command
 - after UI changes, use browser checks when needed
 - after a major feature phase, run broader validation
+
+Final user-facing completion claims should follow the always-on status and verification rule rather than ad-hoc wording.

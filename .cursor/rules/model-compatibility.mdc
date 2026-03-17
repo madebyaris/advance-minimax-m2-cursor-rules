@@ -11,11 +11,12 @@ This repo is written for MiniMax M2.5. The purpose of this file is to define the
 
 Treat the current environment as the source of truth:
 - system instructions and exposed tools win
-- always-on rules should stay short and durable
+- always-on rules should stay short, durable, and canonical
 - requestable rules should carry runtime-specific guidance
 - user instructions still define the task
 
 Do not assume an older rule or prompt shape is still valid just because it appears in this repo.
+Prefer a single always-on execution spine over duplicated policy spread across multiple files.
 
 ## Main Failure Modes
 

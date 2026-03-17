@@ -1,19 +1,16 @@
----
-description: "Verification protocols: proportional checks, shell validation, browser verification, and blocker handling."
+description: "Extended verification playbook: proof selection, shell checks, browser checks, and recovery loops."
 alwaysApply: false
 ---
 
-# Verification Protocols
+# Verification Playbook
 
-Code is not done until it has been proved at the surface the user cares about.
+Use this file to extend the always-on status and verification contract with more detailed check-selection guidance.
 
-## Completion Rule
+## Proof Selection
 
-- Never claim runnable work is complete until at least one relevant executable verification passes.
-- Static checks can support localized edits, but they are not enough for behavior, UI, integration, or scaffold claims.
 - Match the proof to the claim being made.
-- If a required check was not run, say `implemented but unverified`.
-- If a required check fails, fix and rerun it or report the task as `blocked` with the failed check, evidence, and smallest next step.
+- Prefer the smallest proof that can honestly support the user-facing claim.
+- Strengthen the proof when the claim involves runtime behavior, interaction, styling, navigation, persistence, or integration.
 
 ## Minimum Proof By Change Type
 
@@ -54,6 +51,8 @@ Use browser verification when the user would experience the change visually or i
 - console or network failures
 - styling pipeline issues
 - end-to-end behavior the shell cannot prove
+
+When browser verification is unavailable, say that clearly and downgrade the claim instead of implying full proof.
 
 ## Self-Review
 

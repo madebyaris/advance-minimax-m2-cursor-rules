@@ -1,16 +1,16 @@
 <div align="center">
 
-# MiniMax M2.5 Cursor Rules
+# MiniMax M2.7 Cursor Rules
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Cursor 2.6](https://img.shields.io/badge/Tested-Cursor%202.6-blue?style=flat-square)](https://cursor.com/changelog)
-[![MiniMax M2.5](https://img.shields.io/badge/MiniMax-M2.5-purple?style=flat-square)](https://platform.minimax.io)
+[![MiniMax M2.7](https://img.shields.io/badge/MiniMax-M2.7-purple?style=flat-square)](https://platform.minimax.io)
 [![Any Model](https://img.shields.io/badge/Compatible-Any%20Model-green?style=flat-square)](#model-compatibility)
 
-**MiniMax M2.5 rules that borrow strong GPT-5.4/Codex execution patterns**
+**MiniMax M2.7 rules that borrow strong GPT-5.4/Codex execution patterns**
 
-*Built for **MiniMax M2.5**, refreshed for **Cursor 2.6**, and written to stay useful across model changes.*
+*Built for **MiniMax M2.7**, refreshed for **Cursor 2.6**, and written to stay useful across model changes.*
 
 [Quick Start](#quick-start) | [Architecture](#rule-architecture) | [Solver Loop](#solver-loop) | [AGENTSmd](#agentsmd-for-other-ides-and-clis)
 
@@ -20,7 +20,7 @@
 
 ## Why This Repo Exists
 
-This repo keeps the identity and branding around **MiniMax M2.5**, but shifts the behavior toward what works well in modern coding agents:
+This repo keeps the identity and branding around **MiniMax M2.7**, but shifts the behavior toward what works well in modern coding agents:
 
 - smaller always-on prompts
 - stronger tool use
@@ -47,10 +47,12 @@ This makes the repo useful for MiniMax first, but still compatible with other Cu
 This refactor removes most of the old prompt bloat:
 
 - no more Opus-style identity anchoring in the core
+- a separate always-on verification contract instead of burying proof rules in prose
 - far less duplicated tool and verification doctrine
 - no hardcoded month/year version examples in workflow rules
 - no fake `<think>` or `<thinking>` scaffolding
 - less "always run everything" language in domain-specific rules
+- `AGENTS.md` is now a real standalone agent contract for non-Cursor environments
 
 ## Execution Guarantees
 
@@ -58,12 +60,15 @@ The repo now tries to enforce a few non-negotiable behaviors:
 
 - new packages, frameworks, and toolchains must be checked against current authoritative sources before they are recommended or installed
 - scaffolding should use the framework's official CLI or official `create` or `init` path when one exists
+- scaffold output must be inspected before continuing after generators or CLIs run
 - runnable work is not done until there is runnable proof, not just static confidence
 - if a required check fails or is skipped, the agent should report `blocked` or `implemented but unverified` instead of claiming completion
+- browser or user-surface verification is required for UI and interaction claims
+- tool-based promises should not be made until the current runtime path is confirmed
 
 ## Solver Loop
 
-The main thing this repo now tries to transfer into MiniMax M2.5 is a repeatable solver loop:
+The main thing this repo now tries to transfer into MiniMax M2.7 is a repeatable solver loop:
 
 1. Define the outcome in operational terms.
 2. Inspect the repo and runtime before deciding.
@@ -115,11 +120,17 @@ git clone https://github.com/madebyaris/advance-minimax-m2-cursor-rules.git
 cp -r advance-minimax-m2-cursor-rules/.cursor your-project/.cursor
 ```
 
-The always-on rule is `.cursor/rules/minimax-m2-core.mdc`. The rest of the rules are requestable and narrower by design.
+The always-on rules are:
+
+- `.cursor/rules/minimax-m2-core.mdc`
+- `.cursor/rules/minimax-m2-status-verification.mdc`
+
+The rest of the rules are requestable and narrower by design.
 
 ### For Other IDEs and CLIs
 
 Copy `AGENTS.md` into the repo root or use it as your agent instructions file.
+Unlike the Cursor `.mdc` files, `AGENTS.md` is written to stand on its own as a full MiniMax M2.7 contract outside Cursor.
 
 ## Rule Architecture
 
@@ -127,7 +138,8 @@ Copy `AGENTS.md` into the repo root or use it as your agent instructions file.
 
 | File | Purpose |
 |------|---------|
-| `.cursor/rules/minimax-m2-core.mdc` | Minimal always-on behavior: tool-first execution, adaptive effort, solver-loop thinking, and verification-first delivery |
+| `.cursor/rules/minimax-m2-core.mdc` | Durable always-on execution behavior: solver loop, scope control, truthful tool use, scaffold discipline, and concise progress |
+| `.cursor/rules/minimax-m2-status-verification.mdc` | Always-on status and proof contract: exact claim labels, proof matching, and evidence-first closeouts |
 
 ### Runtime Rules
 
@@ -170,15 +182,22 @@ Cursor's tool surface changes. The rules should teach behavior that survives tho
 
 ## AGENTS.md For Other IDEs and CLIs
 
-`AGENTS.md` is the portable version of the core behavior. It is intentionally shorter now and focused on:
+`AGENTS.md` is the portable standalone version of MiniMax M2.7 behavior for environments that use agent instruction files but do not support Cursor rules.
+It carries the core behavior directly instead of acting as a thin pointer file.
+
+It is focused on:
 
 - action-first execution
 - solver-loop thinking
+- scope control
 - read-before-edit discipline
 - proportional verification
+- explicit status labels and evidence-backed completion claims
 - current-source version discipline
 - CLI-first scaffolding
 - concise communication
+
+If you use both `AGENTS.md` and `.cursor/rules`, keep them aligned rather than letting them evolve into contradictory prompt layers.
 
 ## Warnings
 
