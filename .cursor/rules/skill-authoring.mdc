@@ -1,0 +1,48 @@
+---
+description: "MiniMax M2.7 skill authoring: when to use skills, how to structure them, and how to keep them deep without duplicating the core."
+alwaysApply: false
+---
+
+# Skill Authoring
+
+Use this rule when creating, revising, or evaluating `.cursor/skills/*` content.
+
+## Rule vs Skill
+
+- Put durable, universal behavior in always-on rules.
+- Use a skill for repeatable workflows, domain-specific heuristics, or tasks that need examples and reference material.
+- If the content only matters for one file type or one domain, prefer a skill or requestable rule over expanding the core.
+
+## Skill Shape
+
+Each skill should clearly provide:
+
+- what it is for
+- when to use it
+- what to inspect first
+- the workflow or decision sequence
+- any output or verification expectations
+
+## Progressive Disclosure
+
+- Keep `SKILL.md` focused on the main workflow.
+- Move large examples, extended references, and category catalogs into companion files such as `reference.md`.
+- Load deeper material only when the task actually needs it.
+
+## Skill Contracts
+
+- State concrete triggers in user-language, not vague capability claims.
+- Define inputs, outputs, stop conditions, and common failure modes.
+- Prefer one coherent workflow per skill over broad omnibus instructions.
+
+## Anti-Duplication
+
+- Do not copy the always-on solver loop, status taxonomy, or generic tool discipline into every skill.
+- Let skills deepen the task-specific method, not restate the global contract.
+- Reference existing project patterns or rule files when they already cover shared behavior.
+
+## Quality Bar
+
+- Keep the opening concise enough that the agent can quickly decide whether to load the skill.
+- Use examples only when they change behavior.
+- Re-read the skill after writing it and remove filler, stale tool names, and redundant policy text.

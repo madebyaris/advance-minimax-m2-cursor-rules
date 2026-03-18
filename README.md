@@ -8,11 +8,11 @@
 [![MiniMax M2.7](https://img.shields.io/badge/MiniMax-M2.7-purple?style=flat-square)](https://platform.minimax.io)
 [![Any Model](https://img.shields.io/badge/Compatible-Any%20Model-green?style=flat-square)](#model-compatibility)
 
-**MiniMax M2.7 rules that borrow strong GPT-5.4/Codex execution patterns**
+**MiniMax M2.7 rules for repo-scale engineering, agent teams, skills, and dynamic tool use**
 
-*Built for **MiniMax M2.7**, refreshed for **Cursor 2.6**, and written to stay useful across model changes.*
+*Built for **MiniMax M2.7**, aligned with the official release and API docs, and written to stay useful across model changes.*
 
-[Quick Start](#quick-start) | [Architecture](#rule-architecture) | [Solver Loop](#solver-loop) | [AGENTSmd](#agentsmd-for-other-ides-and-clis)
+[Quick Start](#quick-start) | [Architecture](#rule-architecture) | [M27-runtime](#m27-runtime-modes) | [AGENTSmd](#agentsmd-for-other-ides-and-clis)
 
 </div>
 
@@ -20,16 +20,15 @@
 
 ## Why This Repo Exists
 
-This repo keeps the identity and branding around **MiniMax M2.7**, but shifts the behavior toward what works well in modern coding agents:
+This repo is designed to make MiniMax M2.7 feel strong in the places the official release emphasizes most:
 
-- smaller always-on prompts
-- stronger tool use
-- clearer task framing
-- better decomposition on hard problems
-- more proportional verification
-- stricter definitions of done for runnable work
+- repo-scale and end-to-end engineering
+- agent harnesses and multi-agent collaboration
+- long skill packs and detailed tool contracts
+- dynamic tool discovery in changing environments
+- proportional verification with evidence-backed closeouts
 
-Instead of trying to make MiniMax "sound like" another provider, the rules teach it to copy the **visible external behavior** of a strong GPT/Codex-style coding agent.
+The goal is not to make MiniMax merely imitate another provider's tone. The goal is to give M2.7 a durable execution spine that complements its official positioning around real-world engineering, complex skills, and agent workflows.
 
 ## Model Compatibility
 
@@ -40,7 +39,19 @@ The rules are designed to survive model changes:
 - tool advice is written around whatever the current environment actually exposes
 - version-sensitive claims are meant to be verified at runtime, not frozen into the rules
 
-This makes the repo useful for MiniMax first, but still compatible with other Cursor-supported models.
+This makes the repo useful for MiniMax first, while still compatible with other Cursor-supported models.
+
+## Why M2.7-Native
+
+MiniMax positions M2.7 as strong at real-world software engineering, full project delivery, large skill adherence, and agent teams rather than only one-shot code generation [MiniMax M2.7 release report](https://www.minimax.io/news/minimax-m27-en) [MiniMax M2.7 model page](https://www.minimax.io/models/text/m27).
+
+That means this repo optimizes for:
+
+- bounded repo exploration instead of reading everything
+- smallest proving slices for large tasks
+- explicit role and handoff discipline for multi-agent work
+- strong skill contracts instead of vague long prompts
+- truthful runtime and verification reporting
 
 ## What Changed
 
@@ -53,6 +64,7 @@ This refactor removes most of the old prompt bloat:
 - no fake `<think>` or `<thinking>` scaffolding
 - less "always run everything" language in domain-specific rules
 - `AGENTS.md` is now a real standalone agent contract for non-Cursor environments
+- M2.7-specific docs now distinguish core execution rules from optional agent-team, skill, and tool-discovery depth
 
 ## Execution Guarantees
 
@@ -65,6 +77,17 @@ The repo now tries to enforce a few non-negotiable behaviors:
 - if a required check fails or is skipped, the agent should report `blocked` or `implemented but unverified` instead of claiming completion
 - browser or user-surface verification is required for UI and interaction claims
 - tool-based promises should not be made until the current runtime path is confirmed
+
+## M2.7 Runtime Modes
+
+The official API docs expose both `MiniMax-M2.7` and `MiniMax-M2.7-highspeed`, each with a `204,800` token context window. The docs describe standard M2.7 at roughly `60 tps` and `M2.7-highspeed` at roughly `100 tps`, with the highspeed variant positioned as the same capability profile with lower latency [MiniMax text generation docs](https://platform.minimax.io/docs/guides/text-generation) [MiniMax API overview](https://platform.minimax.io/docs/api-reference/api-overview).
+
+Use that split like this:
+
+| Model | Best fit |
+|------|---------|
+| `MiniMax-M2.7` | Deep repo work, complex synthesis, richer multi-step tasks |
+| `MiniMax-M2.7-highspeed` | Faster interactive loops, shorter verification cycles, lower-latency coding assistance |
 
 ## Solver Loop
 
@@ -127,6 +150,8 @@ The always-on rules are:
 
 The rest of the rules are requestable and narrower by design.
 
+The official docs recommend Anthropic-compatible access for MiniMax text models and also support OpenAI-compatible access paths [MiniMax text generation docs](https://platform.minimax.io/docs/guides/text-generation) [MiniMax API overview](https://platform.minimax.io/docs/api-reference/api-overview).
+
 ### For Other IDEs and CLIs
 
 Copy `AGENTS.md` into the repo root or use it as your agent instructions file.
@@ -151,10 +176,23 @@ Unlike the Cursor `.mdc` files, `AGENTS.md` is written to stand on its own as a 
 | `.cursor/rules/minimax-mcp-tools.mdc` | Current-doc, web, and MCP/plugin lookup guidance |
 | `.cursor/rules/cursor-agent-orchestration.mdc` | Planning, subagents, and multi-step coordination |
 | `.cursor/rules/clarify-first-prompting.mdc` | Ask only on real forks after inspecting first |
+| `.cursor/rules/agent-teams.mdc` | Team-role boundaries, handoffs, escalation, and agent graph choices |
+| `.cursor/rules/skill-authoring.mdc` | When to use skills, how to structure them, and how to avoid skill bloat |
+| `.cursor/rules/tool-discovery.mdc` | Runtime tool inventory, MCP/schema discovery, capability mapping, and fallbacks |
 
 ### Domain Rules
 
 Language and platform rules now focus on domain-specific patterns rather than repeating the global workflow in every file.
+
+### Skills
+
+The repo's `.cursor/skills/` directory is part of the intended M2.7 workflow, not a side feature. Skills let you keep deeper, domain-specific procedures out of the always-on core while still giving the model large, structured guidance when the task warrants it.
+
+Use skills when:
+
+- the task has a repeatable workflow that is too detailed for the always-on core
+- the task needs examples, references, or category-specific heuristics
+- you want progressive disclosure through `SKILL.md` and optional companion files such as `reference.md`
 
 ## Design Principles
 
@@ -179,6 +217,16 @@ Good rules do not stop at "verify somehow." They define the minimum proof for th
 ### Trust The Current Environment
 
 Cursor's tool surface changes. The rules should teach behavior that survives those changes instead of freezing old tool names or wrappers.
+
+## Agent Teams, Skills, And Tool Discovery
+
+These are the three biggest places where M2.7 feels different from a generic coding model:
+
+- **Agent Teams**: use explicit roles, bounded handoffs, and clear escalation points instead of vague multi-agent optimism
+- **Skills**: invest in long, high-signal skill contracts rather than stuffing rare workflows into the always-on prompt
+- **Tool Discovery**: discover the live runtime surface, schemas, and MCP shape before promising capability
+
+The optional rules in this repo are meant to deepen those areas without bloating the always-on core.
 
 ## AGENTS.md For Other IDEs and CLIs
 
@@ -220,6 +268,10 @@ Use the relevant CLI or IDE instead, then let the agent work inside the real pro
 
 ## References
 
+- [MiniMax M2.7 Release Report](https://www.minimax.io/news/minimax-m27-en)
+- [MiniMax M2.7 Model Page](https://www.minimax.io/models/text/m27)
+- [MiniMax Text Generation Docs](https://platform.minimax.io/docs/guides/text-generation)
+- [MiniMax API Overview](https://platform.minimax.io/docs/api-reference/api-overview)
 - [Cursor Changelog](https://cursor.com/changelog)
 - [Cursor Rules Docs](https://cursor.com/docs/context/rules)
 - [Cursor Agent Best Practices](https://cursor.com/blog/agent-best-practices)
