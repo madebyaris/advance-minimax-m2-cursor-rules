@@ -228,6 +228,14 @@ These are the three biggest places where M2.7 feels different from a generic cod
 
 The optional rules in this repo are meant to deepen those areas without bloating the always-on core.
 
+## Example Patterns
+
+If you want concrete M2.7-native patterns instead of only rules, start here:
+
+- [`examples/agent-teams-product-prototype.md`](examples/agent-teams-product-prototype.md) - a bounded planner/explorer/builder/verifier workflow for multi-agent product work
+- [`.cursor/skills/incident-triage-harness/SKILL.md`](.cursor/skills/incident-triage-harness/SKILL.md) - a large-skill example for incident-style debugging and mitigation
+- [`.cursor/skills/incident-triage-harness/reference.md`](.cursor/skills/incident-triage-harness/reference.md) - companion reference material showing progressive disclosure for a deeper skill
+
 ## AGENTS.md For Other IDEs and CLIs
 
 `AGENTS.md` is the portable standalone version of MiniMax M2.7 behavior for environments that use agent instruction files but do not support Cursor rules.
@@ -246,6 +254,8 @@ It is focused on:
 - concise communication
 
 If you use both `AGENTS.md` and `.cursor/rules`, keep them aligned rather than letting them evolve into contradictory prompt layers.
+
+The example patterns above are still useful outside Cursor: the agent-team workflow is portable markdown, while the incident-triage skill shows how to structure a large workflow even if your environment uses a different skill system.
 
 ## Warnings
 
