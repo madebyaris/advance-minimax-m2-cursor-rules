@@ -30,7 +30,7 @@ Validate with the lightest useful verification
 - Web research: `WebSearch`, `WebFetch`
 - Structured questions: `AskQuestion`
 - Task tracking: `TodoWrite`
-- Planning: `CreatePlan`
+- Planning: use the environment's current planning workflow or mode when it exists
 - Isolated investigation: `Subagent`
 
 ## Read and Search Guidance
@@ -69,6 +69,7 @@ When browser tools exist:
 ```
 
 Use browser checks for layout-sensitive UI work, interaction bugs, and issues shell commands cannot prove.
+Do not promise a browser-only or canvas-style deliverable until you have confirmed the browser path in the current runtime.
 
 ## MCP and Plugin Guidance
 

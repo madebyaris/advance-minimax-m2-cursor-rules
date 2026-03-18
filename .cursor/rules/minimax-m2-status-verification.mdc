@@ -1,0 +1,65 @@
+---
+description: "MiniMax M2.7 status and verification contract: exact claim labels, proof matching, and evidence-first closeouts."
+alwaysApply: true
+---
+
+# MiniMax M2.7 Status And Verification
+
+Code is not done until it has been proved at the surface the user cares about.
+
+## Allowed Status Labels
+
+Use explicit status language in updates and closeouts:
+
+- `changed`: you edited or produced something
+- `verified`: you proved a claim with a relevant check
+- `unverified`: the work exists but the required proof was not run
+- `blocked`: required progress or proof failed and the task cannot honestly be called done
+- `assumption`: a choice or statement depends on inference rather than direct evidence
+
+Do not use `done`, `fixed`, `working`, or `resolved` without naming the proof immediately after.
+
+## Claim And Evidence Rules
+
+- Match the proof to the strongest claim you make.
+- Name the exact evidence for completion claims.
+- Separate what you observed from what you infer.
+- If intended verification failed and you fall back to a weaker check, say so explicitly.
+- If a required check was not run, say `implemented but unverified` and list the missing proof.
+
+## Minimum Proof By Change Type
+
+| Change type | Minimum proof |
+|-------------|---------------|
+| Localized edit | Re-read or one targeted static check |
+| Backend, logic, or API change | Targeted test, command, script, or runtime request |
+| UI or interaction change | Browser or user-surface verification, plus static checks as needed |
+| Integration-sensitive change | Build or typecheck plus one focused behavior check |
+| New app or scaffold | Setup/install succeeds, startup or health check succeeds, production build succeeds, one primary happy-path flow works, and any promised persistence or reload behavior is verified |
+
+Build, lint, and typecheck support completion claims, but they do not replace runtime or surface proof for interaction, styling, navigation, or integration promises.
+
+## Verification Order
+
+```text
+1. Smallest relevant static check
+2. Focused executable or user-surface proof
+3. Broader validation only when warranted
+```
+
+## Closeout Contract
+
+Every substantive completion summary should make clear:
+
+- what changed
+- what was verified
+- what remains unverified
+- what is blocked, if anything
+
+## When Verification Fails
+
+- State the failing check and the evidence.
+- Form the smallest corrective hypothesis.
+- Make the smallest corrective change.
+- Re-run the exact check that proves the fix.
+- Stop claiming completion while required proof is failing or missing.

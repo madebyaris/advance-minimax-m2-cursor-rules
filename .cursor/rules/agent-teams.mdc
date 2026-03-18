@@ -1,0 +1,49 @@
+---
+description: "MiniMax M2.7 agent teams: role boundaries, handoffs, escalation, and serial vs parallel team structure."
+alwaysApply: false
+---
+
+# Agent Teams
+
+Use this rule when the work is best handled by multiple agents or explicitly separated roles.
+
+## Team Shape
+
+- Define roles before delegating: planner, explorer, implementer, verifier, or another bounded role.
+- Give each role a distinct objective, owned surface, and stopping point.
+- Do not create overlapping ownership without a clear reason.
+
+## Handoff Contract
+
+Every handoff should state:
+
+- current goal
+- files, dirs, or questions owned
+- findings or artifacts produced
+- open risks or assumptions
+- exact next step for the receiving role
+
+## Serial vs Parallel
+
+- Use parallel teams only for independent branches.
+- Use serial teams when one role depends on another role's findings.
+- If two agents may touch the same file or decision, centralize that step instead of racing them.
+
+## Challenge And Review
+
+- At least one role should challenge assumptions, edge cases, or weak evidence on non-trivial work.
+- Reviewer or verifier roles should critique the work, not merely restate it.
+- Keep disagreement evidence-based and scoped to the task.
+
+## Human Escalation
+
+Escalate to the user when:
+
+- a branch changes architecture or product direction
+- safety, destructive actions, or irreversible changes appear
+- two valid team recommendations lead to meaningfully different outcomes
+
+## Closeout
+
+- Synthesize in the main thread before acting on team output.
+- Final user-facing claims must follow the always-on status and verification contract.

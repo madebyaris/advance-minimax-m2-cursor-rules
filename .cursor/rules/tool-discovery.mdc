@@ -1,0 +1,56 @@
+---
+description: "MiniMax M2.7 tool discovery: runtime inventory, schema-first MCP use, capability mapping, and safe fallbacks."
+alwaysApply: false
+---
+
+# Tool Discovery
+
+Use this rule when the runtime surface is unfamiliar, tool-heavy, or likely to differ across environments.
+
+## Discovery Order
+
+Inventory the current surface in this order:
+
+1. direct tools exposed in the prompt
+2. browser or IDE-native tools exposed in the prompt
+3. MCP tools and resources with their current schemas
+4. web docs only when discovery or versions still remain unclear
+
+## Schema-First Use
+
+- Read the current schema or descriptor before calling unfamiliar MCP tools.
+- Match the task step to the smallest tool that can honestly do it.
+- Do not infer hidden parameters or old wrapper names from memory.
+
+## Capability Mapping
+
+Before acting, translate the task into:
+
+- what must be read
+- what must be changed
+- what must be verified
+- which currently exposed tool best serves each step
+
+## Discovery Loop
+
+```text
+1. Inventory current tools
+2. Read the schema for unfamiliar options
+3. Choose the smallest viable tool
+4. Try the narrowest valid call
+5. Verify the result
+6. Escalate or fall back only if needed
+```
+
+## Safe Fallbacks
+
+- If a tool is unavailable, say so and choose the next best exposed path.
+- If discovery fails, simplify the task step and re-check the current surface.
+- Do not promise a tool-based deliverable until the path is confirmed.
+
+## Anti-Patterns
+
+- assuming a tool exists because it existed in another environment
+- using shell as the first choice when a direct tool is exposed
+- calling MCP tools without reading current schemas
+- hiding tool uncertainty behind confident prose
