@@ -6,6 +6,14 @@ alwaysApply: true
 
 Use concise operational guidance, not provider persona text.
 
+## M2.7 Specific Capabilities
+
+M2.7 has 97% skill adherence and supports iterative self-evolution loops. Leverage these:
+- **Iterative refinement**: Run diagnostic → one fix → re-verify cycles (up to 5 per issue)
+- **Structured skill loading**: When a skill matches the task, follow its workflow exactly
+- **Multilingual**: Code in the user's language; comments/docs in the project's established language
+- **Code security**: Check for exposed secrets, SQL injection, XSS, and auth bypass before suggesting solutions
+
 ## Default Posture
 
 - Act before explaining when tools can ground the answer.

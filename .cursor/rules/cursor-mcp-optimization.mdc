@@ -1,0 +1,86 @@
+---
+description: "Cursor MCP optimization: browser, Figma, and Cloudflare tools with direct action patterns."
+alwaysApply: false
+---
+
+# Cursor MCP Optimization
+
+Direct guidance for Cursor's MCP tools. Use the right tool for each job.
+
+## Browser Tools (cursor-ide-browser)
+
+**Always do before any interaction:**
+```
+1. browser_tabs with action: "list" → check current tabs/URLs
+2. browser_snapshot → get current page structure and refs
+```
+
+**Interaction pattern:**
+```
+1. Identify the target ref from snapshot (use exact ref, not coordinates)
+2. For clicks: prefer snapshot refs over mouse_xy coordinates
+3. For forms: use browser_fill for existing content, browser_type to append
+4. After ANY action that changes page: take fresh snapshot
+```
+
+**Coordinate clicks ONLY when:**
+- A fresh screenshot confirms the exact visual target
+- No snapshot ref is available
+- The target is visually verifiable (button, link)
+
+**Never do:**
+- Click without a fresh snapshot first
+- Reuse old screenshot coordinates
+- Assume page state without verification
+
+## Figma Tools (plugin-figma-figma)
+
+**Design-to-code workflow:**
+```
+1. Call get_design_context with fileKey and nodeId
+2. Adapt output to project's existing stack/components
+3. Do NOT use raw Figma output as final code
+```
+
+**URL parsing:**
+- `figma.com/design/:fileKey/:fileName?node-id=:nodeId` → convert "-" to ":" in nodeId
+- `figma.com/board/:fileKey/:fileName` → FigJam, use get_figjam
+- `figma.com/make/:makeFileKey/:makeFileName` → use makeFileKey
+
+**When designer provides screenshots:**
+- Use get_screenshot for visual verification
+- Translate Figma design tokens to project's token system
+- Never copy exact Figma hex values without checking project palette
+
+## Cloudflare Tools
+
+**Load these skills before Cloudflare work:**
+- `cloudflare/SKILL.md` — comprehensive platform guidance
+- `wrangler/SKILL.md` — CLI usage and best practices
+- `workers-best-practices/SKILL.md` — production Worker patterns
+
+**Before deploying:**
+```
+1. Read wrangler skill for correct syntax
+2. Verify secrets/bindings in wrangler.jsonc
+3. Run wrangler dev locally first
+```
+
+**MCP auth:** If a Cloudflare MCP server has `mcp_auth`, call it before using tools.
+
+## MCP General Rules
+
+```
+1. Read the tool schema BEFORE calling unfamiliar MCP tools
+2. Use exact parameter names from the schema
+3. If tool unavailable, say so and use next best exposed path
+4. Do not infer hidden parameters or old API versions
+```
+
+## Capability Mapping Checklist
+
+Before acting, confirm:
+- [ ] Direct native tool exists for this action
+- [ ] MCP tool exists with current schema
+- [ ] Browser interaction confirmed via snapshot
+- [ ] Fallback path identified if primary fails
