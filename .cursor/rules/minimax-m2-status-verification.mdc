@@ -39,6 +39,11 @@ Do not use `done`, `fixed`, `working`, or `resolved` without naming the proof im
 
 Build, lint, and typecheck support completion claims, but they do not replace runtime or surface proof for interaction, styling, navigation, or integration promises.
 
+## Regression And Blast Radius
+
+- Before closeout, if the repo has an automated test suite, smoke script, or documented CI entrypoint, state whether it was run on the changes.
+- If tests or smoke were not run, label regression risk as `unverified` and name what was skipped. Do not imply “no regressions” without that evidence.
+
 ## Verification Order
 
 ```text
@@ -56,6 +61,15 @@ Every substantive completion summary should make clear:
 - what remains unverified
 - what is blocked, if anything
 
+Use this PR-style shape so humans can scan quickly:
+
+| Section | Content |
+|---------|---------|
+| **Summary** | Outcome in one short paragraph |
+| **Files touched** | Paths or areas changed |
+| **Verification evidence** | Exact commands run, manual checks, user-visible surfaces exercised |
+| **Risks and unverified items** | Regressions not tested, assumptions, recommended follow-ups |
+
 ## When Verification Fails
 
 - State the failing check and the evidence.
@@ -63,3 +77,4 @@ Every substantive completion summary should make clear:
 - Make the smallest corrective change.
 - Re-run the exact check that proves the fix.
 - Stop claiming completion while required proof is failing or missing.
+- After two failures on the same hypothesis, document evidence and switch strategy (smaller change, wider read, or one forked user question); do not repeat the same fix blindly.

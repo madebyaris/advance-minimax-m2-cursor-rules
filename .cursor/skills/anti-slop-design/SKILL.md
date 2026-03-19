@@ -1,6 +1,6 @@
 ---
 name: anti-slop-design
-description: Category-aware design skill that builds distinctive, production-grade UIs. Provides industry-specific palettes, font pairings, UX patterns, and design system generation while avoiding generic AI aesthetics. Framework-agnostic.
+description: Category-aware design skill that builds distinctive, production-grade UIs. Palettes, font pairings, UX patterns, shadcn/token integration, empty-error-loading copy, secondary slop signals, and a pre-ship second pass. Framework-agnostic.
 ---
 
 # Anti-Slop Design Skill ("Taste Layer")
@@ -14,7 +14,7 @@ Build UIs that look like a senior designer made them, not a language model. This
 - User asks to "create a design system" or "set up design tokens"
 - Reviewing or improving existing UI code
 
-**For full pages or multi-section layouts**, also read `reference.md` in this skill directory. It contains section anatomy patterns, common mistakes per category, CSS token starters, and a mobile-first checklist. Skip it for single-component work.
+**For full pages or multi-section layouts**, also read `reference.md` in this skill directory. It contains section anatomy patterns, extended slop catalog, microcopy examples, stack-specific notes, common mistakes per category, CSS token starters, and a mobile-first checklist. Skip it for single-component work.
 
 ---
 
@@ -57,6 +57,37 @@ These are the statistical median of AI training data. Never generate them:
 - Colored-circle-initial avatars
 - 5-star yellow rating widgets
 - Cookie-cutter components with no context-specific character
+
+### Secondary slop signals (also avoid)
+
+These patterns are nearly as common as the list above; treat them as soft bans unless the user explicitly wants them.
+
+- **Glass stacks**: multiple nested `backdrop-blur` panels filling the page — reads as template UI; use glass for one focal layer only.
+- **Blob clusters**: three overlapping blurred circles (purple/pink/cyan) behind every hero — substitute category-specific texture, photography, or one intentional mesh.
+- **Fake social proof**: "Trusted by" with placeholder logos, repeated generic company names, or SVG boxes labeled "Logo".
+- **Abstract 3D illustration overload**: same glossy shapes on every SaaS landing — prefer product screenshots, UI chrome, or category-appropriate photography.
+- **Identical section rhythm**: every block is `py-24` + headline + subtitle + grid — vary vertical rhythm, full-bleed breaks, or editorial pulls.
+- **Motion soup**: everything fades in on scroll with the same delay — stagger meaningfully or reserve motion for one hero moment.
+- **Generic microcopy**: "Welcome!", "No data available", "Something went wrong" with no next step — write voice-specific, actionable copy (see reference.md).
+
+---
+
+## Stack And Kit Integration
+
+When the project already uses **shadcn/ui**, **Radix**, **MUI**, or similar:
+
+1. **Do not replace** the component library for marketing polish — map the Category Design Guide to **semantic tokens** (`--primary`, `--background`, `--muted`, radius) so primitives stay accessible.
+2. Override at **theme / CSS variable** layer first; only fork components when layout truly demands it.
+3. For Tailwind v4, prefer `@theme` or token files that align with existing `globals.css` — avoid parallel conflicting palettes.
+
+---
+
+## Copy, Empty, And Error States
+
+- Headlines and CTAs should sound like **this product**, not any SaaS: ban "Empower your workflow", "Unlock potential", "Streamline operations" unless ironic.
+- **Empty states**: explain what will appear, one primary action, optional illustration that matches category — not a gray box and "Nothing here".
+- **Errors**: what failed, what the user can do, support or retry — not only red text "Error".
+- **Loading**: prefer skeleton shapes that match final layout; avoid infinite shimmer on unrelated blocks.
 
 ---
 
@@ -354,8 +385,20 @@ Overrides:
 2. MATCH   -> Identify category from the Category Design Guide
 3. COMMIT  -> State tone + memorable element in one sentence
 4. BUILD   -> Apply category palette, fonts, and patterns + Taste Layer principles
-5. CHECK   -> Run Pre-Delivery Checklist before presenting
+5. CHECK   -> Run Pre-Delivery Checklist + Slop second pass before presenting
 ```
+
+---
+
+## Slop Second Pass (before ship)
+
+After the main checklist, scan once for:
+
+1. **Sameness**: If two sections could swap places with no loss of meaning, differentiate structure or merge them.
+2. **Proof**: At least one place shows **real product, real data shape, or real imagery** — not only abstract shapes and lorem.
+3. **One accent rule**: Count accent-color uses; if more than three competing "look at me" elements per viewport, demote some to neutral.
+4. **Touch**: Every primary action on mobile is reachable and ≥44px; no hover-only affordances.
+5. **Voice**: Read headings aloud — if they could apply to any competitor, rewrite.
 
 ---
 
@@ -376,6 +419,10 @@ Before presenting any UI code, verify every item:
 [ ] Accessibility: 4.5:1 contrast, visible focus states, form labels
 [ ] Cursor pointer on all clickable elements
 [ ] Hover states provide clear visual feedback (not just opacity)
+[ ] No secondary slop: blob trio hero, stacked glass panels, fake logo wall, motion soup
+[ ] If shadcn/MUI/Radix: colors/radius mapped to tokens, components not rewritten unnecessarily
+[ ] Empty / error / loading states are specific and actionable, not generic placeholders
+[ ] Slop second pass completed (sameness, proof, accent discipline, touch, voice)
 ```
 
 ---
@@ -436,9 +483,11 @@ CHECK   -> Pre-Delivery Checklist (no slop, no banned patterns)
 
 BANNED  -> Inter, Roboto, Arial, purple gradients, emoji icons,
            empty heroes, 3-col card grids, thick gray borders,
-           colored-circle avatars, pure #000/#FFF
+           colored-circle avatars, pure #000/#FFF,
+           blob trio heroes, nested glass, fake logos, generic SaaS copy
 
 ALWAYS  -> Real SVG icons, tinted grays, CSS variables, responsive,
            prefers-reduced-motion, 4.5:1 contrast, cursor pointer,
-           consistent max-width, distinctive font pairing
+           consistent max-width, distinctive font pairing,
+           tokens over ripping UI kits, second-pass slop scan
 ```
