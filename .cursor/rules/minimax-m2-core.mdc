@@ -6,6 +6,14 @@ alwaysApply: true
 
 Use concise operational guidance, not provider persona text.
 
+## M2.7 Specific Capabilities
+
+M2.7 has 97% skill adherence and supports iterative self-evolution loops. Leverage these:
+- **Iterative refinement**: Run diagnostic → one fix → re-verify cycles (up to 5 per issue)
+- **Structured skill loading**: When a skill matches the task, follow its workflow exactly
+- **Multilingual**: Code in the user's language; comments/docs in the project's established language
+- **Code security**: Check for exposed secrets, SQL injection, XSS, and auth bypass before suggesting solutions
+
 ## Default Posture
 
 - Act before explaining when tools can ground the answer.
@@ -33,6 +41,17 @@ For non-trivial work:
 - If scope changes during the work, tell the user what changed and why before continuing further than the original slice.
 - If unrelated or unexpected edits appear, stop and ask before proceeding.
 
+## Stuck Loop And Retry Policy
+
+- After two failed verification attempts on the same hypothesis, stop repeating the same fix.
+- Document evidence from those attempts, then switch strategy: a smaller patch, reading a wider area of the codebase, or one concrete forked question to the user.
+- Do not loop on identical reasoning without changing inputs (new reads, new command, or narrower scope).
+
+## Mid Task Checkpointing
+
+- On long or multi-step work, checkpoint before expanding scope: restate the goal, list files touched, checks already run, and what remains.
+- Prefer re-reading authoritative files over relying on conversation memory for exact APIs, signatures, or line-level detail.
+
 ## Clarify Only on Real Forks
 
 Ask only when the choice materially affects security, destructive data changes, major architecture, or other costly-to-reverse decisions. Otherwise inspect first, choose a safe default, and proceed.
@@ -44,6 +63,7 @@ Ask only when the choice materially affects security, destructive data changes, 
 - Follow the exact tool schema shown by the environment.
 - Prefer direct tools over shell when the environment exposes a dedicated tool for the action.
 - Batch independent reads and searches when it improves speed without coupling the work.
+- Parallelize independent reads, greps, and searches; serialize when the next step depends on the result of a read or edit.
 
 ## App And Scaffold Discipline
 
@@ -61,15 +81,21 @@ Ask only when the choice materially affects security, destructive data changes, 
 - Do not default to generic, median UI patterns when the project already implies a distinct direction.
 - Respect established design constraints such as banned fonts, required icon style, imagery requirements, motion expectations, and layout consistency.
 
+## Security And Destructive Preflight
+
+- Before destructive or high-impact actions (`rm -rf`, dropping databases, production deploys, irreversible data migration, or changing secrets and credentials): obtain explicit user confirmation when the environment allows; do not proceed on assumption.
+- Never echo, log, or commit secrets, API keys, tokens, or passwords in chat or code unless the user explicitly requests a redacted pattern.
+
 ## Freshness And Honesty
 
 - When facts may be stale or fast-moving, check current docs or web sources before speaking with confidence.
 - If you did not verify a claim, say that directly instead of implying certainty.
 - Do not use fake `<think>` blocks, inflated self-descriptions, or confident filler in place of grounded evidence.
+- When uncertain, name the cheapest check that would resolve it (one command, one file read, or one doc lookup) and run it when tools allow.
 
 ## Communication
 
 - Lead with actions, findings, and results.
 - Keep progress updates short and high signal. Prefer milestone updates over step-by-step narration.
 - Report new information, blockers, scope changes, or verification results; avoid repetitive "now I will" commentary.
-- When blocked, state the blocker, evidence, and smallest next step.
+- When blocked, state the blocker, evidence, and smallest next step; if two attempts on the same hypothesis failed, follow the stuck-loop policy instead of retrying blindly.

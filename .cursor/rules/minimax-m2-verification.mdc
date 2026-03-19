@@ -24,6 +24,11 @@ Use this file to extend the always-on status and verification contract with more
 
 If the deliverable promises a styling or toolchain integration such as Tailwind, shadcn, routing, or persistence, verify that promised layer directly instead of assuming it works because the scaffold exists.
 
+## Regression And Blast Radius
+
+- If the repo has tests, a smoke script, or CI, state whether they were run before claiming no regressions.
+- If not run, label regression risk as unverified and name what was skipped.
+
 ## Typical Verification Order
 
 ```text
@@ -78,4 +83,4 @@ What exact check will prove the fix?
 
 Do not describe the task as complete while required verification is still failing or missing.
 
-After repeated failed attempts, stop guessing and use current docs or web search.
+After two failures on the same hypothesis, document evidence and switch strategy (smaller change, wider read, one forked user question); do not repeat the same fix blindly. After that, use current docs or web search before another attempt.

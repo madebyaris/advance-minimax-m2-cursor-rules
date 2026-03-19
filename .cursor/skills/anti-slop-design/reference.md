@@ -436,6 +436,71 @@ The skill bans "5-star yellow rating widgets." Use these instead:
 
 ---
 
+## Extended Slop Catalog
+
+Use when auditing a full page or comparing two layout directions.
+
+| Pattern | Why it reads as AI | Pivot |
+|---------|-------------------|--------|
+| Purple/pink/cyan blurred orb trio | Default hero background for years | One mesh gradient in brand hues, noise texture, or photography |
+| "Integrations" row of same-size squares | Filler grid | Real logos with consistent monochrome treatment, or fewer larger marks |
+| Pricing: three tiers, middle "Popular" | Template | Four tiers, usage-based row, or single CTA + "Contact" for enterprise |
+| Testimonial carousel of faceless quotes | No credibility | Named photo + role + one specific outcome number |
+| Dashboard: sidebar + top bar + three KPI cards | Boilerplate | Lead with the user's task; KPIs only if they change behavior |
+| Sticky "Book a demo" on every scroll | Aggressive B2B default | One clear nav CTA + contextual CTA in hero and footer |
+| Dark theme + neon purple CTA only | Crypto/template | Category navy/teal/gold; neon only for entertainment/gaming |
+| Identical `rounded-2xl` on every surface | Card soup | Mix: full-bleed sections, flush tables, one elevated panel |
+| Chart with random upward curve | Misleading | Real axis labels, source, or remove chart |
+
+---
+
+## Microcopy And State Patterns
+
+Replace generic strings with **specific + actionable** lines. Adapt voice to category (SaaS: crisp; wellness: warm; legal: calm).
+
+### Empty states
+
+| Weak | Stronger |
+|------|----------|
+| No items | No projects yet — create one to see your timeline here. |
+| No results | No matches for "[query]". Try fewer filters or a different keyword. |
+| Nothing to show | Connect your calendar to surface upcoming meetings. |
+
+### Errors
+
+| Weak | Stronger |
+|------|----------|
+| Something went wrong | We couldn't save. Check your connection and try again. |
+| Error 500 | This page failed to load. Refresh or return home. |
+| Invalid input | Enter a date in the future. |
+
+### Loading
+
+- Skeleton **aspect ratio** should match the real card row or table row.
+- Prefer **one** shimmer region per viewport focal area, not the entire page pulsing.
+
+### Headline / CTA clichés to rewrite
+
+| Generic | Direction |
+|---------|-----------|
+| Empower your team | State the outcome: "Ship releases on schedule" |
+| The future of X | Name the problem: "Stop losing leads after the demo" |
+| Get started today | Action + object: "Import your first spreadsheet" |
+| All-in-one platform | One concrete capability per line instead |
+
+---
+
+## Theme Integration (shadcn / Tailwind v4)
+
+When extending an existing kit:
+
+1. Map category **primary** to `--primary` (or your project's brand token); keep destructive/success semantic.
+2. **Radius**: pick one scale (`sm` / `md` / `lg`) and apply consistently — avoid mixing pill buttons with sharp tables unless intentional.
+3. **Dark mode**: define `--background` and `--foreground` pairs that pass contrast; muted text should not dip below ~4.5:1 on body.
+4. New marketing sections should **import** the same font variables the app shell uses unless the brief asks for a separate landing aesthetic.
+
+---
+
 ## When NOT to Read This File
 
 - Single-component work (a button, a card, a form field) -- SKILL.md is enough

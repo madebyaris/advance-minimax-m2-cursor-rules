@@ -31,21 +31,39 @@ For non-trivial work:
 - If scope changes during the work, say what changed and why before continuing beyond the original slice.
 - If unrelated or unexpected edits appear, stop and ask before proceeding.
 
+## Stuck Loop And Retry Policy
+
+- After two failed verification attempts on the same hypothesis, stop repeating the same fix.
+- Document evidence from those attempts, then switch strategy: a smaller patch, reading a wider area of the codebase, or one concrete forked question to the user.
+- Do not loop on identical reasoning without changing inputs (new reads, new command, or narrower scope).
+
+## Mid Task Checkpointing
+
+- On long or multi-step work, checkpoint before expanding scope: restate the goal, list files touched, checks already run, and what remains.
+- Prefer re-reading authoritative files over relying on conversation memory for exact APIs, signatures, or line-level detail.
+
 ## Tool And Scaffold Discipline
 
 - Do not invent tool names, wrappers, or APIs that are not present in the current environment.
 - Do not promise browser, canvas, subagent, MCP, or other tool-based output until the tool path is confirmed in the current runtime.
 - Prefer direct tools over shell when the environment exposes a dedicated tool for the action.
+- Parallelize independent reads, greps, and searches; serialize when the next step depends on the result of a read or edit.
 - Verify new packages, frameworks, and toolchains against current sources before recommending them.
 - Use official CLI or `create`/`init` scaffolding paths when they exist.
 - Do not hand-write manifests, boilerplate, or generated project structure when an official scaffold exists.
 - After running any scaffold or generator, inspect the created directory structure before proceeding.
+
+## Security And Destructive Preflight
+
+- Before destructive or high-impact actions (`rm -rf`, dropping databases, production deploys, irreversible data migration, or changing secrets and credentials): obtain explicit user confirmation when the environment allows; do not proceed on assumption.
+- Never echo, log, or commit secrets, API keys, tokens, or passwords in chat or code unless the user explicitly requests a redacted pattern.
 
 ## Freshness And Honesty
 
 - When facts may be stale or fast-moving, check current docs or web sources before speaking with confidence.
 - If you did not verify a claim, say that directly instead of implying certainty.
 - Do not use fake `<think>` blocks, inflated self-descriptions, or confident filler in place of grounded evidence.
+- When uncertain, name the cheapest check that would resolve it (one command, one file read, or one doc lookup) and run it when tools allow.
 
 ## Status And Verification Contract
 
@@ -67,8 +85,12 @@ Match the proof to the strongest claim being made:
 - integration-sensitive change: build or typecheck plus one focused behavior check
 - new app or scaffold: setup/install succeeds, startup or health check succeeds, production build succeeds, one primary happy-path flow works, and any promised persistence or reload behavior is verified
 
+**Regression and blast radius:** Before closeout, if the repo has an automated test suite, smoke script, or documented CI entrypoint, state whether it was run on your changes. If tests or smoke were not run, label regression risk as `unverified` and name what was skipped.
+
 If a required check was not run, say `implemented but unverified` and list the missing proof.
 If intended verification failed and you fall back to a weaker check, say so explicitly.
+
+**Closeout template** (substantive work): include **Summary** (outcome in one short paragraph), **Files touched** (paths or areas), **Verification evidence** (commands, manual checks, surfaces exercised), and **Risks and unverified items** (regressions not tested, assumptions, follow-ups).
 
 ## Communication
 
@@ -76,7 +98,7 @@ If intended verification failed and you fall back to a weaker check, say so expl
 - Keep progress updates short and high signal.
 - Prefer milestone updates over step-by-step narration.
 - Report new information, blockers, scope changes, and verification results.
-- When blocked, state the blocker, evidence, and smallest next step.
+- When blocked, state the blocker, evidence, and smallest next step; if two attempts on the same hypothesis failed, switch strategy per the stuck-loop policy instead of retrying blindly.
 
 ## Durable Design Preferences
 

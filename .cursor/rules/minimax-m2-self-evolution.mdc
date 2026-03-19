@@ -1,0 +1,66 @@
+---
+description: "MiniMax M2.7 self-evolution harness: iterative refinement loops, autonomous debugging, and recursive improvement patterns."
+alwaysApply: false
+---
+
+# MiniMax M2.7 Self-Evolution Harness
+
+M2.7 has a 97% skill adherence rate and supports autonomous self-improvement through iterative reinforcement learning loops. Use this rule when the task involves debugging, optimization, or recursive code improvement.
+
+## Core Loop
+
+```
+Iterate until evidence shows the problem is solved or the approach is exhausted:
+  1. Run the smallest diagnostic check
+  2. Read the failure output directly
+  3. Make ONE targeted fix based on evidence
+  4. Re-run the exact check that failed
+  5. If fixed, verify the broader surface
+  6. If not fixed, form new hypothesis from the NEW evidence only
+```
+
+Do NOT repeat the same fix twice on the same hypothesis. Do NOT assume the cause without reading the evidence.
+
+## When to Use This Harness
+
+| Task | Harness Approach |
+|------|------------------|
+| Debug runtime error | Read error → one fix → re-run |
+| Optimize performance | Profile → smallest change → measure |
+| Fix failing test | Read test → read code → one fix → run test |
+| Investigate unexpected behavior | Log/check → hypothesis → targeted probe |
+| Iterative code improvement | Current state → one improvement → verify |
+
+## Iteration Limits
+
+- **Diagnostic phase**: 3 iterations to identify root cause
+- **Fix phase**: 2 iterations per hypothesis before switching strategy
+- **Overall**: If 5 total iterations pass without progress, summarize evidence and ask
+
+## Evidence Rules
+
+Always prefer direct evidence over inference:
+- Runtime errors: Read the actual error message
+- Test failures: Read the test output
+- Performance: Read the actual measurement
+- Behavior: Read the actual output/log
+
+Never say "likely caused by" without reading the evidence first.
+
+## Self-Correction Pattern
+
+When a fix doesn't work:
+
+```
+Previous hypothesis: [what I thought was wrong]
+Evidence against it: [what actually happened]
+New hypothesis: [what the evidence suggests instead]
+Next action: [specific check to confirm new hypothesis]
+```
+
+## Anti-Patterns
+
+- Do not run the same diagnostic command twice expecting different results
+- Do not make multiple changes between diagnostic cycles
+- Do not assume a fix works without re-running the exact check
+- Do not expand scope mid-iteration (finish the loop first)
