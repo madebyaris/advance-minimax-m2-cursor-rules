@@ -23,6 +23,35 @@ Each skill should clearly provide:
 - the workflow or decision sequence
 - any output or verification expectations
 
+## Frontmatter Contract
+
+Use YAML frontmatter on every `SKILL.md`.
+
+Minimum:
+
+```yaml
+---
+name: my-skill
+description: >
+  What this skill does and the user-language triggers for when to use it.
+license: MIT
+metadata:
+  version: "1.0.0"
+  category: workflow
+  sources:
+    - Official docs or standards
+---
+```
+
+Rules:
+
+- `name` must match the directory name exactly.
+- `description` must include concrete trigger language, not vague capability claims.
+- `license` should be explicit so skills stay portable outside this repo.
+- `metadata.version` should change when the skill meaningfully evolves.
+- `metadata.category` should describe the domain or workflow.
+- `metadata.sources` should name current authoritative sources when the skill depends on external behavior.
+
 ## Progressive Disclosure
 
 - Keep `SKILL.md` focused on the main workflow.
@@ -46,3 +75,5 @@ Each skill should clearly provide:
 - Keep the opening concise enough that the agent can quickly decide whether to load the skill.
 - Use examples only when they change behavior.
 - Re-read the skill after writing it and remove filler, stale tool names, and redundant policy text.
+- Prefer one small `SKILL.md` plus optional `reference.md` over one giant omnibus file.
+- If the skill references scripts or helper assets, document where outputs go and how success is verified.

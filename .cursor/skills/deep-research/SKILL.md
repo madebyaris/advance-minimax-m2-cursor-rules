@@ -1,6 +1,14 @@
 ---
 name: deep-research
 description: Conducts multi-step deep research on any topic using iterative search, reflection, and synthesis. Use when the user asks to research, investigate, survey, compare, analyze, deep-dive, or explore a topic in depth. Covers web research, codebase analysis, documentation review, and mixed-source investigation.
+license: MIT
+metadata:
+  version: "1.0.0"
+  category: research
+  sources:
+    - Cursor-native tool workflows
+    - Documentation review and comparative research practice
+    - Repo and web synthesis patterns
 ---
 
 # Deep Research

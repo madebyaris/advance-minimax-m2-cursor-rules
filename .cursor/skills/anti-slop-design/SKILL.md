@@ -1,6 +1,14 @@
 ---
 name: anti-slop-design
 description: Category-aware design skill that builds distinctive, production-grade UIs. Palettes, font pairings, UX patterns, shadcn/token integration, empty-error-loading copy, secondary slop signals, and a pre-ship second pass. Framework-agnostic.
+license: MIT
+metadata:
+  version: "1.0.0"
+  category: design
+  sources:
+    - Project design systems and token files
+    - Platform accessibility guidance
+    - Established product and editorial design patterns
 ---
 
 # Anti-Slop Design Skill ("Taste Layer")

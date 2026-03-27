@@ -63,7 +63,7 @@ This refactor removes most of the old prompt bloat:
 - no hardcoded month/year version examples in workflow rules
 - no fake `<think>` or `<thinking>` scaffolding
 - less "always run everything" language in domain-specific rules
-- `AGENTS.md` is now a real standalone agent contract for non-Cursor environments
+- `docs/AGENTS.md` is now a real standalone agent contract for non-Cursor environments
 - M2.7-specific docs now distinguish core execution rules from optional agent-team, skill, and tool-discovery depth
 
 ## Execution Guarantees
@@ -154,8 +154,8 @@ The official docs recommend Anthropic-compatible access for MiniMax text models 
 
 ### For Other IDEs and CLIs
 
-Copy `AGENTS.md` into the repo root or use it as your agent instructions file.
-Unlike the Cursor `.mdc` files, `AGENTS.md` is written to stand on its own as a full MiniMax M2.7 contract outside Cursor.
+Copy `docs/AGENTS.md` into the target repo root as `AGENTS.md`, or use it as your agent instructions file in environments that support a portable agent contract.
+It intentionally lives under `docs/` in this repo so Cursor does not auto-activate it while you are editing these rules.
 
 ## Rule Architecture
 
@@ -193,6 +193,15 @@ Use skills when:
 - the task has a repeatable workflow that is too detailed for the always-on core
 - the task needs examples, references, or category-specific heuristics
 - you want progressive disclosure through `SKILL.md` and optional companion files such as `reference.md`
+
+Current local skills:
+
+| Skill | Purpose |
+|------|---------|
+| `.cursor/skills/anti-slop-design/` | Category-aware design direction, anti-slop checks, and UI polish |
+| `.cursor/skills/deep-research/` | Iterative mixed-source research and synthesis |
+| `.cursor/skills/incident-triage-harness/` | Production-style debugging and mitigation workflow |
+| `.cursor/skills/minimax-multimodal-toolkit/` | MiniMax-native image, video, voice, music, and media-processing routing |
 
 ## Design Principles
 
@@ -238,7 +247,7 @@ If you want concrete M2.7-native patterns instead of only rules, start here:
 
 ## AGENTS.md For Other IDEs and CLIs
 
-`AGENTS.md` is the portable standalone version of MiniMax M2.7 behavior for environments that use agent instruction files but do not support Cursor rules.
+`docs/AGENTS.md` is the portable standalone version of MiniMax M2.7 behavior for environments that use agent instruction files but do not support Cursor rules.
 It carries the core behavior directly instead of acting as a thin pointer file.
 
 It is focused on:
@@ -252,6 +261,8 @@ It is focused on:
 - current-source version discipline
 - CLI-first scaffolding
 - concise communication
+
+To use it elsewhere, copy `docs/AGENTS.md` into the target repo root as `AGENTS.md`.
 
 If you use both `AGENTS.md` and `.cursor/rules`, keep them aligned rather than letting them evolve into contradictory prompt layers.
 
@@ -270,11 +281,7 @@ Use the relevant CLI or IDE instead, then let the agent work inside the real pro
 
 ## Contributing
 
-1. Keep the always-on core small.
-2. Put runtime details in requestable rules.
-3. Add new rules only when they solve repeated mistakes.
-4. Prefer concrete workflows over abstract philosophy.
-5. Test the rules against real coding tasks, not just style preferences.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the repo's contribution rules, skill frontmatter contract, and placement guidance for always-on rules, requestable rules, and skills.
 
 ## References
 

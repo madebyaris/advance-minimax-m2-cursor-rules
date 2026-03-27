@@ -1,6 +1,14 @@
 ---
 name: incident-triage-harness
 description: Production-style incident triage workflow for logs, metrics, code, and safe mitigations. Use when debugging alerts, regressions, outages, or suspicious runtime behavior.
+license: MIT
+metadata:
+  version: "1.0.0"
+  category: debugging
+  sources:
+    - Incident response and SRE triage practice
+    - Evidence-first debugging workflows
+    - Production mitigation and verification patterns
 ---
 
 # Incident Triage Harness

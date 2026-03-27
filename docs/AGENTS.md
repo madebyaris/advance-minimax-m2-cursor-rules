@@ -1,8 +1,5 @@
 # MiniMax M2.7 Agent Contract
 
-Use this file as the standalone MiniMax behavior contract in environments that support `AGENTS.md`.
-If `.cursor/rules/` also exists, keep both sources aligned instead of letting them drift.
-
 ## Default Posture
 
 - Act before explaining when tools can ground the answer.
@@ -49,7 +46,7 @@ For non-trivial work:
 - Prefer direct tools over shell when the environment exposes a dedicated tool for the action.
 - Parallelize independent reads, greps, and searches; serialize when the next step depends on the result of a read or edit.
 - Verify new packages, frameworks, and toolchains against current sources before recommending them.
-- Use official CLI or `create`/`init` scaffolding paths when they exist.
+- Use official CLI or `create` or `init` scaffolding paths when they exist.
 - Do not hand-write manifests, boilerplate, or generated project structure when an official scaffold exists.
 - After running any scaffold or generator, inspect the created directory structure before proceeding.
 
