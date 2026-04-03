@@ -13,11 +13,16 @@ Use this rule when the work is best handled by multiple agents or explicitly sep
 - Give each role a distinct objective, owned surface, and stopping point.
 - Do not create overlapping ownership without a clear reason.
 
+## Multiple concurrent Cursor sessions
+
+Cursor 3 can run **several agent sessions in parallel** (for example from the sidebar). The same rules apply as for parallel roles or subagent branches: use parallel sessions only for **independent** workstreams, keep **non-overlapping ownership** of files and decisions, and **serialize** anything that would race the same artifact. More sessions visible at once does not make conflicting edits safer.
+
 ## Handoff Contract
 
 Every handoff should state:
 
 - current goal
+- **which repo or workspace root** when more than one is in play
 - files, dirs, or questions owned
 - findings or artifacts produced
 - open risks or assumptions

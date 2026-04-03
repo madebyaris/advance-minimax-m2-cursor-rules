@@ -7,6 +7,13 @@ alwaysApply: false
 
 Keep durable behavior in the core rule. Use this file for current Cursor tool-selection patterns.
 
+## Cursor 3 workspace
+
+In Cursor 3, agent work is centered in the **Agents** experience. Open it from the command palette: **Agents Window** (for example `Cmd+Shift+P` on macOS, as described in the [Cursor 3 announcement](https://cursor.com/blog/cursor-3)).
+
+- **Multi-workspace / multi-repo:** the UI can surface several workspaces at once. Name the repo or root path when handing off work, opening files, or running commands so edits land in the intended tree.
+- **Integrated browser:** prefer the IDE’s built-in browser for local UI verification when it is exposed in your session; it matches the “snapshot-first” flow in Browser Guidance below.
+
 ## Golden Rule
 
 For significant actions:
@@ -20,29 +27,44 @@ Validate with the lightest useful verification
 
 ## Default Tool Map
 
-- Known file: `ReadFile`
-- File discovery: `Glob`
-- Exact text search: `rg`
-- Conceptual discovery: `SemanticSearch`
-- Surgical edit: `ApplyPatch`
-- File removal: `Delete`
-- Commands, tests, git, installs: `Shell`
-- Web research: `WebSearch`, `WebFetch`
-- Structured questions: `AskQuestion`
-- Task tracking: `TodoWrite`
-- Planning: use the environment's current planning workflow or mode when it exists
-- Isolated investigation: `Subagent`
+**Composer 2 / Cursor agent (typical names in current desktop agents):** the session usually exposes something close to:
+
+| Step | Tool name | Notes |
+|------|-----------|--------|
+| Read a path | `Read` | Prefer over shell `cat`/`sed` |
+| Search by pattern | `Grep` | Ripgrep-backed; use for exact symbols and strings |
+| Search by meaning | `SemanticSearch` | “Where does X happen?” not exact text |
+| List paths | `Glob` | File discovery by pattern |
+| Edit in place | `StrReplace` | Surgical edits; read the file first |
+| Create or replace whole file | `Write` | Use when there is no stable old_string to patch |
+| Remove file | `Delete` | |
+| Terminal | `Shell` | Builds, tests, git, installs |
+| Web | `WebSearch`, `WebFetch` | |
+| Ask user | `AskQuestion` | |
+| Track steps | `TodoWrite` | |
+| Delegate branch work | `Task` | Subagent-style runs (types such as explore, debugger, verifier—see schema) |
+| MCP servers | `call_mcp_tool` (+ resource helpers if present) | Read MCP tool descriptors before calling |
+| Plan mode | `SwitchMode` | When the product exposes a planning mode |
+| Images | `GenerateImage` | Only when the user asks for generated images |
+| Notebooks | `EditNotebook` | `.ipynb` cell edits |
+| Lint diagnostics | `ReadLints` | After substantive edits when available |
+
+**Browser:** often MCP tools (for example `cursor-ide-browser`) with names like `browser_snapshot`, `browser_navigate`—follow the server’s schema.
+
+**Parallel batching:** issue **multiple independent tool calls in one assistant turn** when the runtime allows it (same idea as batched parallel execution).
+
+**Other Cursor surfaces** (CLI, older builds, API): names may differ (`ReadFile`, `ApplyPatch`, `Subagent`, etc.). The **exact tool list in the current session always wins**—same principle as `model-compatibility.mdc`.
 
 ## Read and Search Guidance
 
 - Prefer direct read/search tools over shell equivalents.
-- Batch independent reads and searches with `multi_tool_use.parallel`.
+- Batch independent reads and searches in one turn when the session allows parallel calls.
 - Use `SemanticSearch` for "how/where/what handles this?" questions, not exact symbol lookups.
 
 ## Editing Guidance
 
-- Read the file first.
-- Use `ApplyPatch` for focused edits.
+- Read the file first (`Read`).
+- Use `StrReplace` for focused in-file edits; use `Write` for new files or full rewrites when patch context is awkward.
 - Keep edits coherent; avoid thrashing the same file with many tiny changes.
 - Re-read or verify after editing.
 
@@ -58,7 +80,7 @@ Before starting dev servers or watchers, check whether one is already running.
 
 ## Browser Guidance
 
-When browser tools exist:
+When browser tools exist (including Cursor’s integrated browser in supported builds):
 
 ```text
 1. Check tabs
@@ -77,13 +99,13 @@ Do not promise a browser-only or canvas-style deliverable until you have confirm
 - If an MCP server exposes resources instead of action tools, use the resource functions the environment provides.
 - Keep repo guidance generic enough to survive tool and server renames.
 
-## Subagent Guidance
+## Task and subagent guidance
 
-Use `Subagent` for isolated research, broad exploration, debugger or verifier passes, or other branches that would otherwise pollute the main context.
+In Composer-style agents the delegation tool is usually **`Task`**, with a `subagent_type` and prompt (see the live schema). Use it for isolated research, broad exploration, debugger or verifier passes, or branches that would otherwise pollute the main context.
 
-When multiple subagent tasks are truly independent:
-- launch them concurrently in the same assistant turn instead of queueing them one by one
-- give each subagent a distinct scope, expected output, and stopping point
+When multiple delegations are truly independent:
+- launch them concurrently in the same assistant turn when the schema allows
+- give each run a distinct scope, expected output, and stopping point
 - keep one synthesis step in the main thread after they return
 - avoid overlap that makes two agents inspect the same surface without a reason
 
@@ -105,15 +127,15 @@ Parallelize only when calls are independent:
 - multiple reads
 - unrelated searches
 - independent research tracks
-- separate subagent investigations with different scopes
+- separate `Task` / subagent investigations with different scopes
 
-For subagents specifically:
+For `Task` specifically:
 
 ```text
 1. Split the work into independent slices
-2. Launch multiple Subagent calls in one message when they do not depend on each other
+2. Launch multiple Task calls in one message when they do not depend on each other
 3. Wait for all results
 4. Synthesize centrally before acting
 ```
 
-Do not parallelize dependent edits or steps that require previous outputs, and do not default to serial subagent launches when a parallel batch is possible.
+Do not parallelize dependent edits or steps that require previous outputs, and do not default to serial Task launches when a parallel batch is possible.

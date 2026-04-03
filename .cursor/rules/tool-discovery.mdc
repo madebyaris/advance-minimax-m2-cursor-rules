@@ -13,8 +13,9 @@ Inventory the current surface in this order:
 
 1. direct tools exposed in the prompt
 2. browser or IDE-native tools exposed in the prompt
-3. MCP tools and resources with their current schemas
-4. web docs only when discovery or versions still remain unclear
+3. **Cursor Marketplace** (or team marketplace) plugins already installed—same schema-first rules as other MCPs; discover tools and resources from each plugin’s descriptors before calling
+4. MCP tools and resources with their current schemas (including project-configured servers)
+5. web docs only when discovery or versions still remain unclear
 
 ## Schema-First Use
 

@@ -19,11 +19,11 @@ Conduct thorough, multi-step research using an iterative loop of search, compres
 
 Before starting, calibrate depth to the question:
 
-| Tier | When | Searches | Subagents | Output |
-|------|------|----------|-----------|--------|
+| Tier | When | Searches | Delegation (`Task`) | Output |
+|------|------|----------|---------------------|--------|
 | **Quick** | Focused factual question, single concept | 2-3 | None | Concise answer with sources |
 | **Standard** | Multi-faceted topic, comparison, how-something-works | 5-8 | None | Structured analysis with sections |
-| **Exhaustive** | Comprehensive survey, architecture decision, landscape review | 10+ | Parallel `Subagent` investigations | Full report with citations |
+| **Exhaustive** | Comprehensive survey, architecture decision, landscape review | 10+ | Parallel `Task` investigations | Full report with citations |
 
 ```
 Calibration:
@@ -54,7 +54,7 @@ Immediately classify the research request before any searching.
 | Source | When to use |
 |--------|-------------|
 | `WebSearch` + `WebFetch` | General knowledge, current events, library docs, community solutions |
-| `SemanticSearch` + `rg` + `ReadFile` | Codebase-specific questions, internal patterns, project architecture |
+| `SemanticSearch` + `Grep` + `Read` | Codebase-specific questions, internal patterns, project architecture |
 | Mixed | "How should we implement X?" (need both external best practices and internal conventions) |
 
 **Step 3 -- Generate a one-paragraph research brief:**
@@ -97,7 +97,7 @@ TodoWrite(todos=[
 ], merge=false)
 ```
 
-**For Exhaustive tier**, evaluate which sub-queries are independent (can run in parallel via `Subagent`) vs. dependent (must run sequentially because results inform next query).
+**For Exhaustive tier**, evaluate which sub-queries are independent (can run in parallel via `Task`) vs. dependent (must run sequentially because results inform next query).
 
 ---
 
@@ -117,16 +117,16 @@ This is the core iterative cycle. Execute it per sub-query.
 **Codebase research pattern:**
 ```
 1. SemanticSearch(query="[natural language question]", target_directories=[relevant dir])
-2. If results point to specific files, read them with `ReadFile`
-3. If searching for exact symbols, use `rg`
+2. If results point to specific files, read them with `Read`
+3. If searching for exact symbols, use `Grep`
 4. Compress: extract the pattern/answer, not the full file contents
 ```
 
-**Parallel subagent pattern (Exhaustive tier only):**
+**Parallel Task pattern (Exhaustive tier only):**
 ```
-Launch up to 3 parallel `Subagent` investigations for independent sub-queries:
+Launch up to 3 parallel `Task` investigations for independent sub-queries:
 
-Subagent(
+Task(
   subagent_type="generalPurpose",
   model="fast",
   readonly=true,
@@ -258,7 +258,7 @@ Update TodoWrite to mark all research sub-queries and synthesis as completed.
 This skill uses only Cursor-native tools and plain behavioral instructions:
 - No model-specific prompting syntax
 - No assumptions about thinking/reasoning format
-- All tool references (`WebSearch`, `WebFetch`, `SemanticSearch`, `rg`, `ReadFile`, `Subagent`, `TodoWrite`) are Cursor-standard
+- Tool names in this skill are **illustrative**; **use the exact identifiers and schemas** from the active session. In Composer-style Cursor agents you will typically see `Read`, `Grep`, `StrReplace`, `Task` (delegation), `WebSearch`, `WebFetch`, `SemanticSearch`, `TodoWrite`, and others—names differ in older docs or other products (`ReadFile`, `ApplyPatch`, `Subagent`, etc.)
 - Reflection happens in whatever reasoning mechanism the model supports
 
 The iterative search-compress-reflect loop is a behavioral pattern, not a code construct. Any model that can call tools and reason about results can execute it.

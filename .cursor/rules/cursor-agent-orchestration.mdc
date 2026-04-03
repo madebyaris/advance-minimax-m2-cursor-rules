@@ -11,6 +11,19 @@ Use this rule for deep or exhaustive tasks where coordination matters more than 
 
 The main agent should own synthesis. Plans, subagents, and task tracking exist to reduce context load and make large work safer.
 
+## Local and cloud sessions (optional)
+
+Cursor 3 emphasizes moving work between **local** and **cloud** agent sessions. Treat this as workflow guidance, not a requirement:
+
+- Prefer **local** when you need fast edit–run–debug loops, full filesystem access, or machine-specific verification.
+- Consider **cloud** when a task should keep running while you are away, or when you want continuation without tying up the local machine—then **hand back to local** to validate on the real environment when claims are environment-specific.
+
+Handoffs should still use explicit goals, owned paths, and what was verified (see `agent-teams.mdc`).
+
+## Parallel sessions and the sidebar
+
+Cursor 3 can show **many agent sessions** at once (including from other surfaces). That mirrors the idea of concurrent **`Task`** / subagent delegation: only parallelize **independent** slices, merge results in one synthesis step, and avoid two sessions racing the same files. The UI makes parallelism easier; it does not remove the need for clear ownership.
+
 ## When to Plan
 
 Plan when:
@@ -22,17 +35,17 @@ Plan when:
 Do not over-plan one-file fixes or straightforward edits.
 Use the environment's active planning workflow or mode when it exists instead of assuming a specific planning tool name.
 
-## When to Use Subagents
+## When to Use Task (subagents)
 
-Use `Subagent` when:
+In Composer-style Cursor agents the tool is usually **`Task`** (subagent-style delegation; types such as explore, debugger, verifier—see the live schema). Use it when:
 - repo exploration is broad and would pollute main context
 - independent investigations can run in parallel
 - a verifier or debugger pass would help
 - the task has a long-running research branch
 
-Avoid subagent overhead for instant or light work.
+Avoid delegation overhead for instant or light work.
 
-When several independent branches exist, do not launch them serially by habit. Launch them together with separate scopes and merge their results in the main thread.
+When several independent branches exist, do not launch them serially by habit. Launch multiple `Task` calls together with separate scopes and merge their results in the main thread.
 
 ## Delegation Pattern
 
@@ -86,5 +99,7 @@ Do not postpone all checks to the end. Verify per phase:
 - after code changes, run the smallest relevant command
 - after UI changes, use browser checks when needed
 - after a major feature phase, run broader validation
+
+Use the **diff / review surface** in Cursor when it helps you stage, review, and ship; keep claims aligned with the always-on status and verification rule regardless of UI.
 
 Final user-facing completion claims should follow the always-on status and verification rule rather than ad-hoc wording.
