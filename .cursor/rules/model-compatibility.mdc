@@ -42,7 +42,7 @@ The most common failures are:
 4. Verify with follow-up reads, build, tests, browser checks, or shell output
 ```
 
-If the environment offers `ApplyPatch`, prefer it for focused edits.
+If the environment offers a patch or search-replace edit tool, prefer it for focused edits (Composer-style agents often expose `StrReplace`; other surfaces may use `ApplyPatch` or similar).
 
 ## Version Handling
 

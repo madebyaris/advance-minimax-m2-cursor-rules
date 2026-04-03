@@ -77,6 +77,10 @@ Direct guidance for Cursor's MCP tools. Use the right tool for each job.
 4. Do not infer hidden parameters or old API versions
 ```
 
+## Marketplace plugins
+
+Plugins installed from the [Cursor Marketplace](https://cursor.com/marketplace) extend agents with MCPs, skills, and related capabilities. Treat them like any other MCP surface: **inventory** what the session exposes, **read descriptors/schemas** before first use, then call the smallest valid tool—same as in `tool-discovery.mdc`.
+
 ## Capability Mapping Checklist
 
 Before acting, confirm:

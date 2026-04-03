@@ -36,11 +36,11 @@ Tier: Standard (technical depth needed, but focused topic)
 ```
 Sub-queries (hypothesis-driven):
   Hypothesis A: Dependency changes increased install time
-    -> use `rg` for package or lockfile references in recent changes
+    -> use `Grep` for package or lockfile references in recent changes
   Hypothesis B: New test suite added significant runtime
     -> SemanticSearch for test configuration changes
   Hypothesis C: CI runner resource constraints changed
-    -> read CI config files with `ReadFile`, then search targeted symbols with `rg`
+    -> read CI config files with `Read`, then search targeted symbols with `Grep`
 
 Strategy: Parallel hypotheses, then sequential deep-dive on most likely
 Tier: Standard (codebase-focused, bounded scope)
@@ -59,7 +59,7 @@ Sub-queries:
 
 Strategy: Parallel (all independent), then sequential follow-ups on gaps
 Tier: Exhaustive (broad landscape, many dimensions)
-Subagent plan: launch 3 parallel `Subagent` investigations for queries 1-3, then 3 more for 4-6
+Task plan: launch 3 parallel `Task` investigations for queries 1-3, then 3 more for 4-6
 ```
 
 ### Fact-check: "Does HTTP/3 always outperform HTTP/2?"
@@ -110,7 +110,7 @@ Is the scope broad (landscape, options, overview)?
 |---------------|---------------|-----------------|-------|
 | **Comparison** | Official docs, benchmarks | Community blog posts, HN/Reddit threads | Marketing pages |
 | **Explanation** | Academic papers, official docs, RFCs | Tutorials, conference talks | Stack Overflow answers (often outdated) |
-| **Investigation** | Codebase (`rg`, `ReadFile`, `SemanticSearch`) | Git history, CI logs | Generic web results |
+| **Investigation** | Codebase (`Grep`, `Read`, `SemanticSearch`) | Git history, CI logs | Generic web results |
 | **Survey** | Industry reports, official announcements | Developer surveys, trend analyses | Individual opinion posts |
 | **Fact-check** | Primary sources (papers, official docs) | Independent benchmarks | Social media, forums |
 

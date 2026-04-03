@@ -4,7 +4,7 @@
 
 [![Stars](https://img.shields.io/github/stars/madebyaris/advance-minimax-m2-cursor-rules?style=flat-square)](https://github.com/madebyaris/advance-minimax-m2-cursor-rules/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Cursor 2.6](https://img.shields.io/badge/Tested-Cursor%202.6-blue?style=flat-square)](https://cursor.com/changelog)
+[![Cursor 3](https://img.shields.io/badge/Tested-Cursor%203-blue?style=flat-square)](https://cursor.com/blog/cursor-3)
 [![MiniMax M2.7](https://img.shields.io/badge/MiniMax-M2.7-purple?style=flat-square)](https://platform.minimax.io)
 [![Any Model](https://img.shields.io/badge/Compatible-Any%20Model-green?style=flat-square)](#model-compatibility)
 
